@@ -14,7 +14,9 @@ PAGE = """<!doctype html>
 <style>
   body { font-family: system-ui, sans-serif; background: #f4f4f6; margin: 0;
          display: flex; flex-direction: column; height: 100vh; }
-  header { background: #2b4a6f; color: white; padding: 12px 20px; font-size: 18px; }
+  header { background: #2b4a6f; color: white; padding: 12px 20px; font-size: 18px;
+           display: flex; justify-content: space-between; align-items: center; }
+  #new { padding: 6px 12px; font-size: 14px; background: #4a6d96; }
   #log { flex: 1; overflow-y: auto; padding: 20px; max-width: 800px;
          width: 100%; box-sizing: border-box; margin: 0 auto; }
   .msg { padding: 10px 14px; margin: 10px 0; border-radius: 10px;
@@ -32,7 +34,10 @@ PAGE = """<!doctype html>
 </style>
 </head>
 <body>
-<header>Document Chat (running locally)</header>
+<header>
+  Document Chat (running locally)
+  <button id="new" type="button">New chat</button>
+</header>
 <div id="log"></div>
 <form id="form">
   <input id="q" placeholder="Ask a question about your documents..." autocomplete="off" autofocus>
@@ -43,6 +48,13 @@ const log = document.getElementById("log");
 const form = document.getElementById("form");
 const input = document.getElementById("q");
 const btn = document.getElementById("send");
+let history = [];
+
+document.getElementById("new").addEventListener("click", () => {
+  history = [];
+  log.innerHTML = "";
+  input.focus();
+});
 
 function add(cls, text) {
   const div = document.createElement("div");
@@ -66,7 +78,7 @@ form.addEventListener("submit", async (e) => {
     const res = await fetch("/ask", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({question}),
+      body: JSON.stringify({question, history}),
     });
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
@@ -91,6 +103,10 @@ form.addEventListener("submit", async (e) => {
         log.scrollTop = log.scrollHeight;
       }
     }
+    if (text) {
+      history.push({role: "user", content: question});
+      history.push({role: "assistant", content: text});
+    }
   } catch (err) {
     bot.textContent = "Error: " + err;
   }
@@ -114,7 +130,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
-        question = json.loads(self.rfile.read(length)).get("question", "")
+        data = json.loads(self.rfile.read(length))
+        question = data.get("question", "")
+        history = data.get("history", [])
         self.send_response(200)
         self.send_header("Content-Type", "application/x-ndjson")
         self.end_headers()
@@ -124,7 +142,7 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.flush()
 
         try:
-            sources, pieces = answer_stream(question)
+            sources, pieces = answer_stream(question, history)
             for piece in pieces:
                 send({"text": piece})
             send({"sources": sources})

@@ -12,6 +12,7 @@ CHAT_MODEL = "qwen3:8b"
 CHUNK_SIZE = 800   # characters per chunk
 OVERLAP = 100      # shared characters between neighboring chunks
 TOP_K = 4          # chunks retrieved per question
+HISTORY_MESSAGES = 6  # recent chat messages remembered (3 question/answer pairs)
 
 client = chromadb.PersistentClient(path=DB_DIR)
 
@@ -63,12 +64,31 @@ def ingest():
     print("Done. Your documents are ready.")
 
 
-def answer_stream(question):
-    """Returns (sources, generator of answer text pieces)."""
+def answer_stream(question, history=()):
+    """Returns (sources, generator of answer text pieces).
+
+    history is a list of {"role": "user"|"assistant", "content": ...} from earlier turns.
+    """
+    history = list(history)[-HISTORY_MESSAGES:]
+    # A follow-up like "what about the second one?" searches poorly alone, so
+    # also search with the previous question, and merge both sets of chunks.
+    searches = [question]
+    for m in reversed(history):
+        if m["role"] == "user":
+            searches.append(m["content"] + "\n" + question)
+            break
+
     collection = client.get_collection("docs")
-    results = collection.query(query_embeddings=embed([question]), n_results=TOP_K)
-    chunks = results["documents"][0]
-    sources = sorted({m["source"] for m in results["metadatas"][0]})
+    per_search = TOP_K if len(searches) == 1 else TOP_K // 2
+    results = collection.query(query_embeddings=embed(searches), n_results=per_search)
+    seen, chunks, sources = set(), [], set()
+    for docs, metas in zip(results["documents"], results["metadatas"]):
+        for doc, meta in zip(docs, metas):
+            if doc not in seen:
+                seen.add(doc)
+                chunks.append(doc)
+                sources.add(meta["source"])
+    sources = sorted(sources)
 
     context = "\n\n---\n\n".join(chunks)
     prompt = (
@@ -79,18 +99,21 @@ def answer_stream(question):
 
     stream = ollama.chat(
         model=CHAT_MODEL,
-        messages=[{"role": "user", "content": prompt}],
+        messages=history + [{"role": "user", "content": prompt}],
         stream=True,
         think=False,  # skips Qwen3's long "thinking" step, much faster on CPU
     )
     return sources, (part["message"]["content"] for part in stream)
 
 
-def ask(question):
-    sources, pieces = answer_stream(question)
+def ask(question, history=()):
+    sources, pieces = answer_stream(question, history)
+    answer = ""
     for piece in pieces:
         print(piece, end="", flush=True)
+        answer += piece
     print("\n\nSources:", ", ".join(sources))
+    return answer
 
 
 if __name__ == "__main__":
@@ -98,10 +121,13 @@ if __name__ == "__main__":
         ingest()
     else:
         print("Ask a question (type 'quit' to exit).")
+        history = []
         while True:
             q = input("\nYou: ").strip()
             if q.lower() in {"quit", "exit"}:
                 break
             if q:
                 print("\nAnswer: ", end="")
-                ask(q)
+                a = ask(q, history)
+                history += [{"role": "user", "content": q},
+                            {"role": "assistant", "content": a}]
