@@ -14,12 +14,12 @@ A local RAG (retrieval-augmented generation) system that answers questions about
 ## Stack (all working)
 - Ollama 0.40.2 (runs locally). Models pulled: `qwen3:8b` (chat), `embeddinggemma` (embeddings).
 - Python 3.13.16 inside a venv at `C:\Users\Nathan\rag-project\venv`. Python 3.15 is also installed system-wide; use 3.13 in the venv because brand-new Python versions often lack wheels for ChromaDB and its dependencies.
-- Packages (pinned in `requirements.txt`): chromadb, ollama, pypdf. No web framework: the chat window uses Python's built-in `http.server`.
+- Packages (pinned in `requirements.txt`): chromadb, ollama, pypdf, python-docx. No web framework: the chat window uses Python's built-in `http.server`.
 
 ## Project layout (`C:\Users\Nathan\rag-project`)
 - `rag.py`: the pipeline (read files, chunk, embed, store in ChromaDB, retrieve, answer with sources). `answer_stream(question, history)` is the core function; `ask()` wraps it for the command line.
 - `chat.py`: browser chat window (local web server on port 8000, streams answers, "New chat" button clears memory)
-- `docs/`: documents to index. Currently two made-up sample files for testing: `bluefin-handbook.md` and `tidepool-trails-guide.md`
+- `docs/` and `templates/`: both kept out of git on purpose (private business documents). `docs/` holds documents to index. Currently two made-up sample files for testing: `bluefin-handbook.md` and `tidepool-trails-guide.md`
 - `chroma_db/`: the vector database, created by ingest (not in git)
 - `venv/`: virtual environment (not in git)
 
@@ -30,7 +30,7 @@ A local RAG (retrieval-augmented generation) system that answers questions about
 4. Either `python chat.py` (opens the chat window in the browser; Ctrl+C to stop) or `python rag.py` (Command Prompt Q&A; type `quit` to exit)
 
 ## Current settings in rag.py
-CHUNK_SIZE 800 characters, OVERLAP 100, TOP_K 4 retrieved chunks, `think=False` on the chat call (skips Qwen3's thinking step, much faster on CPU). Supported file types: .pdf, .txt, .md. Word files (.docx) are not supported yet; scanned PDFs have no extractable text.
+CHUNK_SIZE 800 characters, OVERLAP 100, TOP_K 4 retrieved chunks, `think=False` on the chat call (skips Qwen3's thinking step, much faster on CPU). Supported file types: .pdf, .docx, .txt, .md (Word lock files starting with `~$` are skipped; docx headings and tables are kept). Scanned PDFs have no extractable text. Older .doc files are not supported (save as .docx).
 
 ## Chat memory
 The last 3 question/answer pairs (`HISTORY_MESSAGES = 6`) are sent to the model. For follow-ups, retrieval searches with the new question and with the previous question plus the new one, and merges the chunks. In the browser, memory lives in the open tab (refresh or restart clears it).
@@ -43,7 +43,6 @@ The last 3 question/answer pairs (`HISTORY_MESSAGES = 6`) are sent to the model.
 - Add the user's real documents to `docs/` and re-ingest
 - Tune quality if answers are weak: CHUNK_SIZE, TOP_K, then try `qwen3:14b` (about 9 GB, slower)
 - Automatic re-indexing when files in `docs/` change
-- .docx support
 - Connecting the pipeline to an n8n workflow
 
 ## Notes

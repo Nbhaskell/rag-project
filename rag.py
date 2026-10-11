@@ -3,6 +3,8 @@ from pathlib import Path
 
 import chromadb
 import ollama
+from docx import Document
+from docx.table import Table
 from pypdf import PdfReader
 
 DOCS_DIR = Path("docs")
@@ -17,7 +19,22 @@ HISTORY_MESSAGES = 6  # recent chat messages remembered (3 question/answer pairs
 client = chromadb.PersistentClient(path=DB_DIR)
 
 
+def read_docx(path):
+    lines = []
+    for item in Document(str(path)).iter_inner_content():
+        if isinstance(item, Table):
+            for row in item.rows:
+                lines.append(" | ".join(cell.text.strip() for cell in row.cells))
+        elif item.text.strip():
+            # keep headings as markdown headings so chunks keep their topic
+            heading = item.style is not None and item.style.name.startswith("Heading")
+            lines.append(("## " if heading else "") + item.text.strip())
+    return "\n".join(lines)
+
+
 def read_file(path):
+    if path.suffix.lower() == ".docx":
+        return read_docx(path)
     if path.suffix.lower() == ".pdf":
         reader = PdfReader(str(path))
         return "\n".join(page.extract_text() or "" for page in reader.pages)
@@ -45,9 +62,13 @@ def ingest():
         pass
     collection = client.create_collection("docs", metadata={"hnsw:space": "cosine"})
 
-    files = [p for p in DOCS_DIR.rglob("*") if p.suffix.lower() in {".pdf", ".txt", ".md"}]
+    files = [
+        p for p in DOCS_DIR.rglob("*")
+        if p.suffix.lower() in {".pdf", ".txt", ".md", ".docx"}
+        and not p.name.startswith("~$")  # Word's temporary lock files
+    ]
     if not files:
-        print("No .pdf, .txt or .md files found in the docs folder.")
+        print("No .pdf, .docx, .txt or .md files found in the docs folder.")
         return
 
     for file in files:
