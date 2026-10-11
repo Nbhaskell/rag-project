@@ -1,3 +1,4 @@
+import re
 import sys
 from pathlib import Path
 
@@ -15,6 +16,9 @@ CHUNK_SIZE = 800   # characters per chunk
 OVERLAP = 100      # shared characters between neighboring chunks
 TOP_K = 4          # chunks retrieved per question
 HISTORY_MESSAGES = 6  # recent chat messages remembered (3 question/answer pairs)
+
+# Template blanks like [Daycare Name] or [$___]; ignores markdown links and checkboxes.
+PLACEHOLDER = re.compile(r"\[(?![xX]\])[^\]\n]*[A-Za-z0-9_$][^\]\n]*\](?!\()")
 
 client = chromadb.PersistentClient(path=DB_DIR)
 
@@ -71,8 +75,30 @@ def ingest():
         print("No .pdf, .docx, .txt or .md files found in the docs folder.")
         return
 
+    warnings, total_chunks, indexed = [], 0, 0
     for file in files:
-        chunks = chunk_text(read_file(file))
+        try:
+            text = read_file(file)
+        except Exception as e:
+            warnings.append(f"{file.name}: could not be read and was skipped ({e})")
+            continue
+        if not text.strip():
+            warnings.append(
+                f"{file.name}: no readable text, skipped. "
+                "If it is a scanned PDF, it needs OCR or retyping."
+            )
+            continue
+        blanks = PLACEHOLDER.findall(text)
+        if blanks:
+            examples = ", ".join(blanks[:3])
+            warnings.append(
+                f"{file.name}: {len(blanks)} unfilled [bracket] placeholder(s), "
+                f"for example {examples}. Indexed anyway; fill them in and re-ingest."
+            )
+
+        chunks = chunk_text(text)
+        total_chunks += len(chunks)
+        indexed += 1
         print(f"{file.name}: {len(chunks)} chunks")
         for i in range(0, len(chunks), 16):
             batch = chunks[i:i + 16]
@@ -82,7 +108,11 @@ def ingest():
                 embeddings=embed(batch),
                 metadatas=[{"source": file.name}] * len(batch),
             )
-    print("Done. Your documents are ready.")
+    print(f"\nDone. {indexed} of {len(files)} files indexed, {total_chunks} chunks.")
+    if warnings:
+        print(f"\n{len(warnings)} warning(s):")
+        for w in warnings:
+            print(f"  - {w}")
 
 
 def answer_stream(question, history=()):

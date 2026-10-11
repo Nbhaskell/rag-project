@@ -32,6 +32,9 @@ A local RAG (retrieval-augmented generation) system that answers questions about
 ## Current settings in rag.py
 CHUNK_SIZE 800 characters, OVERLAP 100, TOP_K 4 retrieved chunks, `think=False` on the chat call (skips Qwen3's thinking step, much faster on CPU). Supported file types: .pdf, .docx, .txt, .md (Word lock files starting with `~$` are skipped; docx headings and tables are kept). Scanned PDFs have no extractable text. Older .doc files are not supported (save as .docx).
 
+## Ingest checks
+`python rag.py ingest` prints a summary and warnings at the end: files that can't be read or have no text (skipped), and files with unfilled `[bracket]` placeholders from the templates (still indexed). Warnings never stop ingest.
+
 ## Chat memory
 The last 3 question/answer pairs (`HISTORY_MESSAGES = 6`) are sent to the model. For follow-ups, retrieval searches with the new question and with the previous question plus the new one, and merges the chunks. In the browser, memory lives in the open tab (refresh or restart clears it).
 
