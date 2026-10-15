@@ -11,6 +11,14 @@ A local RAG (retrieval-augmented generation) system that answers questions about
 - Windows 11 IoT Enterprise LTSC 24H2
 - AMD Ryzen AI 7 350, Radeon 860M integrated graphics, 24 GB RAM (23.3 usable). No dedicated GPU, so models run on CPU and share system RAM. Smaller models feel much faster.
 
+## Second machine (desktop PC)
+- The project is also cloned on a desktop PC at `C:\Users\nbhas\rag-project` (Windows 11 Home). Everything under "Machine", "Project layout" and "How to run" describes the laptop, so on the PC swap in this path.
+- The PC uses PowerShell, not CMD. Activating the venv is the same command (`venv\Scripts\activate`).
+- The PC has Python 3.13 and 3.14. Create the venv with `py -3.13 -m venv venv` (not plain `python`, which is 3.14).
+- Ollama on the PC has `qwen3:8b` and `embeddinggemma` (plus unrelated `qwen3:latest` and `qwen3-vl:8b`).
+- `docs/`, `chroma_db/` and `venv/` are not in git, so each machine has its own. Re-run `python rag.py ingest` on each machine after its `docs/` changes.
+- Ask which machine the user is on if it matters for a path or command.
+
 ## Stack (all working)
 - Ollama 0.40.2 (runs locally). Models pulled: `qwen3:8b` (chat), `embeddinggemma` (embeddings).
 - Python 3.13.16 inside a venv at `C:\Users\Nathan\rag-project\venv`. Python 3.15 is also installed system-wide; use 3.13 in the venv because brand-new Python versions often lack wheels for ChromaDB and its dependencies.
