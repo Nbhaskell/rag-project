@@ -152,7 +152,9 @@ def answer_stream(question, history=()):
         "If the answer isn't in the context, say you don't know. "
         "Answer directly and concisely. For a yes/no question that the context answers, begin with "
         "\"Yes\" or \"No\" and check that it agrees with the rest of your sentence "
-        "(if the context says something is not allowed, the answer to \"is it allowed?\" is No).\n\n"
+        "(if the context says something is not allowed, the answer to \"is it allowed?\" is No). "
+        "The question may refer back to the earlier conversation (for example \"that trail\" or \"it\"); "
+        "work out what it refers to from the earlier messages, then look for the answer in the context.\n\n"
         f"Context:\n{context}\n\nQuestion: {question}"
     )
 
