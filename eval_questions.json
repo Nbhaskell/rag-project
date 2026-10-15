@@ -90,8 +90,44 @@
     "type": "fact",
     "question": "Are dogs allowed on Kelp Ridge Trail?",
     "answer_contains": [["not allowed", "no dogs", "not permitted", "aren't allowed", "are prohibited", "cannot", "can't"]],
-    "answer_not_contains": ["dogs are allowed", "dogs are welcome"],
+    "answer_not_contains": ["yes", "dogs are allowed", "dogs are welcome"],
     "retrieval_contains": "Kelp Ridge Trail"
+  },
+  {
+    "id": "yesno-camping",
+    "type": "yes-no",
+    "question": "Can I camp in the park?",
+    "note": "Answer is no. The reply must not open with Yes.",
+    "answer_contains": [["no", "not allowed", "not permitted", "prohibited"]],
+    "answer_not_contains": ["yes"],
+    "retrieval_contains": "Camping is not allowed"
+  },
+  {
+    "id": "yesno-sunday",
+    "type": "yes-no",
+    "question": "Is the roastery open on Sundays?",
+    "note": "Answer is no.",
+    "answer_contains": [["no", "closed"]],
+    "answer_not_contains": ["yes"],
+    "retrieval_contains": "closed on Sundays"
+  },
+  {
+    "id": "yesno-sick-separate",
+    "type": "yes-no",
+    "question": "Do sick days count against my vacation days?",
+    "note": "Answer is no.",
+    "answer_contains": [["no", "separate", "do not count", "don't count"]],
+    "answer_not_contains": ["yes"],
+    "retrieval_contains": "do not count against vacation"
+  },
+  {
+    "id": "yesno-kids-free",
+    "type": "yes-no",
+    "question": "Is entry free for children under 5?",
+    "note": "Answer is yes.",
+    "answer_contains": [["yes", "free"]],
+    "answer_not_contains": ["no,"],
+    "retrieval_contains": "Children under 5 enter free"
   },
   {
     "id": "gull-length",
