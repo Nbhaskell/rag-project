@@ -216,5 +216,34 @@
     "follow_up_to": "kelp-dogs",
     "question": "How long is that trail?",
     "answer_contains": [["4.5"]]
+  },
+  {
+    "id": "followup-light-roasts",
+    "type": "follow-up",
+    "follow_up_to": "dark-roast-days",
+    "question": "And light roasts?",
+    "answer_contains": [["monday"], ["wednesday"]]
+  },
+  {
+    "id": "followup-seals-when",
+    "type": "follow-up",
+    "follow_up_to": "seal-distance",
+    "question": "When are they there?",
+    "note": "'they' refers to the seals.",
+    "answer_contains": [["may"], ["september"]]
+  },
+  {
+    "id": "followup-kids-fee",
+    "type": "follow-up",
+    "follow_up_to": "adult-fee",
+    "question": "And for kids?",
+    "answer_contains": [["$4", "4 dollars"]]
+  },
+  {
+    "id": "followup-expense-approver",
+    "type": "follow-up",
+    "follow_up_to": "expense-limit",
+    "question": "Who approves anything over that?",
+    "answer_contains": [["priya raman", "the owner"]]
   }
 ]
