@@ -38,6 +38,9 @@ CHUNK_SIZE 800 characters, OVERLAP 100, TOP_K 4 retrieved chunks, `think=False` 
 ## Chat memory
 The last 3 question/answer pairs (`HISTORY_MESSAGES = 6`) are sent to the model. For follow-ups, retrieval searches with the new question and with the previous question plus the new one, and merges the chunks. In the browser, memory lives in the open tab (refresh or restart clears it).
 
+## Testing
+`python run_eval.py` runs the questions in `eval_questions.json` against the pipeline and checks both retrieval (did the chunks sent to the model contain the fact?) and the answer (expected words present, "I don't know" for unanswerable ones). `--retrieval-only` skips the chat model (fast); `--id <name>` runs selected questions. Run `python rag.py ingest` first. Results are saved to `eval_results.json` (not in git). The current questions are tied to the two made-up sample files; with only about 4 chunks in total and TOP_K 4, retrieval can't fail on them, so write new questions once real documents are in `docs/`. Run it after changing CHUNK_SIZE, TOP_K, the prompt or the models.
+
 ## Status
 - Ingest, Q&A, chat window and chat memory all verified working, including "I don't know" for things the documents don't cover.
 - First answer after startup is slow because qwen3:8b has to load into memory.
