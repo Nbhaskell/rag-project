@@ -17,6 +17,11 @@ OVERLAP = 100      # shared characters between neighboring chunks
 TOP_K = 4          # chunks retrieved per question
 HISTORY_MESSAGES = 6  # recent chat messages remembered (3 question/answer pairs)
 
+# Phrases that mean the model found nothing in the documents.
+DONT_KNOW = ["don't know", "do not know", "not sure", "not provide", "doesn't provide",
+             "no information", "not mention", "doesn't mention", "not contain", "doesn't contain",
+             "not specified", "not stated", "doesn't say", "does not say"]
+
 # Template blanks like [Daycare Name] or [$___]; ignores markdown links and checkboxes.
 PLACEHOLDER = re.compile(r"\[(?![xX]\])[^\]\n]*[A-Za-z0-9_$][^\]\n]*\](?!\()")
 
@@ -144,7 +149,10 @@ def answer_stream(question, history=()):
     context = "\n\n---\n\n".join(chunks)
     prompt = (
         "Answer using only the context below. "
-        "If the answer isn't in the context, say you don't know.\n\n"
+        "If the answer isn't in the context, say you don't know. "
+        "Answer directly and concisely. For a yes/no question that the context answers, begin with "
+        "\"Yes\" or \"No\" and check that it agrees with the rest of your sentence "
+        "(if the context says something is not allowed, the answer to \"is it allowed?\" is No).\n\n"
         f"Context:\n{context}\n\nQuestion: {question}"
     )
 
@@ -157,13 +165,19 @@ def answer_stream(question, history=()):
     return sources, (part["message"]["content"] for part in stream)
 
 
+def says_dont_know(answer):
+    text = answer.lower().replace("’", "'")
+    return any(phrase in text for phrase in DONT_KNOW)
+
+
 def ask(question, history=()):
     sources, pieces = answer_stream(question, history)
     answer = ""
     for piece in pieces:
         print(piece, end="", flush=True)
         answer += piece
-    print("\n\nSources:", ", ".join(sources))
+    # No sources for "I don't know": the searched files didn't back the answer.
+    print("\n\nSources:", ", ".join([] if says_dont_know(answer) else sources) or "none")
     return answer
 
 

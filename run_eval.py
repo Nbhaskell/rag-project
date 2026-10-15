@@ -23,8 +23,6 @@ import rag
 
 QUESTIONS_FILE = Path("eval_questions.json")
 RESULTS_FILE = Path("eval_results.json")
-DONT_KNOW = ["don't know", "do not know", "not sure", "not provide", "no information",
-             "not mentioned", "not specified", "not stated", "doesn't say", "does not say"]
 
 
 def norm(text):
@@ -55,7 +53,7 @@ def check_answer(q, answer):
     text = norm(answer)
     problems = []
     if q["type"] == "unanswerable":
-        if not any(p in text for p in DONT_KNOW):
+        if not rag.says_dont_know(answer):
             problems.append("should have said it doesn't know")
     for alternatives in q.get("answer_contains", []):
         if not any(has(text, a) for a in alternatives):
