@@ -55,6 +55,9 @@ Real-document findings: with the old prompt, yes/no questions the documents don'
 - An index built before fingerprints existed is upgraded on the first sync (every file is re-indexed once). `ingest()` still rebuilds from scratch and gives the same chunks as a sync.
 - `python test_indexing.py` tests all of this in a few seconds with a fake embedding function and temporary folders (no Ollama, never touches `docs/` or `chroma_db/`). A live check with the real server also passed: a document added, edited and deleted while the chat ran was picked up within about 10 s each time and the answers followed.
 
+## JSON API (for n8n and other programs)
+`chat.py` serves, besides the chat page and its own streaming `POST /`, `GET /api/status`, `POST /api/ask` (`{"question", "history"?}` -> `{"answer", "sources", "seconds"}`) and `POST /api/reindex` (`{}` or no body = `sync_docs()`, `{"full": true}` = `ingest()`). Helpers in `rag.py`: `answer()` (non-streaming answer) and `index_status()`. Rules: only `127.0.0.1` is bound; the `Host` header must be `localhost`, `127.0.0.1` or `[::1]` (plus `RAG_ALLOWED_HOSTS`), which blocks DNS-rebinding; `/api/ask` needs `Content-Type: application/json` (a plain browser form post gets 415, so a web page can't drive it cross-site); body limit 100 KB, question limit 2000 characters; if `RAG_API_TOKEN` is set every `/api` request needs `Authorization: Bearer <token>` or `X-API-Key` (the chat window's own `POST /` is not token-protected); errors are JSON with an `error` field. Always call it as `127.0.0.1`, not `localhost`: on Windows `localhost` resolves to IPv6 `::1` first, where nothing listens, and PowerShell waits about 2 s (Node.js handles it fine). In PowerShell use `Invoke-RestMethod`, not `curl.exe` (quote mangling); `curl` examples are for Command Prompt. `python test_api.py` tests all of it in seconds (stubbed answers, fake embedder, temp folders); a live check with the real server and model also passed.
+
 ## Ingest checks
 `python rag.py ingest` prints a summary and warnings at the end: files that can't be read or have no text (skipped), and files with unfilled `[bracket]` placeholders from the templates (still indexed). Warnings never stop ingest. Sync and watch print the same warnings, once per file version.
 
@@ -75,7 +78,7 @@ Latest results on the six daycare documents (desktop PC, heading-aware chunks, 4
 ## Possible next steps (user has not picked one yet; ask which)
 - Add the user's real documents to `docs/` and re-ingest
 - Tune quality if answers are weak: CHUNK_SIZE, TOP_K, then try `qwen3:14b` (about 9 GB, slower)
-- Connecting the pipeline to an n8n workflow (in progress: automatic re-indexing is done; next an HTTP API in `chat.py` with `/api/ask`, `/api/reindex` and `/api/status`, optionally behind a token, then run n8n locally with `npx n8n` (Node 24 is installed; Docker also is) and build a first webhook workflow; the user is new to n8n, so explain each step)
+- Connecting the pipeline to an n8n workflow (in progress: automatic re-indexing and the JSON API are done; next run n8n locally with `npx n8n` (Node 24 is installed; Docker also is; n8n needs Node 24), turn off its telemetry, have the user create the local n8n account themselves, and build a first webhook workflow that asks `http://127.0.0.1:8000/api/ask`; the user is new to n8n, so explain each step)
 
 ## Notes
 - Do not use Ollama's built-in `ollama launch` menu to start Claude Code; that routes to local models, which are slow here and much weaker than Claude.

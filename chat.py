@@ -1,11 +1,14 @@
+import hmac
 import json
 import os
 import sys
 import threading
+import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from rag import answer_stream, sources_to_show, watch
+from rag import (SPLIT_QUESTIONS, THINK, answer, answer_stream, index_status, ingest,
+                 sources_to_show, sync_docs, watch)
 
 PORT = 8000
 
@@ -122,8 +125,116 @@ form.addEventListener("submit", async (e) => {
 """
 
 
+MAX_BODY = 100_000    # bytes; a bigger request is refused
+MAX_QUESTION = 2000   # characters
+# Names this server answers to. Anything else (for example a web page trying a "DNS rebinding"
+# trick to reach this server through another name) is refused. Add more with RAG_ALLOWED_HOSTS.
+ALLOWED_HOSTS = {"localhost", "127.0.0.1", "[::1]"} | {
+    h.strip().lower() for h in os.environ.get("RAG_ALLOWED_HOSTS", "").split(",") if h.strip()}
+watching = False     # set to True by the main program when the folder watcher is running
+
+
+def hostname(host):
+    """'localhost:8000' -> 'localhost', '[::1]:8000' -> '[::1]'."""
+    host = host.strip().lower()
+    return host.split("]")[0] + "]" if host.startswith("[") else host.split(":")[0]
+
+
 class Handler(BaseHTTPRequestHandler):
+    # ---- helpers ---------------------------------------------------------------------------
+    def send_json(self, status, obj):
+        body = json.dumps(obj).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def host_ok(self):
+        return hostname(self.headers.get("Host", "")) in ALLOWED_HOSTS
+
+    def authorized(self):
+        """True if no RAG_API_TOKEN is set, or the request carries it (Authorization: Bearer ...
+        or X-API-Key: ...)."""
+        token = os.environ.get("RAG_API_TOKEN", "")
+        if not token:
+            return True
+        given = self.headers.get("X-API-Key", "")
+        auth = self.headers.get("Authorization", "")
+        if auth.lower().startswith("bearer "):
+            given = auth[7:].strip()
+        return hmac.compare_digest(given.encode(), token.encode())
+
+    def read_json(self, required):
+        """Returns (data, error). error is None or a (status, message) pair."""
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+        except ValueError:
+            return None, (400, "Bad Content-Length header.")
+        if length > MAX_BODY:
+            return None, (413, f"Request body too large (limit {MAX_BODY} bytes).")
+        if length == 0 and not required:
+            return {}, None
+        # Insisting on JSON also stops a web page from sending a "simple" cross-site form post.
+        if not self.headers.get("Content-Type", "").lower().startswith("application/json"):
+            return None, (415, 'Send the body as JSON with the header "Content-Type: application/json".')
+        try:
+            data = json.loads(self.rfile.read(length) or b"{}")
+        except ValueError:
+            return None, (400, "The body is not valid JSON.")
+        if not isinstance(data, dict):
+            return None, (400, "The JSON body must be an object, like {\"question\": \"...\"}.")
+        return data, None
+
+    # ---- the JSON API (used by n8n and other programs) -------------------------------------
+    def api_get(self, path):
+        if path == "/api/status":
+            return self.send_json(200, {
+                **index_status(),
+                "watching": watching,
+                "thinking": THINK,
+                "split_search": SPLIT_QUESTIONS,
+                "auth_required": bool(os.environ.get("RAG_API_TOKEN")),
+            })
+        self.send_json(404, {"error": f"No such address: {path}"})
+
+    def api_post(self, path):
+        if path not in ("/api/ask", "/api/reindex"):
+            return self.send_json(404, {"error": f"No such address: {path}"})
+        data, error = self.read_json(required=(path == "/api/ask"))
+        if error:
+            return self.send_json(error[0], {"error": error[1]})
+        try:
+            if path == "/api/ask":
+                question, history = data.get("question"), data.get("history", [])
+                if not isinstance(question, str) or not question.strip():
+                    return self.send_json(400, {"error": 'Send {"question": "your question"}.'})
+                if len(question) > MAX_QUESTION:
+                    return self.send_json(400, {"error": f"Question too long (limit {MAX_QUESTION} characters)."})
+                if not isinstance(history, list) or not all(
+                        isinstance(m, dict) and m.get("role") in ("user", "assistant")
+                        and isinstance(m.get("content"), str) for m in history):
+                    return self.send_json(400, {"error": '"history" must be a list of {"role", "content"} items.'})
+                started = time.time()
+                result = answer(question.strip(), history[-20:])
+                return self.send_json(200, {**result, "seconds": round(time.time() - started, 1)})
+            # /api/reindex: update what changed, or rebuild everything with {"full": true}
+            if data.get("full"):
+                ingest()
+                return self.send_json(200, {"mode": "full", **index_status()})
+            return self.send_json(200, {"mode": "sync", **sync_docs()})
+        except Exception as e:  # report it to the caller instead of dropping the connection
+            return self.send_json(500, {"error": str(e)})
+
+    # ---- web page and the chat window's own streaming address -------------------------------
     def do_GET(self):
+        if not self.host_ok():
+            return self.send_json(403, {"error": "Unknown Host header."})
+        path = self.path.split("?")[0]
+        if path.startswith("/api/"):
+            if not self.authorized():
+                return self.send_json(401, {"error": "Missing or wrong API token."})
+            return self.api_get(path)
         body = PAGE.encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -132,6 +243,13 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_POST(self):
+        if not self.host_ok():
+            return self.send_json(403, {"error": "Unknown Host header."})
+        path = self.path.split("?")[0]
+        if path.startswith("/api/"):
+            if not self.authorized():
+                return self.send_json(401, {"error": "Missing or wrong API token."})
+            return self.api_post(path)
         length = int(self.headers.get("Content-Length", 0))
         data = json.loads(self.rfile.read(length))
         question = data.get("question", "")
@@ -168,6 +286,7 @@ if __name__ == "__main__":
         # Index new, changed and deleted documents in the background while the chat runs.
         # A daemon thread stops by itself when the program exits.
         threading.Thread(target=watch, daemon=True).start()
+        watching = True
     if "--no-browser" not in sys.argv:
         webbrowser.open(url)
     try:

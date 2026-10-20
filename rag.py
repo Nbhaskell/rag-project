@@ -510,6 +510,32 @@ def sources_to_show(answer, chunks):
     return shown
 
 
+def answer(question, history=()):
+    """Answer a question in one go (no streaming) as {"answer": text, "sources": [files]}."""
+    chunks, pieces = answer_stream(question, history)
+    text = "".join(pieces).strip()
+    return {"answer": text, "sources": sources_to_show(text, chunks)}
+
+
+def when(timestamp):
+    """A timestamp as local ISO time like 2026-10-20T14:05:09, or None."""
+    return None if timestamp is None else time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(timestamp))
+
+
+def index_status():
+    """What is in the search index right now, as plain data."""
+    with index_lock:
+        collection = get_collection()
+        files = indexed_files(collection)
+        return {
+            "files": len(files),
+            "chunks": collection.count(),
+            "documents": sorted(files),
+            "last_sync": when(index_state["last_sync"]),
+            "last_change": when(index_state["last_change"]),
+        }
+
+
 def ask(question, history=()):
     chunks, pieces = answer_stream(question, history)
     answer = ""
