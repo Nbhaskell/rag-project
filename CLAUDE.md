@@ -34,8 +34,7 @@ A local RAG (retrieval-augmented generation) system that answers questions about
 ## How to run
 1. `cd C:\Users\Nathan\rag-project`
 2. `venv\Scripts\activate` (prompt should show `(venv)`)
-3. `python rag.py ingest` (rebuilds the database from scratch; rerun whenever `docs/` changes)
-4. Either `python chat.py` (opens the chat window in the browser; Ctrl+C to stop) or `python rag.py` (Command Prompt Q&A; type `quit` to exit)
+3. `python chat.py` (opens the chat window in the browser; Ctrl+C to stop). It indexes new and changed documents by itself at startup and keeps watching `docs/` while it runs, so `python rag.py ingest` is only needed for a from-scratch rebuild. `python rag.py` is a Command Prompt Q&A (type `quit` to exit); `python rag.py sync` updates the index once; `python rag.py watch` keeps it updated without the chat.
 
 ## Current settings in rag.py
 Heading-aware chunking: markdown and Word files are cut at their headings, one chunk per section, and each chunk starts with a label such as "Barks n Woofs: Pricing and Packages > Boarding" (the first `# ` heading is the document title, otherwise the file name is used). Sections longer than CHUNK_SIZE are cut between lines. PDF and txt files have no headings, so each is one section cut between lines. CHUNK_SIZE 800 characters of text per chunk, OVERLAP 100 (only a last resort for text with no line breaks), TOP_K 4 retrieved chunks, Qwen3 thinking is on by default (`RAG_THINK=0` turns it off for speed on a slow machine; see "Answer behavior"). Supported file types: .pdf, .docx, .txt, .md (Word lock files starting with `~$` are skipped; docx headings and tables are kept). Scanned PDFs have no extractable text. Older .doc files are not supported (save as .docx).
@@ -48,8 +47,16 @@ Real-document findings: with the old prompt, yes/no questions the documents don'
 ## Split search
 `retrieve()` in `rag.py` does the search. `split_question()` asks the chat model (no thinking, temperature 0, about 0.2 s) whether the question covers more than one thing and, if so, rewrites it as one short question per thing (at most `MAX_PARTS` 4). The original question and each part are then searched separately, `SUB_TOP_K` (2) passages each, and the results merged. Questions about one thing are searched as before (TOP_K 4). Reason: one embedding of "when do you open, and how much is a bath?" lands between the topics and finds only one. The splitter sometimes splits a single-topic question ("spayed or neutered") into near-duplicates, which does no harm because the original is searched too. `RAG_SPLIT=0` turns it off (useful for comparing runs). A split follow-up part lacks the chat history, but the original question is still searched with it.
 
+## Automatic indexing
+`sync_docs()` in `rag.py` brings the index up to date and only re-processes what changed; `watch()` runs it at startup and then whenever the docs folder's file sizes or modified times change (checked every `SYNC_INTERVAL` = 5 s), and `chat.py` runs `watch()` in a background thread (`RAG_WATCH=0` turns that off; `python chat.py --no-browser` skips opening the browser).
+- Every chunk carries `source` (the file's path inside `docs/`, forward slashes, so two files with the same name in different folders no longer collide) and `file_hash`, a fingerprint of the file's content plus `INDEX_VERSION`, the embedding model, `CHUNK_SIZE` and `OVERLAP`. A file whose fingerprint differs from the index is indexed again, so changing those settings re-indexes everything by itself. **Bump `INDEX_VERSION` in `rag.py` whenever the way files are read or chunked changes** (the code can't detect that).
+- An updated file's new chunks are added first and the old ones deleted afterwards, so a question asked mid-update still finds something. A deleted file's chunks are removed. A file that is unreadable or has no text is reported once and not retried until it changes (an emptied file has its old chunks removed; an unreadable one keeps them).
+- A changed file is only read once its size and modified time are the same on two consecutive checks (so a file still being saved is not read half-written). Word's `~$` lock files are ignored.
+- An index built before fingerprints existed is upgraded on the first sync (every file is re-indexed once). `ingest()` still rebuilds from scratch and gives the same chunks as a sync.
+- `python test_indexing.py` tests all of this in a few seconds with a fake embedding function and temporary folders (no Ollama, never touches `docs/` or `chroma_db/`). A live check with the real server also passed: a document added, edited and deleted while the chat ran was picked up within about 10 s each time and the answers followed.
+
 ## Ingest checks
-`python rag.py ingest` prints a summary and warnings at the end: files that can't be read or have no text (skipped), and files with unfilled `[bracket]` placeholders from the templates (still indexed). Warnings never stop ingest.
+`python rag.py ingest` prints a summary and warnings at the end: files that can't be read or have no text (skipped), and files with unfilled `[bracket]` placeholders from the templates (still indexed). Warnings never stop ingest. Sync and watch print the same warnings, once per file version.
 
 ## Chat memory
 The last 3 question/answer pairs (`HISTORY_MESSAGES = 6`) are sent to the model. For follow-ups, retrieval searches with the new question and with the previous question plus the new one, and merges the chunks. In the browser, memory lives in the open tab (refresh or restart clears it).
@@ -68,8 +75,7 @@ Latest results on the six daycare documents (desktop PC, heading-aware chunks, 4
 ## Possible next steps (user has not picked one yet; ask which)
 - Add the user's real documents to `docs/` and re-ingest
 - Tune quality if answers are weak: CHUNK_SIZE, TOP_K, then try `qwen3:14b` (about 9 GB, slower)
-- Automatic re-indexing when files in `docs/` change
-- Connecting the pipeline to an n8n workflow
+- Connecting the pipeline to an n8n workflow (in progress: automatic re-indexing is done; next an HTTP API in `chat.py` with `/api/ask`, `/api/reindex` and `/api/status`, optionally behind a token, then run n8n locally with `npx n8n` (Node 24 is installed; Docker also is) and build a first webhook workflow; the user is new to n8n, so explain each step)
 
 ## Notes
 - Do not use Ollama's built-in `ollama launch` menu to start Claude Code; that routes to local models, which are slow here and much weaker than Claude.

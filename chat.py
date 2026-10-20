@@ -1,8 +1,11 @@
 import json
+import os
+import sys
+import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from rag import answer_stream, sources_to_show
+from rag import answer_stream, sources_to_show, watch
 
 PORT = 8000
 
@@ -161,7 +164,12 @@ if __name__ == "__main__":
     server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     url = f"http://localhost:{PORT}"
     print(f"Chat is running at {url}  (press Ctrl+C to stop)")
-    webbrowser.open(url)
+    if os.environ.get("RAG_WATCH", "1") != "0":
+        # Index new, changed and deleted documents in the background while the chat runs.
+        # A daemon thread stops by itself when the program exits.
+        threading.Thread(target=watch, daemon=True).start()
+    if "--no-browser" not in sys.argv:
+        webbrowser.open(url)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
