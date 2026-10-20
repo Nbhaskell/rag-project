@@ -133,7 +133,9 @@ python -c "import secrets; print(secrets.token_urlsafe(24))"
 [n8n](https://n8n.io) lets you build automations by connecting boxes on a screen, and it can run on
 your own computer. The `n8n` folder contains a ready-made workflow that takes a question from a
 web address, asks this project through the API above, and sends the answer back, plus a script that
-starts n8n with private settings. See [n8n/README.md](n8n/README.md) for the step-by-step setup.
+starts n8n with private settings. A second ready-made workflow adds an upload form that saves new
+documents into `docs/`, where the folder watcher indexes them. See [n8n/README.md](n8n/README.md)
+for the step-by-step setup.
 
 ## Writing documents that work well
 

@@ -1,6 +1,7 @@
 <#
 Starts n8n for this project, with settings that keep it private:
-  - only this computer can reach it (127.0.0.1), and
+  - only this computer can reach it (127.0.0.1),
+  - its file nodes can only read and write the project's docs folder, and
   - its usage reporting, update checks, templates and similar internet contact are switched off.
 
 Run it from the project folder, in PowerShell:
@@ -16,8 +17,11 @@ param(
     [switch]$DryRun
 )
 
+$docsFolder = Join-Path (Split-Path $PSScriptRoot -Parent) 'docs'
+
 $settings = [ordered]@{
     N8N_LISTEN_ADDRESS                = '127.0.0.1'   # n8n's default is every network interface
+    N8N_RESTRICT_FILE_ACCESS_TO       = $docsFolder   # the only folder n8n's file nodes may read or write
     N8N_HOST                          = '127.0.0.1'
     N8N_PORT                          = "$Port"
     N8N_DIAGNOSTICS_ENABLED           = 'false'       # anonymous usage reports
