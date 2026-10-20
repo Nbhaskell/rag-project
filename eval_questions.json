@@ -1,249 +1,401 @@
 [
   {
-    "id": "saturday-open",
+    "id": "vaccines-required",
     "type": "fact",
-    "question": "What time does the roastery open on Saturdays?",
-    "answer_contains": [["7:00", "7 am", "7am", "7 a.m."]],
-    "retrieval_contains": "7:00 AM to 4:00 PM"
+    "question": "Which vaccinations does my dog need before attending?",
+    "answer_contains": [["rabies"], ["dhpp", "distemper"], ["bordetella", "kennel cough"]],
+    "retrieval_contains": "Bordetella, also called kennel cough"
   },
   {
-    "id": "closed-day",
-    "type": "fact",
-    "question": "Which day is the roastery closed?",
-    "answer_contains": [["sunday"]],
-    "retrieval_contains": "closed on Sundays"
-  },
-  {
-    "id": "vacation",
-    "type": "fact",
-    "question": "How many vacation days do full-time employees get?",
-    "answer_contains": [["15", "fifteen"]],
-    "retrieval_contains": "15 days of paid vacation"
-  },
-  {
-    "id": "sick-days",
-    "type": "fact",
-    "question": "How many paid sick days does each employee get per year?",
-    "answer_contains": [["6", "six"]],
-    "retrieval_contains": "6 paid sick days"
-  },
-  {
-    "id": "vacation-notice",
-    "type": "fact",
-    "question": "How far in advance do vacation requests have to be submitted?",
-    "answer_contains": [["two weeks", "2 weeks", "14 days"]],
-    "retrieval_contains": "at least two weeks in advance"
-  },
-  {
-    "id": "dark-roast-days",
-    "type": "fact",
-    "question": "Which days are dark roasts done?",
-    "answer_contains": [["tuesday"], ["thursday"]],
-    "answer_not_contains": ["monday", "wednesday"],
-    "retrieval_contains": "Dark roasts are done on Tuesdays and Thursdays"
-  },
-  {
-    "id": "head-roaster",
-    "type": "fact",
-    "question": "Who is the head roaster?",
-    "answer_contains": [["marta delgado"]],
-    "retrieval_contains": "Marta Delgado"
-  },
-  {
-    "id": "expense-limit",
-    "type": "fact",
-    "question": "What is the most I can spend on a work purchase without getting approval first?",
-    "answer_contains": [["$50", "50 dollars"]],
-    "retrieval_contains": "under $50 without prior approval"
-  },
-  {
-    "id": "expense-approver",
-    "type": "fact",
-    "question": "Who has to approve work expenses over $50?",
-    "answer_contains": [["priya raman", "the owner"]],
-    "retrieval_contains": "Priya Raman"
-  },
-  {
-    "id": "receipt-deadline",
-    "type": "fact",
-    "question": "How many days do I have to submit receipts?",
-    "answer_contains": [["14", "fourteen"]],
-    "retrieval_contains": "Submit receipts within 14 days"
-  },
-  {
-    "id": "adult-fee",
-    "type": "fact",
-    "question": "How much does an adult ticket cost at Tidepool Trails?",
-    "answer_contains": [["$8", "8 dollars"]],
-    "answer_not_contains": ["$80"],
-    "retrieval_contains": "$8 per adult"
-  },
-  {
-    "id": "annual-pass",
-    "type": "fact",
-    "question": "What does an annual pass cost and who does it cover?",
-    "answer_contains": [["$60", "60 dollars"], ["household", "family"]],
-    "retrieval_contains": "annual pass costs $60"
-  },
-  {
-    "id": "kelp-dogs",
-    "type": "fact",
-    "question": "Are dogs allowed on Kelp Ridge Trail?",
-    "answer_contains": [["not allowed", "no dogs", "not permitted", "aren't allowed", "are prohibited", "cannot", "can't"]],
-    "answer_not_contains": ["yes", "dogs are allowed", "dogs are welcome"],
-    "retrieval_contains": "Kelp Ridge Trail"
-  },
-  {
-    "id": "yesno-camping",
+    "id": "flu-vaccine",
     "type": "yes-no",
-    "question": "Can I camp in the park?",
-    "note": "Answer is no. The reply must not open with Yes.",
-    "answer_contains": [["no", "not allowed", "not permitted", "prohibited"]],
+    "question": "Is the canine influenza vaccine required?",
+    "note": "It is only recommended, so the answer is no.",
+    "answer_contains": [["no", "not required", "recommended"]],
     "answer_not_contains": ["yes"],
-    "retrieval_contains": "Camping is not allowed"
+    "retrieval_contains": "Canine influenza: recommended"
   },
   {
-    "id": "yesno-sunday",
+    "id": "rabies-valid",
+    "type": "fact",
+    "question": "How long is a rabies vaccination valid for?",
+    "answer_contains": [["3 years", "three years"]],
+    "retrieval_contains": "Rabies (valid for 3 years"
+  },
+  {
+    "id": "paper-photo",
     "type": "yes-no",
-    "question": "Is the roastery open on Sundays?",
-    "note": "Answer is no.",
+    "question": "Can I send a photo of my dog's paper vaccination records?",
+    "note": "Photos of paper records are not accepted.",
+    "answer_contains": [["no", "not accepted", "cannot", "can't"]],
+    "answer_not_contains": ["yes"],
+    "retrieval_contains": "Photos of paper records are not accepted"
+  },
+  {
+    "id": "grace-period",
+    "type": "fact",
+    "question": "Is there a grace period if my dog's vaccination expires?",
+    "answer_contains": [["5 days", "five days"]],
+    "retrieval_contains": "grace period of 5 days"
+  },
+  {
+    "id": "sick-wait",
+    "type": "fact",
+    "question": "How long after being sick can my dog come back?",
+    "answer_contains": [["2 days", "two days"], ["vet's note", "vet note", "note from"]],
+    "retrieval_contains": "may return after 2 days, or with a vet's note"
+  },
+  {
+    "id": "sick-symptom-window",
+    "type": "fact",
+    "question": "How many hours without vomiting or diarrhea before I can bring my dog?",
+    "note": "Symptoms in the last 48 hours mean stay home.",
+    "answer_contains": [["48"]],
+    "retrieval_contains": "in the last 48 hours"
+  },
+  {
+    "id": "neuter-age",
+    "type": "fact",
+    "question": "At what age does my dog have to be spayed or neutered?",
+    "answer_contains": [["6 months", "six months"]],
+    "retrieval_contains": "Dogs over 6 months old must be spayed or neutered"
+  },
+  {
+    "id": "unneutered-8mo",
+    "type": "edge",
+    "question": "My dog is 8 months old and not neutered. Can he attend?",
+    "note": "Needs applying the over-6-months rule to age 8 months: no.",
+    "answer_contains": [["no", "not", "cannot", "can't", "must be"]],
+    "answer_not_contains": ["yes"],
+    "retrieval_contains": "Dogs over 6 months old must be spayed or neutered"
+  },
+  {
+    "id": "min-age",
+    "type": "fact",
+    "question": "What is the minimum age for a puppy to attend?",
+    "answer_contains": [["4 months", "four months"]],
+    "retrieval_contains": "at least 4 months old"
+  },
+  {
+    "id": "medication-fee",
+    "type": "multi",
+    "question": "Can staff give my dog medication, and what does it cost?",
+    "note": "The health document says staff can; both it and pricing say $10.",
+    "answer_contains": [["yes", "can"], ["$10"]],
+    "answer_not_contains": ["$1 "],
+    "retrieval_contains": "we charge $10 per dose"
+  },
+  {
+    "id": "eval-cost",
+    "type": "fact",
+    "question": "How much does the temperament evaluation cost?",
+    "answer_contains": [["free", "no charge", "no cost", "$0"]],
+    "retrieval_contains": "free of cost"
+  },
+  {
+    "id": "eval-length",
+    "type": "fact",
+    "question": "How long does the temperament evaluation take?",
+    "answer_contains": [["1 hour", "one hour"]],
+    "retrieval_contains": "about 1 hour"
+  },
+  {
+    "id": "eval-bring",
+    "type": "fact",
+    "question": "What do I need to bring to the temperament evaluation?",
+    "answer_contains": [["vaccination"], ["owner agreement"], ["vet", "veterinar"]],
+    "retrieval_contains": "the signed owner agreement"
+  },
+  {
+    "id": "weight-limit",
+    "type": "fact",
+    "question": "What is the maximum weight for a dog?",
+    "answer_contains": [["250"]],
+    "retrieval_contains": "up to 250 pounds"
+  },
+  {
+    "id": "incident-policy",
+    "type": "fact",
+    "question": "What happens after three incidents within five days?",
+    "answer_contains": [["suspended", "suspension"], ["re-evaluated", "re-evaluation", "removed"]],
+    "retrieval_contains": "After 3 incidents within 5 days"
+  },
+  {
+    "id": "reevaluation",
+    "type": "fact",
+    "question": "How soon can a declined dog be re-evaluated?",
+    "answer_contains": [["30 days", "1 month", "one month"]],
+    "retrieval_contains": "re-evaluated after 30 days"
+  },
+  {
+    "id": "full-day-price",
+    "type": "fact",
+    "question": "How much is a full day of daycare?",
+    "answer_contains": [["$100"]],
+    "retrieval_contains": "$100.00"
+  },
+  {
+    "id": "half-day-price",
+    "type": "fact",
+    "question": "How much is a half day of daycare, and how many hours is that?",
+    "answer_contains": [["$50"], ["4 hours", "four hours"]],
+    "retrieval_contains": "Half day (up to 4 hours): $50.00"
+  },
+  {
+    "id": "five-hours",
+    "type": "edge",
+    "question": "I'll be picking my dog up after 5 hours. Is that a half day or a full day, and what does it cost?",
+    "note": "Up to 4 hours is a half day; anything over 4 is a full day ($100).",
+    "answer_contains": [["full"], ["$100"]],
+    "answer_not_contains": ["$50"],
+    "retrieval_contains": "Full day (over 4 hours): $100.00"
+  },
+  {
+    "id": "second-dog-two-dogs-total",
+    "type": "edge",
+    "question": "How much for two dogs from the same household for one full day?",
+    "note": "$100 for the first dog plus $50 for the second: $150. Needs adding.",
+    "answer_contains": [["$150"]],
+    "retrieval_contains": "Second dog from the same household: $50 per day"
+  },
+  {
+    "id": "ten-day-package",
+    "type": "multi",
+    "question": "How much is the 10-day package and how long is it valid?",
+    "answer_contains": [["$800"], ["90 days", "ninety days"]],
+    "retrieval_contains": "10-day package: $800, valid for 90 days"
+  },
+  {
+    "id": "unlimited-monthly",
+    "type": "fact",
+    "question": "What does the unlimited monthly membership cost?",
+    "answer_contains": [["$2,500", "2500"]],
+    "retrieval_contains": "Unlimited monthly: $2,500"
+  },
+  {
+    "id": "unused-days",
+    "type": "fact",
+    "question": "Can unused package days be transferred to another dog?",
+    "answer_contains": [["yes", "can be transferred"]],
+    "answer_not_contains": ["cannot", "can't"],
+    "retrieval_contains": "Unused days can be transferred to another dog"
+  },
+  {
+    "id": "boarding-price",
+    "type": "fact",
+    "question": "How much is a standard overnight stay?",
+    "answer_contains": [["$125"]],
+    "retrieval_contains": "Standard overnight: $125.00 per night"
+  },
+  {
+    "id": "boarding-checkin",
+    "type": "fact",
+    "question": "What are the boarding check-in and check-out times?",
+    "answer_contains": [["8:00", "8 am", "8am"], ["9:00", "9 am", "9am"], ["6:00", "6 pm", "6pm"]],
+    "retrieval_contains": "9:00am. Check-out is by 6:00pm"
+  },
+  {
+    "id": "late-pickup-fee",
+    "type": "fact",
+    "question": "What is the fee for picking up late?",
+    "answer_contains": [["$5"], ["30 minutes"]],
+    "retrieval_contains": "Late pickup: $5.00 for every 30 minutes"
+  },
+  {
+    "id": "discounts",
+    "type": "fact",
+    "question": "What discounts do you offer and how much are they?",
+    "answer_contains": [["10%", "10 percent"]],
+    "retrieval_contains": "discounts: 10%"
+  },
+  {
+    "id": "sunday-hours",
+    "type": "fact",
+    "question": "What are your hours on Sundays?",
+    "answer_contains": [["8:00", "8 am", "8am"], ["6:00", "6 pm", "6pm"]],
+    "answer_not_contains": ["closed"],
+    "retrieval_contains": "Sunday: 8:00am to 6:00pm"
+  },
+  {
+    "id": "closed-christmas",
+    "type": "yes-no",
+    "question": "Are you open on Christmas Day?",
     "answer_contains": [["no", "closed"]],
     "answer_not_contains": ["yes"],
-    "retrieval_contains": "closed on Sundays"
+    "retrieval_contains": "Christmas Day"
   },
   {
-    "id": "yesno-sick-separate",
+    "id": "evening-pickup",
+    "type": "fact",
+    "question": "What is the evening pick-up window?",
+    "answer_contains": [["5:30"], ["6:00", "6 pm", "6pm"]],
+    "retrieval_contains": "Evening pick-up: between 5:30pm and 6:00pm"
+  },
+  {
+    "id": "late-dropoff",
+    "type": "fact",
+    "question": "What happens if I drop my dog off after 9am?",
+    "answer_contains": [["full day"]],
+    "retrieval_contains": "dropped off after 9:00am may be charged for a full day"
+  },
+  {
+    "id": "boarding-notice",
+    "type": "fact",
+    "question": "How far ahead do I need to reserve boarding?",
+    "answer_contains": [["3 days", "three days"]],
+    "retrieval_contains": "at least 3 days ahead"
+  },
+  {
+    "id": "address",
+    "type": "fact",
+    "question": "Where is the daycare located?",
+    "answer_contains": [["123 puppy drive"], ["oakland"]],
+    "retrieval_contains": "123 puppy drive, Oakland ME"
+  },
+  {
+    "id": "staff-ratio",
+    "type": "fact",
+    "question": "How many dogs does each staff member supervise?",
+    "answer_contains": [["5", "five"]],
+    "retrieval_contains": "1 staff member for every 5 dogs"
+  },
+  {
+    "id": "nap-time",
+    "type": "fact",
+    "question": "When is nap time?",
+    "answer_contains": [["12:00", "noon"], ["2:30"]],
+    "retrieval_contains": "12:00 PM to 2:30 PM Nap time"
+  },
+  {
+    "id": "bring-blanket",
     "type": "yes-no",
-    "question": "Do sick days count against my vacation days?",
-    "note": "Answer is no.",
-    "answer_contains": [["no", "separate", "do not count", "don't count"]],
+    "question": "Can my dog bring a blanket or toy?",
+    "answer_contains": [["yes", "allowed"]],
+    "answer_not_contains": ["not allowed", "no,"],
+    "retrieval_contains": "A leash, toys, or a blanket: allowed"
+  },
+  {
+    "id": "daily-report",
+    "type": "fact",
+    "question": "How will I get an update on my dog's day?",
+    "answer_contains": [["email"], ["report", "daily"]],
+    "retrieval_contains": "daily report with notes on meals"
+  },
+  {
+    "id": "cancel-notice",
+    "type": "fact",
+    "question": "How far ahead do I have to cancel a daycare day to avoid a charge?",
+    "answer_contains": [["12 hours", "twelve hours"]],
+    "retrieval_contains": "Cancel at least 12 hours before drop-off"
+  },
+  {
+    "id": "late-cancel-fee",
+    "type": "fact",
+    "question": "What is the fee for a late cancellation or no-show for daycare?",
+    "answer_contains": [["$50"]],
+    "retrieval_contains": "charged a fee of $50.00"
+  },
+  {
+    "id": "boarding-deposit",
+    "type": "fact",
+    "question": "How much is the boarding deposit?",
+    "answer_contains": [["$25"]],
+    "retrieval_contains": "deposit of $25.00"
+  },
+  {
+    "id": "cancel-boarding-3-days",
+    "type": "edge",
+    "question": "What happens to my deposit if I cancel boarding 3 days before arrival?",
+    "note": "Less than 5 days before arrival: partly refunded.",
+    "answer_contains": [["partly", "partial", "part"]],
+    "answer_not_contains": ["full refund"],
+    "retrieval_contains": "deposit is partly refunded"
+  },
+  {
+    "id": "package-refund",
+    "type": "yes-no",
+    "question": "Can I get a refund on package days I haven't used?",
+    "note": "Non-refundable, except if the dog is permanently removed by the daycare.",
+    "answer_contains": [["no", "non-refundable", "not refundable", "not"]],
     "answer_not_contains": ["yes"],
-    "retrieval_contains": "do not count against vacation"
+    "retrieval_contains": "Package days are non-refundable"
   },
   {
-    "id": "yesno-kids-free",
-    "type": "yes-no",
-    "question": "Is entry free for children under 5?",
-    "note": "Answer is yes.",
-    "answer_contains": [["yes", "free"]],
-    "answer_not_contains": ["no,"],
-    "retrieval_contains": "Children under 5 enter free"
-  },
-  {
-    "id": "gull-length",
+    "id": "payment-methods",
     "type": "fact",
-    "question": "How long is the Gull Point Loop?",
-    "answer_contains": [["2 miles", "two miles"]],
-    "retrieval_contains": "Gull Point Loop"
+    "question": "What payment methods do you accept?",
+    "answer_contains": [["cash"], ["check"], ["card"]],
+    "retrieval_contains": "Payment methods accepted: Cash, Check, Card"
   },
   {
-    "id": "cove-tide",
+    "id": "refund-timing",
     "type": "fact",
-    "question": "When is Anemone Cove Path open?",
-    "answer_contains": [["low tide"]],
-    "retrieval_contains": "Only open at low tide"
+    "question": "How long does it take to receive a refund?",
+    "answer_contains": [["5 business days", "five business days"]],
+    "retrieval_contains": "within 5 business days"
   },
   {
-    "id": "seal-distance",
-    "type": "fact",
-    "question": "How close can I get to the seals?",
-    "answer_contains": [["50 yards", "fifty yards"]],
-    "retrieval_contains": "at least 50 yards away"
-  },
-  {
-    "id": "drones",
-    "type": "fact",
-    "question": "Can I fly a drone in the park?",
-    "answer_contains": [["permit"]],
-    "retrieval_contains": "without a permit"
-  },
-  {
-    "id": "ranger-name",
-    "type": "fact",
-    "question": "Who is the park ranger?",
-    "answer_contains": [["tomas okafor"]],
-    "retrieval_contains": "Tomas Okafor"
-  },
-  {
-    "id": "park-hours",
-    "type": "edge",
-    "question": "What are the park's opening hours?",
-    "note": "The visitor center has different hours (9 to 5). The answer should be the park's: sunrise to sunset.",
-    "answer_contains": [["sunrise"], ["sunset"]],
-    "retrieval_contains": "sunrise to sunset"
-  },
-  {
-    "id": "toddler-fee",
-    "type": "edge",
-    "question": "How much does it cost for a 3 year old to enter the park?",
-    "note": "Needs reading 'children under 5 enter free' and applying it to age 3.",
-    "answer_contains": [["free", "no charge", "$0"]],
-    "retrieval_contains": "Children under 5 enter free"
-  },
-  {
-    "id": "both-docs",
+    "id": "sick-sent-home-refund",
     "type": "multi",
-    "question": "How many vacation days do Bluefin employees get, and what does a Tidepool Trails annual pass cost?",
-    "note": "Needs chunks from both documents.",
-    "answer_contains": [["15", "fifteen"], ["$60", "60 dollars"]],
-    "retrieval_contains": "15 days of paid vacation"
+    "question": "If my dog is sent home early because they got sick, do I get a refund?",
+    "answer_contains": [["refund"], ["unused portion", "unused"]],
+    "answer_not_contains": ["no refund"],
+    "retrieval_contains": "we refund the unused portion"
   },
   {
-    "id": "unknown-apple",
+    "id": "expired-rabies",
+    "type": "edge",
+    "question": "My dog's rabies vaccination expired yesterday. Can I still bring him?",
+    "note": "Needs the 5-day grace period.",
+    "answer_contains": [["grace", "5 days", "five days"]],
+    "retrieval_contains": "grace period of 5 days"
+  },
+  {
+    "id": "unknown-grooming",
     "type": "unanswerable",
-    "question": "Who is the CEO of Apple?"
+    "question": "Do you offer full grooming and haircuts?"
   },
   {
-    "id": "unknown-wage",
+    "id": "unknown-transport",
     "type": "unanswerable",
-    "question": "How much does Bluefin pay its roasters per hour?"
+    "question": "Do you offer pickup and drop-off transportation for dogs?"
   },
   {
-    "id": "unknown-giftshop",
+    "id": "unknown-webcam",
     "type": "unanswerable",
-    "question": "Does Tidepool Trails have a gift shop?"
+    "question": "Is there a webcam so I can watch my dog during the day?"
   },
   {
-    "id": "followup-sick",
-    "type": "follow-up",
-    "follow_up_to": "vacation",
-    "question": "What about sick days?",
-    "answer_contains": [["6", "six"]]
+    "id": "unknown-cats",
+    "type": "unanswerable",
+    "question": "Do you take cats?"
   },
   {
-    "id": "followup-kelp-length",
+    "id": "followup-half-day",
     "type": "follow-up",
-    "follow_up_to": "kelp-dogs",
-    "question": "How long is that trail?",
-    "answer_contains": [["4.5"]]
+    "follow_up_to": "full-day-price",
+    "question": "And a half day?",
+    "answer_contains": [["$50"]]
   },
   {
-    "id": "followup-light-roasts",
+    "id": "followup-second-dog",
     "type": "follow-up",
-    "follow_up_to": "dark-roast-days",
-    "question": "And light roasts?",
-    "answer_contains": [["monday"], ["wednesday"]]
+    "follow_up_to": "boarding-price",
+    "question": "What about for a second dog sharing the room?",
+    "answer_contains": [["$50"]]
   },
   {
-    "id": "followup-seals-when",
+    "id": "followup-bordetella",
     "type": "follow-up",
-    "follow_up_to": "seal-distance",
-    "question": "When are they there?",
-    "note": "'they' refers to the seals.",
-    "answer_contains": [["may"], ["september"]]
+    "follow_up_to": "rabies-valid",
+    "question": "What about bordetella?",
+    "answer_contains": [["12 months", "twelve months", "1 year", "one year"]]
   },
   {
-    "id": "followup-kids-fee",
+    "id": "followup-cancel-fee",
     "type": "follow-up",
-    "follow_up_to": "adult-fee",
-    "question": "And for kids?",
-    "answer_contains": [["$4", "4 dollars"]]
-  },
-  {
-    "id": "followup-expense-approver",
-    "type": "follow-up",
-    "follow_up_to": "expense-limit",
-    "question": "Who approves anything over that?",
-    "answer_contains": [["priya raman", "the owner"]]
+    "follow_up_to": "cancel-notice",
+    "question": "And what's the fee if I miss that?",
+    "answer_contains": [["$50"]]
   }
 ]
