@@ -128,6 +128,13 @@ token. Generate a long random token with:
 python -c "import secrets; print(secrets.token_urlsafe(24))"
 ```
 
+## Connecting n8n (optional)
+
+[n8n](https://n8n.io) lets you build automations by connecting boxes on a screen, and it can run on
+your own computer. The `n8n` folder contains a ready-made workflow that takes a question from a
+web address, asks this project through the API above, and sends the answer back, plus a script that
+starts n8n with private settings. See [n8n/README.md](n8n/README.md) for the step-by-step setup.
+
 ## Writing documents that work well
 
 - **Use headings.** Each `##` section becomes one chunk, so one topic per section works best.
@@ -179,6 +186,7 @@ vary a little from run to run, so repeat a question several times before trustin
 | `run_eval.py` | The question-answering test runner |
 | `test_indexing.py`, `test_api.py` | Fast tests for the automatic indexing and the API (no AI model needed; run `python test_indexing.py` and `python test_api.py`) |
 | `eval_questions.json`, `eval_questions_samples.json` | Test questions and expected answers |
+| `n8n/` | An n8n workflow that asks questions through the API, a start script and a setup guide |
 | `samples/` | Two small made-up documents for trying the system out |
 | `docs/` | Your documents (not in Git) |
 | `chroma_db/` | The search index, created by ingest (not in Git) |
