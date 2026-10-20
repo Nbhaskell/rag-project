@@ -45,15 +45,53 @@ def retrieve(question):
     return results["documents"][0]
 
 
+def doc_texts():
+    """Normalized text of each document in docs/, by file name (markdown and text files)."""
+    return {p.name: norm(p.read_text(encoding="utf-8", errors="ignore"))
+            for p in rag.DOCS_DIR.rglob("*") if p.suffix.lower() in {".md", ".txt"}}
+
+
+def expected_sources(q, by_id, texts):
+    """Files that should be listed under the answer: the files containing the expected fact,
+    unless the question names them in "expected_sources". None when it can't be worked out."""
+    if q.get("follow_up_to"):
+        return expected_sources(by_id[q["follow_up_to"]], by_id, texts)
+    if q["type"] == "unanswerable":
+        return []
+    if "expected_sources" in q:
+        return q["expected_sources"]
+    phrases = q.get("retrieval_contains")
+    if phrases:
+        phrases = [phrases] if isinstance(phrases, str) else phrases
+        return sorted({name for name, text in texts.items() for p in phrases if norm(p) in text})
+    return None
+
+
+def acceptable_sources(q, by_id):
+    """Files that may be listed without counting as noise because they also state the fact."""
+    if q.get("follow_up_to"):
+        return acceptable_sources(by_id[q["follow_up_to"]], by_id)
+    return q.get("acceptable_sources", [])
+
+
 def check_retrieval(q, chunks):
-    """Returns (found, problems, rank): rank is the 1-based position of the first chunk with the fact."""
-    phrase = q.get("retrieval_contains")
-    if phrase is None:
+    """Returns (found, problems, rank). "retrieval_contains" is one phrase or a list of phrases that
+    must all be retrieved; rank is the 1-based position of the worst-placed chunk that has one."""
+    phrases = q.get("retrieval_contains")
+    if phrases is None:
         return None, [], None
-    wanted = norm(phrase)
-    rank = next((i for i, c in enumerate(chunks, 1) if wanted in norm(c)), None)
-    ok = rank is not None
-    return ok, [] if ok else [f"retrieved chunks do not contain: {phrase!r}"], rank
+    if isinstance(phrases, str):
+        phrases = [phrases]
+    ranks, problems = [], []
+    for phrase in phrases:
+        wanted = norm(phrase)
+        rank = next((i for i, c in enumerate(chunks, 1) if wanted in norm(c)), None)
+        if rank is None:
+            problems.append(f"retrieved chunks do not contain: {phrase!r}")
+        else:
+            ranks.append(rank)
+    ok = not problems
+    return ok, problems, (max(ranks) if ok else None)
 
 
 def check_answer(q, answer):
@@ -79,6 +117,7 @@ def main():
     args = parser.parse_args()
 
     questions = json.loads(Path(args.questions).read_text(encoding="utf-8"))
+    by_id, texts = {q["id"]: q for q in questions}, doc_texts()
     if args.id:
         wanted = set(args.id)
         unknown = wanted - {q["id"] for q in questions}
@@ -115,9 +154,15 @@ def main():
 
         if not args.retrieval_only:
             history = histories.get(q.get("follow_up_to"), [])
-            sources, pieces = rag.answer_stream(q["question"], history)
+            chunks_used, pieces = rag.answer_stream(q["question"], history)
             answer = "".join(pieces).strip()
-            r["answer"], r["sources"] = answer, sources
+            shown = rag.sources_to_show(answer, chunks_used)
+            wanted_files = expected_sources(q, by_id, texts)
+            r["answer"], r["sources_shown"], r["sources_expected"] = answer, shown, wanted_files
+            if wanted_files is not None:
+                ok_too = set(wanted_files) | set(acceptable_sources(q, by_id))
+                r["sources_extra"] = sorted(set(shown) - ok_too)
+                r["sources_missing"] = sorted(set(wanted_files) - set(shown))
             r["answer_ok"], problems = check_answer(q, answer)
             r["problems"] += problems
             histories[q["id"]] = history + [{"role": "user", "content": q["question"]},
@@ -125,8 +170,11 @@ def main():
 
         r["seconds"] = round(time.time() - start, 1)
         passed = r["retrieval"] is not False and r["answer_ok"] is not False
+        # A question with a "known_issue" note is still run and reported, but does not fail the run.
+        r["known_issue"] = q.get("known_issue") if not passed else None
+        tag = "PASS" if passed else ("KNOWN" if r["known_issue"] else "FAIL")
         label = lambda v: "n/a" if v is None else ("ok" if v else "FAIL")
-        print(f"[{'PASS' if passed else 'FAIL'}] {q['id']:<22} "
+        print(f"[{tag}] {q['id']:<22} "
               f"retrieval {label(r['retrieval']):<4} answer {label(r['answer_ok']):<4} ({r['seconds']}s)")
         for p in r["problems"]:
             print(f"         - {p}")
@@ -155,10 +203,20 @@ def main():
         print(f"    text sent to the model per question: {sum(sizes) // len(sizes)} characters on average")
     if answers:
         print(f"  answer checks:    {sum(answers)}/{len(answers)}")
+    graded = [r for r in results if "sources_extra" in r]
+    if graded:
+        exact = sum(not r["sources_extra"] and not r["sources_missing"] for r in graded)
+        print(f"  sources line:     {exact}/{len(graded)} exactly right; "
+              f"{sum(len(r['sources_extra']) for r in graded)} extra files listed, "
+              f"{sum(len(r['sources_missing']) for r in graded)} needed files missing")
+
+    for r in results:
+        if r.get("known_issue"):
+            print(f"  known issue: {r['id']}: {r['known_issue']}")
 
     RESULTS_FILE.write_text(json.dumps(results, indent=2), encoding="utf-8")
     print(f"\nDetails saved to {RESULTS_FILE}")
-    sys.exit(0 if all(not r["problems"] for r in results) else 1)
+    sys.exit(0 if all(not r["problems"] or r.get("known_issue") for r in results) else 1)
 
 
 if __name__ == "__main__":

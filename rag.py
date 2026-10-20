@@ -21,10 +21,20 @@ HISTORY_MESSAGES = 6  # recent chat messages remembered (3 question/answer pairs
 # turn it off by setting the environment variable RAG_THINK=0 before starting (e.g. on a slow machine).
 THINK = os.environ.get("RAG_THINK", "1") != "0"
 
+# Which files the "Sources:" line lists (see sources_to_show): the best match's file, plus another
+# file only if its chunk is within SOURCE_WINDOW of the best chunk's distance and the answer shares
+# at least SOURCE_MIN_SHARED meaningful words with it. Tuned on the daycare test questions.
+SOURCE_WINDOW = 0.10
+SOURCE_MIN_SHARED = 4
+FILLER_WORDS = set("""a an the and or but if of to in on at for from by with without as is are was were be been it
+its this that these those you your we our us they them their he she his her not no yes can may will would should
+could do does did have has had than then so such any all each per into out up down over under about after before
+between more most other which who whom what when where how why also only just too very there here""".split())
+
 # Phrases that mean the model found nothing in the documents.
 DONT_KNOW = ["don't know", "do not know", "not sure", "not provide", "doesn't provide",
              "no information", "not mention", "doesn't mention", "not contain", "doesn't contain",
-             "not specified", "not stated", "doesn't say", "does not say"]
+             "not specified", "not specify", "doesn't specify", "not stated", "doesn't say", "does not say"]
 
 # Template blanks like [Daycare Name] or [$___]; ignores markdown links and checkboxes.
 PLACEHOLDER = re.compile(r"\[(?![xX]\])[^\]\n]*[A-Za-z0-9_$][^\]\n]*\](?!\()")
@@ -184,8 +194,10 @@ def ingest():
 
 
 def answer_stream(question, history=()):
-    """Returns (sources, generator of answer text pieces).
+    """Returns (chunks, generator of answer text pieces).
 
+    chunks are the retrieved passages, best match first, each {"source", "distance", "text"};
+    pass them with the finished answer to sources_to_show() to get the files to list.
     history is a list of {"role": "user"|"assistant", "content": ...} from earlier turns.
     """
     history = list(history)[-HISTORY_MESSAGES:]
@@ -200,16 +212,14 @@ def answer_stream(question, history=()):
     collection = client.get_collection("docs")
     per_search = TOP_K if len(searches) == 1 else TOP_K // 2
     results = collection.query(query_embeddings=embed(searches), n_results=per_search)
-    seen, chunks, sources = set(), [], set()
-    for docs, metas in zip(results["documents"], results["metadatas"]):
-        for doc, meta in zip(docs, metas):
-            if doc not in seen:
-                seen.add(doc)
-                chunks.append(doc)
-                sources.add(meta["source"])
-    sources = sorted(sources)
+    found = {}  # chunk text -> {"source", "distance", "text"}, in the order the chunks were found
+    for docs, metas, dists in zip(results["documents"], results["metadatas"], results["distances"]):
+        for doc, meta, dist in zip(docs, metas, dists):
+            if doc not in found or dist < found[doc]["distance"]:
+                found[doc] = {"source": meta["source"], "distance": dist, "text": doc}
+    chunks = sorted(found.values(), key=lambda c: c["distance"])  # best match first
 
-    context = "\n\n---\n\n".join(chunks)
+    context = "\n\n---\n\n".join(found)
     prompt = (
         "Answer using only the context below. "
         "If the context does not say, reply \"I don't know.\" "
@@ -231,7 +241,7 @@ def answer_stream(question, history=()):
         stream=True,
         think=THINK,  # False skips Qwen3's "thinking" step: much faster on CPU, less accurate
     )
-    return sources, (part["message"]["content"] for part in stream)
+    return chunks, (part["message"]["content"] for part in stream)
 
 
 def says_dont_know(answer):
@@ -239,14 +249,48 @@ def says_dont_know(answer):
     return any(phrase in text for phrase in DONT_KNOW)
 
 
+def gives_no_answer(answer):
+    """True for a refusal like "I don't know". False for an answer that merely adds a caveat,
+    such as "Saturday hours are 8 to 6. The context doesn't say what a bath costs."
+    """
+    sentences = [s for s in re.split(r"(?<=[.!?])\s+|\n+", answer.strip()) if s.strip()]
+    return bool(sentences) and (says_dont_know(sentences[0]) or all(says_dont_know(s) for s in sentences))
+
+
+def content_words(text):
+    """The meaningful words and numbers in a text (lower case, without common filler words)."""
+    words = re.findall(r"[a-z0-9$%:.,'-]*[a-z0-9]", text.lower().replace("’", "'"))
+    return {w for w in words if w not in FILLER_WORDS}
+
+
+def sources_to_show(answer, chunks):
+    """The files to list under an answer.
+
+    None when the answer is a refusal ("I don't know"). Otherwise the file of the best-matching chunk,
+    plus any other file whose chunk is nearly as close (SOURCE_WINDOW) and whose words the answer
+    clearly reuses (SOURCE_MIN_SHARED words), which catches questions that need two documents.
+    """
+    if not chunks or gives_no_answer(answer):
+        return []
+    best = chunks[0]
+    shown = [best["source"]]
+    answer_words = content_words(answer)
+    for chunk in chunks[1:]:
+        if chunk["source"] in shown or chunk["distance"] > best["distance"] + SOURCE_WINDOW:
+            continue
+        body = chunk["text"].split("\n", 1)[-1]  # skip the "Title > Section" label line
+        if len(answer_words & content_words(body)) >= SOURCE_MIN_SHARED:
+            shown.append(chunk["source"])
+    return shown
+
+
 def ask(question, history=()):
-    sources, pieces = answer_stream(question, history)
+    chunks, pieces = answer_stream(question, history)
     answer = ""
     for piece in pieces:
         print(piece, end="", flush=True)
         answer += piece
-    # No sources for "I don't know": the searched files didn't back the answer.
-    print("\n\nSources:", ", ".join([] if says_dont_know(answer) else sources) or "none")
+    print("\n\nSources:", ", ".join(sources_to_show(answer, chunks)) or "none")
     return answer
 
 

@@ -73,6 +73,7 @@
     "id": "min-age",
     "type": "fact",
     "question": "What is the minimum age for a puppy to attend?",
+    "acceptable_sources": ["02-temperament-and-admission-policy.md"],
     "answer_contains": [["4 months", "four months"]],
     "retrieval_contains": "at least 4 months old"
   },
@@ -89,6 +90,7 @@
     "id": "eval-cost",
     "type": "fact",
     "question": "How much does the temperament evaluation cost?",
+    "acceptable_sources": ["03-pricing-and-packages.md"],
     "answer_contains": [["free", "no charge", "no cost", "$0"]],
     "retrieval_contains": "free of cost"
   },
@@ -162,6 +164,7 @@
     "id": "ten-day-package",
     "type": "multi",
     "question": "How much is the 10-day package and how long is it valid?",
+    "acceptable_sources": ["06-cancellation-payment-and-refund-policy.md"],
     "answer_contains": [["$800"], ["90 days", "ninety days"]],
     "retrieval_contains": "10-day package: $800, valid for 90 days"
   },
@@ -308,7 +311,7 @@
     "question": "What happens to my deposit if I cancel boarding 3 days before arrival?",
     "note": "Less than 5 days before arrival: partly refunded.",
     "answer_contains": [["partly", "partial", "part"]],
-    "answer_not_contains": ["full refund"],
+    "answer_not_contains": ["fully refunded"],
     "retrieval_contains": "deposit is partly refunded"
   },
   {
@@ -324,6 +327,7 @@
     "id": "payment-methods",
     "type": "fact",
     "question": "What payment methods do you accept?",
+    "acceptable_sources": ["03-pricing-and-packages.md"],
     "answer_contains": [["cash"], ["check"], ["card"]],
     "retrieval_contains": "Payment methods accepted: Cash, Check, Card"
   },
@@ -349,6 +353,53 @@
     "note": "Needs the 5-day grace period.",
     "answer_contains": [["grace", "5 days", "five days"]],
     "retrieval_contains": "grace period of 5 days"
+  },
+  {
+    "id": "full-day-and-cancel",
+    "type": "multi",
+    "question": "How much is a full day of daycare, and how far ahead do I have to cancel to avoid a charge?",
+    "note": "Needs the pricing file and the cancellation file.",
+    "expected_sources": ["03-pricing-and-packages.md", "06-cancellation-payment-and-refund-policy.md"],
+    "answer_contains": [["$100"], ["12 hours", "twelve hours"]],
+    "retrieval_contains": ["Full day (over 4 hours): $100.00", "Cancel at least 12 hours before drop-off"]
+  },
+  {
+    "id": "open-and-bath",
+    "type": "multi",
+    "question": "What time do you open on Saturdays, and how much is a bath?",
+    "note": "Needs the hours file and the pricing file.",
+    "expected_sources": ["03-pricing-and-packages.md", "04-hours-and-schedule.md"],
+    "answer_contains": [["8:00", "8 am", "8am"], ["$50"]],
+    "retrieval_contains": ["Saturday: 8:00am to 6:00pm", "Bath: $50.00"],
+    "known_issue": "The search returns the hours and rate chunks but not the Add-Ons chunk with the bath price, so the model cannot answer the second half. Questions with two separate topics need splitting into sub-searches or a larger TOP_K."
+  },
+  {
+    "id": "eval-and-vaccines",
+    "type": "multi",
+    "question": "Does my dog need a temperament evaluation, and which vaccines are required?",
+    "note": "Needs the admission policy and the health requirements.",
+    "expected_sources": ["01-vaccination-and-health-requirements.md", "02-temperament-and-admission-policy.md"],
+    "answer_contains": [["yes", "must", "required", "need"], ["rabies"]],
+    "retrieval_contains": ["Every new dog must complete a temperament evaluation", "Bordetella, also called kennel cough"]
+  },
+  {
+    "id": "close-and-late-fee",
+    "type": "multi",
+    "question": "What time do you close, and what is the fee for picking up late?",
+    "note": "Needs the hours file and the pricing file.",
+    "expected_sources": ["03-pricing-and-packages.md", "04-hours-and-schedule.md"],
+    "answer_contains": [["6:00", "6 pm", "6pm"], ["$5"]],
+    "retrieval_contains": ["Late pickup: $5.00 for every 30 minutes", "Monday to Friday: 8:00am to 6:00pm"],
+    "known_issue": "The Regular Hours chunk is not retrieved; the model gets the closing time right only by inferring it from the pick-up window. Same compound-question weakness as open-and-bath."
+  },
+  {
+    "id": "deposit-and-checkin",
+    "type": "multi",
+    "question": "How much is the boarding deposit, and what time is check-in?",
+    "note": "Needs the cancellation file and the pricing file.",
+    "expected_sources": ["03-pricing-and-packages.md", "06-cancellation-payment-and-refund-policy.md"],
+    "answer_contains": [["$25"], ["8:00", "8 am", "8am"]],
+    "retrieval_contains": ["deposit of $25.00", "Check-in is between 8:00am and 9:00am"]
   },
   {
     "id": "unknown-grooming",

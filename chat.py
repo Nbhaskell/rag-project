@@ -2,7 +2,7 @@ import json
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from rag import answer_stream, says_dont_know
+from rag import answer_stream, sources_to_show
 
 PORT = 8000
 
@@ -142,14 +142,14 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.flush()
 
         try:
-            sources, pieces = answer_stream(question, history)
+            chunks, pieces = answer_stream(question, history)
             answer = ""
             for piece in pieces:
                 answer += piece
                 send({"text": piece})
-            # No sources for "I don't know": the searched files didn't back the answer.
-            if not says_dont_know(answer):
-                send({"sources": sources})
+            shown = sources_to_show(answer, chunks)
+            if shown:
+                send({"sources": shown})
         except Exception as e:
             send({"error": str(e)})
 
