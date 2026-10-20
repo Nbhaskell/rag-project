@@ -46,11 +46,14 @@ def retrieve(question):
 
 
 def check_retrieval(q, chunks):
+    """Returns (found, problems, rank): rank is the 1-based position of the first chunk with the fact."""
     phrase = q.get("retrieval_contains")
     if phrase is None:
-        return None, []
-    ok = any(norm(phrase) in norm(c) for c in chunks)
-    return ok, [] if ok else [f"retrieved chunks do not contain: {phrase!r}"]
+        return None, [], None
+    wanted = norm(phrase)
+    rank = next((i for i, c in enumerate(chunks, 1) if wanted in norm(c)), None)
+    ok = rank is not None
+    return ok, [] if ok else [f"retrieved chunks do not contain: {phrase!r}"], rank
 
 
 def check_answer(q, answer):
@@ -104,8 +107,10 @@ def main():
                 print(f"[SKIP] {q['id']}")
                 continue
         else:
-            ok, problems = check_retrieval(q, retrieve(q["question"]))
-            r["retrieval"] = ok
+            chunks = retrieve(q["question"])
+            ok, problems, rank = check_retrieval(q, chunks)
+            r["retrieval"], r["retrieval_rank"] = ok, rank
+            r["context_chars"] = sum(len(c) for c in chunks)
             r["problems"] += problems
 
         if not args.retrieval_only:
@@ -141,6 +146,13 @@ def main():
     retrieval = [r["retrieval"] for r in results if r["retrieval"] is not None]
     answers = [r["answer_ok"] for r in results if r["answer_ok"] is not None]
     print(f"  retrieval checks: {sum(retrieval)}/{len(retrieval)}")
+    ranks = [r["retrieval_rank"] for r in results if r.get("retrieval_rank")]
+    if ranks:
+        print(f"    fact in the top-ranked chunk: {sum(x == 1 for x in ranks)}/{len(retrieval)}, "
+              f"average rank {sum(ranks) / len(ranks):.2f}")
+    sizes = [r["context_chars"] for r in results if r.get("context_chars")]
+    if sizes:
+        print(f"    text sent to the model per question: {sum(sizes) // len(sizes)} characters on average")
     if answers:
         print(f"  answer checks:    {sum(answers)}/{len(answers)}")
 
