@@ -1,0 +1,210 @@
+{
+  "name": "Add a document",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Add a document\n\nOpen the form at `http://127.0.0.1:5678/form/add-document`, pick a file (.pdf, .docx, .txt or .md) and send it.\n\n1. **Upload form** shows the page and receives the file\n2. **Check the file** rejects wrong types, empty or oversized files and cleans up the name\n3. **Save into docs** writes it into the `docs` folder (a file with the same name is replaced)\n4. The chat server notices the new file within about 10 seconds and indexes it\n\nThe folder is set at the top of the **Check the file** box. n8n may only write there because `start-n8n.ps1` allows the `docs` folder.",
+        "height": 340,
+        "width": 700
+      },
+      "id": "5b8e1c0a-6d1f-4c0e-9b52-1a7f3c9d2e01",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "Add a document",
+        "formDescription": "Choose a PDF, Word (.docx), text (.txt) or Markdown (.md) file. It is saved into the docs folder and becomes searchable in the chat within about 10 seconds. A file with the same name is replaced.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Document",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf,.docx,.txt,.md",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "path": "add-document",
+          "appendAttribution": false,
+          "buttonLabel": "Add to the documents"
+        }
+      },
+      "id": "0c4f7a9e-3b2d-4e18-8a6c-5d9b1f2e7a02",
+      "name": "Upload form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        32,
+        440
+      ],
+      "webhookId": "7d2a9c4e-1f3b-4a6d-8e5c-9b0a1c2d3e04"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Checks the uploaded file and decides where in docs/ it is saved.\n// Change DOCS_FOLDER if your project is somewhere else (it must match the folder the\n// n8n start script allows: <project>\\docs).\nconst DOCS_FOLDER = 'C:\\\\Users\\\\nbhas\\\\rag-project\\\\docs';\nconst ALLOWED = ['.pdf', '.docx', '.txt', '.md'];\nconst MAX_BYTES = 10 * 1024 * 1024;\n\nconst item = $input.first();\nconst keys = Object.keys(item.binary || {});\nconst reject = (error) => [{ json: { ok: false, error } }];\n\nif (keys.length === 0) return reject('No file was received.');\nconst file = item.binary[keys[0]];\n\n// keep only the file name (drop any folders), then replace odd characters\nlet name = String(file.fileName || '').split(/[\\\\/]/).pop().trim();\nif (name.startsWith('~$')) return reject('That looks like a Word lock file, not a document.');\nname = name.replace(/[^A-Za-z0-9 ._()\\-]/g, '_').replace(/^\\.+/, '');\nconst dot = name.lastIndexOf('.');\nconst base = dot > 0 ? name.slice(0, dot) : name;\nconst ext = dot > 0 ? name.slice(dot).toLowerCase() : '';\n\nif (!name || !base) return reject('The file has no usable name.');\nif (!ALLOWED.includes(ext)) return reject(`\"${name}\" is not a supported type. Use ${ALLOWED.join(', ')}.`);\nif (/^(con|prn|aux|nul|com\\d|lpt\\d)$/i.test(base)) return reject('That file name is reserved by Windows.');\n\nconst bytes = (await this.helpers.getBinaryDataBuffer(0, keys[0])).length;\nif (bytes === 0) return reject(`\"${name}\" is empty.`);\nif (bytes > MAX_BYTES) return reject(`\"${name}\" is larger than ${MAX_BYTES / 1024 / 1024} MB.`);\n\nconst safeName = base + ext;\nreturn [{\n  json: { ok: true, safeName, path: DOCS_FOLDER + '\\\\' + safeName, bytes },\n  binary: { data: file },\n}];\n"
+      },
+      "id": "9e3b6d1f-8a4c-4f27-b1d5-2c7e0a9f4b03",
+      "name": "Check the file",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a1b2c3d4-0001-4000-8000-000000000001",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3f8c2e5a-7b1d-4d90-a4e6-8c1b5d0f9a04",
+      "name": "File is fine?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ $json.path }}",
+        "dataPropertyName": "data",
+        "options": {}
+      },
+      "id": "6a1d9f3c-2e8b-4b75-9c0a-4f7e3d1b8c05",
+      "name": "Save into docs",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        800,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Saved",
+        "completionMessage": "={{ $('Check the file').item.json.safeName }} is now in the docs folder. The chat will be able to answer from it in about 10 seconds.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "2d7e4b8a-9c3f-4a61-8b2d-7e5a0c1f6d06",
+      "name": "Tell the user: saved",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        1056,
+        340
+      ],
+      "webhookId": "4b9a2d6e-5c1f-4e83-a7d0-3f8b1c9e2a07"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Not saved",
+        "completionMessage": "={{ $json.error }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "8c5a1e7d-4f2b-4d39-9a6e-1b3c7f0d5e08",
+      "name": "Tell the user: rejected",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        800,
+        560
+      ],
+      "webhookId": "1e6d3a9b-7c4f-4b25-8d1a-6a2f9e0c4b09"
+    }
+  ],
+  "connections": {
+    "Upload form": {
+      "main": [
+        [
+          {
+            "node": "Check the file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the file": {
+      "main": [
+        [
+          {
+            "node": "File is fine?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File is fine?": {
+      "main": [
+        [
+          {
+            "node": "Save into docs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tell the user: rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save into docs": {
+      "main": [
+        [
+          {
+            "node": "Tell the user: saved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "pinData": {}
+}
