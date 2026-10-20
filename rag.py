@@ -26,6 +26,13 @@ THINK = os.environ.get("RAG_THINK", "1") != "0"
 # at least SOURCE_MIN_SHARED meaningful words with it. Tuned on the daycare test questions.
 SOURCE_WINDOW = 0.10
 SOURCE_MIN_SHARED = 4
+SOURCE_MIN_SHARED_BEST = 2  # fewer words needed for the best passage of each separate part of a question
+
+# A question about several things is split and each part searched separately (see split_question).
+# Set the environment variable RAG_SPLIT=0 to turn this off.
+SPLIT_QUESTIONS = os.environ.get("RAG_SPLIT", "1") != "0"
+SUB_TOP_K = 2    # passages kept per search when a question was split
+MAX_PARTS = 4    # most parts a question is split into
 FILLER_WORDS = set("""a an the and or but if of to in on at for from by with without as is are was were be been it
 its this that these those you your we our us they them their he she his her not no yes can may will would should
 could do does did have has had than then so such any all each per into out up down over under about after before
@@ -193,33 +200,74 @@ def ingest():
             print(f"  - {w}")
 
 
-def answer_stream(question, history=()):
-    """Returns (chunks, generator of answer text pieces).
+SPLIT_PROMPT = (
+    "If the question below asks about two or more separate things, rewrite it as one short, "
+    "complete question per thing, one per line. If it asks about only one thing, repeat it "
+    "unchanged on a single line. Reply with the questions only, no numbering and no explanation.\n\n"
+    "Question: {question}"
+)
 
-    chunks are the retrieved passages, best match first, each {"source", "distance", "text"};
-    pass them with the finished answer to sources_to_show() to get the files to list.
-    history is a list of {"role": "user"|"assistant", "content": ...} from earlier turns.
+
+def split_question(question):
+    """Break a question about several separate things into one question per thing.
+
+    A single embedding of "when do you open, and how much is a bath?" lands between the two topics
+    and tends to find only one of them, so each part is searched for separately. Uses a quick call
+    to the chat model without thinking (about 0.2 seconds). Returns [question] if it can't split.
     """
-    history = list(history)[-HISTORY_MESSAGES:]
-    # A follow-up like "what about the second one?" searches poorly alone, so
-    # also search with the previous question, and merge both sets of chunks.
+    try:
+        reply = ollama.chat(
+            model=CHAT_MODEL,
+            messages=[{"role": "user", "content": SPLIT_PROMPT.format(question=question)}],
+            think=False, options={"temperature": 0},
+        )["message"]["content"]
+    except Exception:
+        return [question]
+    lines = [re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", line).strip() for line in reply.splitlines()]
+    parts = [line for line in lines if line]
+    return parts[:MAX_PARTS] if parts else [question]
+
+
+def retrieve(question, history=()):
+    """Find the passages to answer from. Returns a list of {"source", "distance", "text", "group"},
+    in the order they were found; "group" says which search found each one (0 is the question
+    itself, 1 and up are its separate parts) so the Sources line can treat each topic fairly.
+
+    A follow-up like "what about the second one?" searches poorly alone, so the previous question
+    plus the new one is searched too. A question about several things is also split and each part
+    searched on its own.
+    """
     searches = [question]
     for m in reversed(history):
         if m["role"] == "user":
             searches.append(m["content"] + "\n" + question)
             break
+    parts = split_question(question) if SPLIT_QUESTIONS else [question]
+    compound = len(parts) > 1
+    queries = searches + parts if compound else searches
+    groups = [0] * len(searches) + (list(range(1, len(parts) + 1)) if compound else [])
+    per_query = SUB_TOP_K if compound else (TOP_K if len(searches) == 1 else TOP_K // 2)
 
-    collection = client.get_collection("docs")
-    per_search = TOP_K if len(searches) == 1 else TOP_K // 2
-    results = collection.query(query_embeddings=embed(searches), n_results=per_search)
-    found = {}  # chunk text -> {"source", "distance", "text"}, in the order the chunks were found
-    for docs, metas, dists in zip(results["documents"], results["metadatas"], results["distances"]):
+    results = client.get_collection("docs").query(query_embeddings=embed(queries), n_results=per_query)
+    found = {}  # passage text -> its entry, keeping the closest distance seen
+    for group, docs, metas, dists in zip(groups, results["documents"], results["metadatas"], results["distances"]):
         for doc, meta, dist in zip(docs, metas, dists):
             if doc not in found or dist < found[doc]["distance"]:
-                found[doc] = {"source": meta["source"], "distance": dist, "text": doc}
-    chunks = sorted(found.values(), key=lambda c: c["distance"])  # best match first
+                found[doc] = {"source": meta["source"], "distance": dist, "text": doc, "group": group}
+    return list(found.values())
 
-    context = "\n\n---\n\n".join(found)
+
+def answer_stream(question, history=()):
+    """Returns (chunks, generator of answer text pieces).
+
+    chunks are the retrieved passages, best match first, each {"source", "distance", "text", "group"};
+    pass them with the finished answer to sources_to_show() to get the files to list.
+    history is a list of {"role": "user"|"assistant", "content": ...} from earlier turns.
+    """
+    history = list(history)[-HISTORY_MESSAGES:]
+    found = retrieve(question, history)  # in the order the passages were found
+    chunks = sorted(found, key=lambda c: c["distance"])  # best match first
+    context = "\n\n---\n\n".join(c["text"] for c in found)
     prompt = (
         "Answer using only the context below. "
         "If the context does not say, reply \"I don't know.\" "
@@ -269,18 +317,25 @@ def sources_to_show(answer, chunks):
     None when the answer is a refusal ("I don't know"). Otherwise the file of the best-matching chunk,
     plus any other file whose chunk is nearly as close (SOURCE_WINDOW) and whose words the answer
     clearly reuses (SOURCE_MIN_SHARED words), which catches questions that need two documents.
+    When a question was split into parts, each part's best match is also listed if the answer
+    shares even a couple of words with it (SOURCE_MIN_SHARED_BEST), since that part was asked about.
     """
     if not chunks or gives_no_answer(answer):
         return []
-    best = chunks[0]
-    shown = [best["source"]]
+    shown = [chunks[0]["source"]]
     answer_words = content_words(answer)
-    for chunk in chunks[1:]:
-        if chunk["source"] in shown or chunk["distance"] > best["distance"] + SOURCE_WINDOW:
-            continue
-        body = chunk["text"].split("\n", 1)[-1]  # skip the "Title > Section" label line
-        if len(answer_words & content_words(body)) >= SOURCE_MIN_SHARED:
-            shown.append(chunk["source"])
+    groups = {}  # a split question has one group per part; each is judged against its own best match
+    for chunk in chunks:  # best match first
+        groups.setdefault(chunk.get("group", 0), []).append(chunk)
+    for group_chunks in groups.values():
+        group_best = group_chunks[0]
+        for chunk in group_chunks:
+            if chunk["source"] in shown or chunk["distance"] > group_best["distance"] + SOURCE_WINDOW:
+                continue
+            body = chunk["text"].split("\n", 1)[-1]  # skip the "Title > Section" label line
+            needed = SOURCE_MIN_SHARED_BEST if chunk is group_best else SOURCE_MIN_SHARED
+            if len(answer_words & content_words(body)) >= needed:
+                shown.append(chunk["source"])
     return shown
 
 

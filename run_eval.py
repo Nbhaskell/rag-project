@@ -39,10 +39,8 @@ def has(text, phrase):
 
 
 def retrieve(question):
-    # Same search answer_stream does for a first question (no chat history).
-    collection = rag.client.get_collection("docs")
-    results = collection.query(query_embeddings=rag.embed([question]), n_results=rag.TOP_K)
-    return results["documents"][0]
+    # The same search answer_stream does for a first question (no chat history), best match first.
+    return [c["text"] for c in sorted(rag.retrieve(question), key=lambda c: c["distance"])]
 
 
 def doc_texts():

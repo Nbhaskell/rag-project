@@ -19,7 +19,9 @@ then let the AI answer from just those pieces.)
 2. **Index them.** Each chunk is turned into a list of numbers (an embedding) with the
    `embeddinggemma` model and stored in a local ChromaDB database.
 3. **Find the relevant chunks.** Your question is turned into numbers the same way, and the 4
-   closest chunks are looked up. For follow-up questions the previous question is searched too.
+   closest chunks are looked up. For follow-up questions the previous question is searched too, and a
+   question about several things ("when do you open, and how much is a bath?") is split so that
+   each part gets its own search.
 4. **Answer.** The chunks, your question and the last three question/answer pairs go to the
    `qwen3:8b` chat model through Ollama, with instructions to answer only from those chunks.
 
