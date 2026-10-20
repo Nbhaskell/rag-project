@@ -13,8 +13,8 @@ DOCS_DIR = Path("docs")
 DB_DIR = "chroma_db"
 EMBED_MODEL = "embeddinggemma"
 CHAT_MODEL = "qwen3:8b"
-CHUNK_SIZE = 800   # characters per chunk
-OVERLAP = 100      # shared characters between neighboring chunks
+CHUNK_SIZE = 800   # most characters in one chunk's text (the heading label is extra)
+OVERLAP = 100      # shared characters between neighboring chunks (only for text with no line breaks to cut at)
 TOP_K = 4          # chunks retrieved per question
 HISTORY_MESSAGES = 6  # recent chat messages remembered (3 question/answer pairs)
 # Qwen3 reasons before answering: better answers on tricky questions, but slower. On by default;
@@ -54,13 +54,72 @@ def read_file(path):
     return path.read_text(encoding="utf-8", errors="ignore")
 
 
-def chunk_text(text):
+HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$")
+
+
+def window_chunks(text):
+    """Fixed-size pieces with overlap: the last resort for text with no line breaks to cut at."""
     chunks, start = [], 0
     while start < len(text):
         chunk = text[start:start + CHUNK_SIZE].strip()
         if chunk:
             chunks.append(chunk)
         start += CHUNK_SIZE - OVERLAP
+    return chunks
+
+
+def split_body(body):
+    """Pieces of at most CHUNK_SIZE characters, cut between lines (the last line is repeated)."""
+    if len(body) <= CHUNK_SIZE:
+        return [body]
+    lines = body.split("\n")
+    if any(len(line) > CHUNK_SIZE for line in lines):
+        return window_chunks(body)
+    pieces, current = [], []
+    for line in lines:
+        if current and len("\n".join(current + [line])) > CHUNK_SIZE:
+            pieces.append("\n".join(current).strip())
+            last = current[-1]
+            current = [last] if last.strip() and len(last) + len(line) < CHUNK_SIZE else []
+        current.append(line)
+    pieces.append("\n".join(current).strip())
+    return [p for p in pieces if p]
+
+
+def chunk_text(text, doc_name="document", headings=True):
+    """Split text into chunks that each cover one section.
+
+    With headings=True (markdown and Word files) the text is cut at its headings, and every chunk
+    starts with a label like "Pricing and Packages > Boarding" so it says what it is about even
+    when read alone. The first "# " heading is the document title; otherwise doc_name is used.
+    Sections longer than CHUNK_SIZE are cut between lines. Without headings (PDF, txt) the whole
+    text is one section, labelled with doc_name.
+    """
+    title, path, sections, body, have_title = doc_name, [], [], [], False
+
+    def flush():
+        section = "\n".join(body).strip()
+        if section:
+            sections.append((list(path), section))
+        body.clear()
+
+    for line in text.splitlines():
+        match = HEADING.match(line) if headings else None
+        if not match:
+            body.append(line)
+            continue
+        flush()
+        level, heading = len(match.group(1)), match.group(2).strip()
+        if level == 1 and not have_title:
+            title, have_title = heading, True
+        else:
+            path = path[:max(level - 2, 0)] + [heading]
+    flush()
+
+    chunks = []
+    for section_path, section in sections:
+        label = " > ".join([title] + section_path)
+        chunks += [f"{label}\n{piece}" for piece in split_body(section)]
     return chunks
 
 
@@ -105,7 +164,7 @@ def ingest():
                 f"for example {examples}. Indexed anyway; fill them in and re-ingest."
             )
 
-        chunks = chunk_text(text)
+        chunks = chunk_text(text, file.stem, file.suffix.lower() in {".md", ".docx"})
         total_chunks += len(chunks)
         indexed += 1
         print(f"{file.name}: {len(chunks)} chunks")
@@ -157,7 +216,8 @@ def answer_stream(question, history=()):
         "If the context states a rule or fact that applies to the question, answer from it. "
         "Read all of the context before answering and take exceptions, grace periods and "
         "numeric limits (for example \"up to 4 hours\" versus \"over 4 hours\") into account. "
-        "Answer directly and concisely. For a yes/no question that the context answers, begin with "
+        "Answer directly and include every condition, alternative and exception the context gives "
+        "for the answer, but leave out unrelated details. For a yes/no question that the context answers, begin with "
         "\"Yes\" or \"No\" and check that it agrees with the rest of your sentence "
         "(if the context says something is not allowed, the answer to \"is it allowed?\" is No). "
         "The question may refer back to the earlier conversation (for example \"that trail\" or \"it\"); "
