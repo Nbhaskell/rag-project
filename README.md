@@ -1,4 +1,4 @@
-# Local RAG: chat with your own documents
+# Local RAG: chat with documents
 
 A small question-answering system for your own documents. You put files in a folder, build an
 index, and ask questions in a chat window in your browser. The AI models run entirely on your own
