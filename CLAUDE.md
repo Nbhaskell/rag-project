@@ -2,11 +2,6 @@
 
 A local RAG (retrieval-augmented generation) system that answers questions about documents in `docs/`, running fully offline on a Windows laptop, with a browser chat window. GitHub (private): https://github.com/Nbhaskell/rag-project
 
-## About the user
-- New to the terminal and Python. Explain steps simply, one at a time, and give exact commands.
-- Uses Windows Command Prompt (CMD), not PowerShell. Give CMD-style commands (backslashes, `venv\Scripts\activate`).
-- Ask before committing or pushing. Use a branch and pull request for bigger or risky features (see memory); small tweaks can go straight to `main`.
-
 ## Machine
 - Windows 11 IoT Enterprise LTSC 24H2
 - AMD Ryzen AI 7 350, Radeon 860M integrated graphics, 24 GB RAM (23.3 usable). No dedicated GPU, so models run on CPU and share system RAM. Smaller models feel much faster.
