@@ -370,8 +370,7 @@
     "note": "Needs the hours file and the pricing file.",
     "expected_sources": ["03-pricing-and-packages.md", "04-hours-and-schedule.md"],
     "answer_contains": [["8:00", "8 am", "8am"], ["$50"]],
-    "retrieval_contains": ["Saturday: 8:00am to 6:00pm", "Bath: $50.00"],
-    "known_issue": "The search returns the hours and rate chunks but not the Add-Ons chunk with the bath price, so the model cannot answer the second half. Questions with two separate topics need splitting into sub-searches or a larger TOP_K."
+    "retrieval_contains": ["Saturday: 8:00am to 6:00pm", "Bath: $50.00"]
   },
   {
     "id": "eval-and-vaccines",
@@ -389,8 +388,7 @@
     "note": "Needs the hours file and the pricing file.",
     "expected_sources": ["03-pricing-and-packages.md", "04-hours-and-schedule.md"],
     "answer_contains": [["6:00", "6 pm", "6pm"], ["$5"]],
-    "retrieval_contains": ["Late pickup: $5.00 for every 30 minutes", "Monday to Friday: 8:00am to 6:00pm"],
-    "known_issue": "The Regular Hours chunk is not retrieved; the model gets the closing time right only by inferring it from the pick-up window. Same compound-question weakness as open-and-bath."
+    "retrieval_contains": ["Late pickup: $5.00 for every 30 minutes", "Monday to Friday: 8:00am to 6:00pm"]
   },
   {
     "id": "deposit-and-checkin",
@@ -400,6 +398,63 @@
     "expected_sources": ["03-pricing-and-packages.md", "06-cancellation-payment-and-refund-policy.md"],
     "answer_contains": [["$25"], ["8:00", "8 am", "8am"]],
     "retrieval_contains": ["deposit of $25.00", "Check-in is between 8:00am and 9:00am"]
+  },
+  {
+    "id": "nail-and-nap",
+    "type": "multi",
+    "question": "How much is a nail trim, and when is nap time?",
+    "expected_sources": ["03-pricing-and-packages.md", "05-daily-routine.md"],
+    "answer_contains": [["$30"], ["12:00", "noon"]],
+    "retrieval_contains": ["Nail trim: $30.00", "12:00 PM to 2:30 PM Nap time"]
+  },
+  {
+    "id": "ratio-and-eval-length",
+    "type": "multi",
+    "question": "How many dogs does each staff member supervise, and how long does the temperament evaluation take?",
+    "expected_sources": ["02-temperament-and-admission-policy.md", "05-daily-routine.md"],
+    "answer_contains": [["5", "five"], ["1 hour", "one hour"]],
+    "retrieval_contains": ["1 staff member for every 5 dogs", "about 1 hour"]
+  },
+  {
+    "id": "unlimited-and-expiry",
+    "type": "multi",
+    "question": "How much is the unlimited monthly membership, and how long until package days expire?",
+    "expected_sources": ["03-pricing-and-packages.md", "06-cancellation-payment-and-refund-policy.md"],
+    "answer_contains": [["$2,500", "2500"], ["90 days"]],
+    "retrieval_contains": ["Unlimited monthly: $2,500", "Packages expire 90 days after purchase"]
+  },
+  {
+    "id": "blanket-and-christmas",
+    "type": "multi",
+    "question": "Can my dog bring a blanket, and are you open on Christmas Day?",
+    "expected_sources": ["04-hours-and-schedule.md", "05-daily-routine.md"],
+    "answer_contains": [["yes", "allowed"], ["closed", "not open", "no"]],
+    "retrieval_contains": ["A leash, toys, or a blanket: allowed", "Christmas Day"]
+  },
+  {
+    "id": "weight-and-rabies",
+    "type": "multi",
+    "question": "What is the maximum weight for a dog, and how long is a rabies vaccination valid?",
+    "expected_sources": ["01-vaccination-and-health-requirements.md", "02-temperament-and-admission-policy.md"],
+    "answer_contains": [["250"], ["3 years", "three years"]],
+    "retrieval_contains": ["up to 250 pounds", "Rabies (valid for 3 years"]
+  },
+  {
+    "id": "half-day-and-sick-return",
+    "type": "multi",
+    "question": "How much is a half day, and how long after being sick can my dog return?",
+    "expected_sources": ["01-vaccination-and-health-requirements.md", "03-pricing-and-packages.md"],
+    "answer_contains": [["$50"], ["2 days", "two days"]],
+    "retrieval_contains": ["Half day (up to 4 hours): $50.00", "may return after 2 days, or with a vet's note"]
+  },
+  {
+    "id": "three-topics",
+    "type": "multi",
+    "question": "What is the full-day price, how much is the boarding deposit, and how many dogs does each staff member supervise?",
+    "note": "Three separate topics in three different files.",
+    "expected_sources": ["03-pricing-and-packages.md", "05-daily-routine.md", "06-cancellation-payment-and-refund-policy.md"],
+    "answer_contains": [["$100"], ["$25"], ["5", "five"]],
+    "retrieval_contains": ["Full day (over 4 hours): $100.00", "deposit of $25.00", "1 staff member for every 5 dogs"]
   },
   {
     "id": "unknown-grooming",
