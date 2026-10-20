@@ -175,8 +175,11 @@ python run_eval.py --questions FILE.json  use a different question file
 ```
 
 `eval_questions.json` holds the questions for the dog-daycare example documents the project was
-developed with. `eval_questions_samples.json` is an older, smaller set that goes with the two
-files in `samples/`. For your own documents, write your own questions in the same format. Answers
+developed with. `eval_questions_fresh.json` is a second set of 55 questions for the same documents,
+written after the prompt and thresholds were tuned, so it shows whether they only work for the
+first set. Run it with `python run_eval.py --questions eval_questions_fresh.json`, and do not tune
+against it, or it stops being a fair check. `eval_questions_samples.json` is an older, smaller set
+that goes with the two files in `samples/`. For your own documents, write your own questions in the same format. Answers
 vary a little from run to run, so repeat a question several times before trusting a single result.
 
 ## Project layout
@@ -187,7 +190,7 @@ vary a little from run to run, so repeat a question several times before trustin
 | `chat.py` | The browser chat window (a small local web server) |
 | `run_eval.py` | The question-answering test runner |
 | `test_indexing.py`, `test_api.py` | Fast tests for the automatic indexing and the API (no AI model needed; run `python test_indexing.py` and `python test_api.py`) |
-| `eval_questions.json`, `eval_questions_samples.json` | Test questions and expected answers |
+| `eval_questions.json`, `eval_questions_fresh.json`, `eval_questions_samples.json` | Test questions and expected answers (the "fresh" set is kept apart on purpose, see Testing) |
 | `n8n/` | An n8n workflow that asks questions through the API, a start script and a setup guide |
 | `samples/` | Two small made-up documents for trying the system out |
 | `docs/` | Your documents (not in Git) |
