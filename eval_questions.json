@@ -147,9 +147,8 @@
     "id": "five-hours",
     "type": "edge",
     "question": "I'll be picking my dog up after 5 hours. Is that a half day or a full day, and what does it cost?",
-    "note": "Up to 4 hours is a half day; anything over 4 is a full day ($100).",
+    "note": "Up to 4 hours is a half day; anything over 4 is a full day ($100). A correct answer may quote the half-day price ($50) while explaining the rule, so $50 is not forbidden; a wrong 'half day, $50' verdict lacks 'full' and '$100' and fails the required words.",
     "answer_contains": [["full"], ["$100"]],
-    "answer_not_contains": ["$50"],
     "retrieval_contains": "Full day (over 4 hours): $100.00"
   },
   {
