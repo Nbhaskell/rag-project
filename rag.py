@@ -1,3 +1,4 @@
+import os
 import re
 import sys
 from pathlib import Path
@@ -16,6 +17,9 @@ CHUNK_SIZE = 800   # characters per chunk
 OVERLAP = 100      # shared characters between neighboring chunks
 TOP_K = 4          # chunks retrieved per question
 HISTORY_MESSAGES = 6  # recent chat messages remembered (3 question/answer pairs)
+# Qwen3 reasons before answering: better answers on tricky questions, but slower. On by default;
+# turn it off by setting the environment variable RAG_THINK=0 before starting (e.g. on a slow machine).
+THINK = os.environ.get("RAG_THINK", "1") != "0"
 
 # Phrases that mean the model found nothing in the documents.
 DONT_KNOW = ["don't know", "do not know", "not sure", "not provide", "doesn't provide",
@@ -149,7 +153,10 @@ def answer_stream(question, history=()):
     context = "\n\n---\n\n".join(chunks)
     prompt = (
         "Answer using only the context below. "
-        "If the answer isn't in the context, say you don't know. "
+        "If the context does not say, reply \"I don't know.\" "
+        "If the context states a rule or fact that applies to the question, answer from it. "
+        "Read all of the context before answering and take exceptions, grace periods and "
+        "numeric limits (for example \"up to 4 hours\" versus \"over 4 hours\") into account. "
         "Answer directly and concisely. For a yes/no question that the context answers, begin with "
         "\"Yes\" or \"No\" and check that it agrees with the rest of your sentence "
         "(if the context says something is not allowed, the answer to \"is it allowed?\" is No). "
@@ -162,7 +169,7 @@ def answer_stream(question, history=()):
         model=CHAT_MODEL,
         messages=history + [{"role": "user", "content": prompt}],
         stream=True,
-        think=False,  # skips Qwen3's long "thinking" step, much faster on CPU
+        think=THINK,  # False skips Qwen3's "thinking" step: much faster on CPU, less accurate
     )
     return sources, (part["message"]["content"] for part in stream)
 

@@ -1,0 +1,249 @@
+[
+  {
+    "id": "saturday-open",
+    "type": "fact",
+    "question": "What time does the roastery open on Saturdays?",
+    "answer_contains": [["7:00", "7 am", "7am", "7 a.m."]],
+    "retrieval_contains": "7:00 AM to 4:00 PM"
+  },
+  {
+    "id": "closed-day",
+    "type": "fact",
+    "question": "Which day is the roastery closed?",
+    "answer_contains": [["sunday"]],
+    "retrieval_contains": "closed on Sundays"
+  },
+  {
+    "id": "vacation",
+    "type": "fact",
+    "question": "How many vacation days do full-time employees get?",
+    "answer_contains": [["15", "fifteen"]],
+    "retrieval_contains": "15 days of paid vacation"
+  },
+  {
+    "id": "sick-days",
+    "type": "fact",
+    "question": "How many paid sick days does each employee get per year?",
+    "answer_contains": [["6", "six"]],
+    "retrieval_contains": "6 paid sick days"
+  },
+  {
+    "id": "vacation-notice",
+    "type": "fact",
+    "question": "How far in advance do vacation requests have to be submitted?",
+    "answer_contains": [["two weeks", "2 weeks", "14 days"]],
+    "retrieval_contains": "at least two weeks in advance"
+  },
+  {
+    "id": "dark-roast-days",
+    "type": "fact",
+    "question": "Which days are dark roasts done?",
+    "answer_contains": [["tuesday"], ["thursday"]],
+    "answer_not_contains": ["monday", "wednesday"],
+    "retrieval_contains": "Dark roasts are done on Tuesdays and Thursdays"
+  },
+  {
+    "id": "head-roaster",
+    "type": "fact",
+    "question": "Who is the head roaster?",
+    "answer_contains": [["marta delgado"]],
+    "retrieval_contains": "Marta Delgado"
+  },
+  {
+    "id": "expense-limit",
+    "type": "fact",
+    "question": "What is the most I can spend on a work purchase without getting approval first?",
+    "answer_contains": [["$50", "50 dollars"]],
+    "retrieval_contains": "under $50 without prior approval"
+  },
+  {
+    "id": "expense-approver",
+    "type": "fact",
+    "question": "Who has to approve work expenses over $50?",
+    "answer_contains": [["priya raman", "the owner"]],
+    "retrieval_contains": "Priya Raman"
+  },
+  {
+    "id": "receipt-deadline",
+    "type": "fact",
+    "question": "How many days do I have to submit receipts?",
+    "answer_contains": [["14", "fourteen"]],
+    "retrieval_contains": "Submit receipts within 14 days"
+  },
+  {
+    "id": "adult-fee",
+    "type": "fact",
+    "question": "How much does an adult ticket cost at Tidepool Trails?",
+    "answer_contains": [["$8", "8 dollars"]],
+    "answer_not_contains": ["$80"],
+    "retrieval_contains": "$8 per adult"
+  },
+  {
+    "id": "annual-pass",
+    "type": "fact",
+    "question": "What does an annual pass cost and who does it cover?",
+    "answer_contains": [["$60", "60 dollars"], ["household", "family"]],
+    "retrieval_contains": "annual pass costs $60"
+  },
+  {
+    "id": "kelp-dogs",
+    "type": "fact",
+    "question": "Are dogs allowed on Kelp Ridge Trail?",
+    "answer_contains": [["not allowed", "no dogs", "not permitted", "aren't allowed", "are prohibited", "cannot", "can't"]],
+    "answer_not_contains": ["yes", "dogs are allowed", "dogs are welcome"],
+    "retrieval_contains": "Kelp Ridge Trail"
+  },
+  {
+    "id": "yesno-camping",
+    "type": "yes-no",
+    "question": "Can I camp in the park?",
+    "note": "Answer is no. The reply must not open with Yes.",
+    "answer_contains": [["no", "not allowed", "not permitted", "prohibited"]],
+    "answer_not_contains": ["yes"],
+    "retrieval_contains": "Camping is not allowed"
+  },
+  {
+    "id": "yesno-sunday",
+    "type": "yes-no",
+    "question": "Is the roastery open on Sundays?",
+    "note": "Answer is no.",
+    "answer_contains": [["no", "closed"]],
+    "answer_not_contains": ["yes"],
+    "retrieval_contains": "closed on Sundays"
+  },
+  {
+    "id": "yesno-sick-separate",
+    "type": "yes-no",
+    "question": "Do sick days count against my vacation days?",
+    "note": "Answer is no.",
+    "answer_contains": [["no", "separate", "do not count", "don't count"]],
+    "answer_not_contains": ["yes"],
+    "retrieval_contains": "do not count against vacation"
+  },
+  {
+    "id": "yesno-kids-free",
+    "type": "yes-no",
+    "question": "Is entry free for children under 5?",
+    "note": "Answer is yes.",
+    "answer_contains": [["yes", "free"]],
+    "answer_not_contains": ["no,"],
+    "retrieval_contains": "Children under 5 enter free"
+  },
+  {
+    "id": "gull-length",
+    "type": "fact",
+    "question": "How long is the Gull Point Loop?",
+    "answer_contains": [["2 miles", "two miles"]],
+    "retrieval_contains": "Gull Point Loop"
+  },
+  {
+    "id": "cove-tide",
+    "type": "fact",
+    "question": "When is Anemone Cove Path open?",
+    "answer_contains": [["low tide"]],
+    "retrieval_contains": "Only open at low tide"
+  },
+  {
+    "id": "seal-distance",
+    "type": "fact",
+    "question": "How close can I get to the seals?",
+    "answer_contains": [["50 yards", "fifty yards"]],
+    "retrieval_contains": "at least 50 yards away"
+  },
+  {
+    "id": "drones",
+    "type": "fact",
+    "question": "Can I fly a drone in the park?",
+    "answer_contains": [["permit"]],
+    "retrieval_contains": "without a permit"
+  },
+  {
+    "id": "ranger-name",
+    "type": "fact",
+    "question": "Who is the park ranger?",
+    "answer_contains": [["tomas okafor"]],
+    "retrieval_contains": "Tomas Okafor"
+  },
+  {
+    "id": "park-hours",
+    "type": "edge",
+    "question": "What are the park's opening hours?",
+    "note": "The visitor center has different hours (9 to 5). The answer should be the park's: sunrise to sunset.",
+    "answer_contains": [["sunrise"], ["sunset"]],
+    "retrieval_contains": "sunrise to sunset"
+  },
+  {
+    "id": "toddler-fee",
+    "type": "edge",
+    "question": "How much does it cost for a 3 year old to enter the park?",
+    "note": "Needs reading 'children under 5 enter free' and applying it to age 3.",
+    "answer_contains": [["free", "no charge", "$0"]],
+    "retrieval_contains": "Children under 5 enter free"
+  },
+  {
+    "id": "both-docs",
+    "type": "multi",
+    "question": "How many vacation days do Bluefin employees get, and what does a Tidepool Trails annual pass cost?",
+    "note": "Needs chunks from both documents.",
+    "answer_contains": [["15", "fifteen"], ["$60", "60 dollars"]],
+    "retrieval_contains": "15 days of paid vacation"
+  },
+  {
+    "id": "unknown-apple",
+    "type": "unanswerable",
+    "question": "Who is the CEO of Apple?"
+  },
+  {
+    "id": "unknown-wage",
+    "type": "unanswerable",
+    "question": "How much does Bluefin pay its roasters per hour?"
+  },
+  {
+    "id": "unknown-giftshop",
+    "type": "unanswerable",
+    "question": "Does Tidepool Trails have a gift shop?"
+  },
+  {
+    "id": "followup-sick",
+    "type": "follow-up",
+    "follow_up_to": "vacation",
+    "question": "What about sick days?",
+    "answer_contains": [["6", "six"]]
+  },
+  {
+    "id": "followup-kelp-length",
+    "type": "follow-up",
+    "follow_up_to": "kelp-dogs",
+    "question": "How long is that trail?",
+    "answer_contains": [["4.5"]]
+  },
+  {
+    "id": "followup-light-roasts",
+    "type": "follow-up",
+    "follow_up_to": "dark-roast-days",
+    "question": "And light roasts?",
+    "answer_contains": [["monday"], ["wednesday"]]
+  },
+  {
+    "id": "followup-seals-when",
+    "type": "follow-up",
+    "follow_up_to": "seal-distance",
+    "question": "When are they there?",
+    "note": "'they' refers to the seals.",
+    "answer_contains": [["may"], ["september"]]
+  },
+  {
+    "id": "followup-kids-fee",
+    "type": "follow-up",
+    "follow_up_to": "adult-fee",
+    "question": "And for kids?",
+    "answer_contains": [["$4", "4 dollars"]]
+  },
+  {
+    "id": "followup-expense-approver",
+    "type": "follow-up",
+    "follow_up_to": "expense-limit",
+    "question": "Who approves anything over that?",
+    "answer_contains": [["priya raman", "the owner"]]
+  }
+]

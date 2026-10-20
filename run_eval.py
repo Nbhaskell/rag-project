@@ -4,6 +4,9 @@ Run from the project folder with the venv active, after `python rag.py ingest`:
     python run_eval.py                    retrieval + answers (slow: uses the chat model)
     python run_eval.py --retrieval-only   retrieval checks only (fast: no chat model)
     python run_eval.py --id vacation      only the question(s) with these ids
+    python run_eval.py --questions eval_questions_samples.json
+                                          use a different question file (the default,
+                                          eval_questions.json, is for the documents in docs/)
 
 Each question is checked two ways:
   retrieval: did the chunks sent to the model contain the fact? (retrieval_contains)
@@ -30,8 +33,9 @@ def norm(text):
 
 
 def has(text, phrase):
-    """Whole-word match (plural 's' allowed), so '6' doesn't match '16' and '$8' doesn't match '$80'."""
-    return re.search(r"(?<!\w)" + re.escape(norm(phrase)) + r"s?(?!\w)", text) is not None
+    """Whole-word match, so '6' doesn't match '16' and '$8' doesn't match '$80'.
+    A plural 's' and a trailing am/pm are allowed ('8:00' matches '8:00am')."""
+    return re.search(r"(?<!\w)" + re.escape(norm(phrase)) + r"s?(?:\s?[ap]m)?(?!\w)", text) is not None
 
 
 def retrieve(question):
@@ -68,9 +72,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--retrieval-only", action="store_true")
     parser.add_argument("--id", nargs="+", help="run only these question ids")
+    parser.add_argument("--questions", default=str(QUESTIONS_FILE), help="question file to use")
     args = parser.parse_args()
 
-    questions = json.loads(QUESTIONS_FILE.read_text(encoding="utf-8"))
+    questions = json.loads(Path(args.questions).read_text(encoding="utf-8"))
     if args.id:
         wanted = set(args.id)
         unknown = wanted - {q["id"] for q in questions}
