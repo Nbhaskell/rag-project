@@ -1,0 +1,720 @@
+[
+  {
+    "id": "holiday-surcharge",
+    "type": "fact",
+    "question": "Is there an extra charge for boarding on holidays?",
+    "answer_contains": [
+      [
+        "$25"
+      ]
+    ],
+    "retrieval_contains": "Holiday surcharge: $25.00 per night"
+  },
+  {
+    "id": "training-price",
+    "type": "fact",
+    "question": "How much does a training session cost?",
+    "answer_contains": [
+      [
+        "$100"
+      ]
+    ],
+    "retrieval_contains": "Training session: $100.00"
+  },
+  {
+    "id": "bounced-payment",
+    "type": "fact",
+    "question": "What do you charge if my payment bounces?",
+    "answer_contains": [
+      [
+        "$10"
+      ]
+    ],
+    "retrieval_contains": "Returned payment fee: $10.00"
+  },
+  {
+    "id": "accident-cleanup",
+    "type": "fact",
+    "question": "Will I be charged if my dog has an accident indoors?",
+    "answer_contains": [
+      [
+        "$10"
+      ]
+    ],
+    "retrieval_contains": "Cleanup fee for accidents or illness: $10.00"
+  },
+  {
+    "id": "fleas",
+    "type": "fact",
+    "question": "What happens if my dog is found to have fleas?",
+    "answer_contains": [
+      [
+        "sent home"
+      ]
+    ],
+    "retrieval_contains": "A dog found with fleas or ticks will be sent home"
+  },
+  {
+    "id": "heat-cycle",
+    "type": "yes-no",
+    "question": "Can my female dog come while she is in heat?",
+    "answer_contains": [
+      [
+        "cannot",
+        "can't",
+        "not allowed",
+        "not permitted"
+      ]
+    ],
+    "answer_not_contains": [
+      "yes"
+    ],
+    "retrieval_contains": "Female dogs in heat cannot attend"
+  },
+  {
+    "id": "sick-pickup-time",
+    "type": "fact",
+    "question": "If my dog gets sick during the day, how fast do I have to come get them?",
+    "answer_contains": [
+      [
+        "1 hour",
+        "one hour",
+        "an hour"
+      ]
+    ],
+    "retrieval_contains": "called for pickup within 1 hour"
+  },
+  {
+    "id": "midday-pickup",
+    "type": "fact",
+    "question": "When can I pick up a half-day dog?",
+    "answer_contains": [
+      [
+        "11:00"
+      ],
+      [
+        "1:00"
+      ]
+    ],
+    "retrieval_contains": "Midday pick-up: 11:00am and 1:00pm"
+  },
+  {
+    "id": "holidays-closed",
+    "type": "fact",
+    "question": "Which holidays are you closed?",
+    "answer_contains": [
+      [
+        "new year"
+      ],
+      [
+        "memorial day"
+      ],
+      [
+        "independence day"
+      ],
+      [
+        "labor day"
+      ],
+      [
+        "thanksgiving"
+      ],
+      [
+        "christmas"
+      ]
+    ],
+    "retrieval_contains": "We are closed on: New Year's Day"
+  },
+  {
+    "id": "memorial-day",
+    "type": "yes-no",
+    "question": "Can I drop my dog off on Memorial Day?",
+    "answer_contains": [
+      [
+        "closed",
+        "not open"
+      ]
+    ],
+    "answer_not_contains": [
+      "yes"
+    ],
+    "retrieval_contains": "Memorial Day"
+  },
+  {
+    "id": "snow-closure",
+    "type": "fact",
+    "question": "What happens to my reservation if you close because of a snowstorm?",
+    "answer_contains": [
+      [
+        "refund",
+        "credit"
+      ]
+    ],
+    "retrieval_contains": "refunded or given a credit"
+  },
+  {
+    "id": "how-to-reserve",
+    "type": "fact",
+    "question": "How do I make a reservation?",
+    "answer_contains": [
+      [
+        "phone"
+      ],
+      [
+        "website"
+      ],
+      [
+        "email"
+      ]
+    ],
+    "retrieval_contains": "Reserve by phone, website or email"
+  },
+  {
+    "id": "holiday-boarding-notice",
+    "type": "fact",
+    "question": "How early should I book boarding over a holiday?",
+    "answer_contains": [
+      [
+        "30 days"
+      ]
+    ],
+    "retrieval_contains": "reservations 30 days prior"
+  },
+  {
+    "id": "lunch-time",
+    "type": "fact",
+    "question": "When do the dogs have lunch?",
+    "answer_contains": [
+      [
+        "11:30"
+      ]
+    ],
+    "retrieval_contains": "11:30 AM to 12:00 PM Lunch"
+  },
+  {
+    "id": "treats",
+    "type": "fact",
+    "question": "Will you give my dog treats?",
+    "answer_contains": [
+      [
+        "permission"
+      ]
+    ],
+    "retrieval_contains": "Treats are only given with owner permission"
+  },
+  {
+    "id": "collar-id",
+    "type": "fact",
+    "question": "Does my dog need a collar or ID tag when attending?",
+    "answer_contains": [
+      [
+        "collar"
+      ],
+      [
+        "tag"
+      ]
+    ],
+    "retrieval_contains": "A collar with ID tag"
+  },
+  {
+    "id": "enrichment",
+    "type": "fact",
+    "question": "What kind of enrichment do the dogs get?",
+    "answer_contains": [
+      [
+        "puzzle"
+      ],
+      [
+        "sniff"
+      ],
+      [
+        "water"
+      ]
+    ],
+    "retrieval_contains": "puzzle toys, sniff games, water play"
+  },
+  {
+    "id": "membership-cancel",
+    "type": "fact",
+    "question": "How far ahead do I need to cancel the monthly membership?",
+    "answer_contains": [
+      [
+        "5 days",
+        "five days"
+      ]
+    ],
+    "retrieval_contains": "Cancel at least 5 days before renewal"
+  },
+  {
+    "id": "membership-renewal",
+    "type": "fact",
+    "question": "When does the monthly membership renew?",
+    "answer_contains": [
+      [
+        "1st",
+        "first"
+      ]
+    ],
+    "retrieval_contains": "renew automatically on 1st of each month"
+  },
+  {
+    "id": "refund-window",
+    "type": "fact",
+    "question": "How long do I have to request a refund?",
+    "answer_contains": [
+      [
+        "5 days",
+        "five days"
+      ]
+    ],
+    "retrieval_contains": "Refund requests must be made within 5 days"
+  },
+  {
+    "id": "holiday-boarding-cancel",
+    "type": "fact",
+    "question": "How far ahead must I cancel holiday boarding?",
+    "answer_contains": [
+      [
+        "10 days"
+      ]
+    ],
+    "retrieval_contains": "Holiday boarding requires cancellation at least 10 days ahead"
+  },
+  {
+    "id": "meal-packing",
+    "type": "fact",
+    "question": "How should I send my dog's food?",
+    "answer_contains": [
+      [
+        "labeled"
+      ],
+      [
+        "container"
+      ]
+    ],
+    "retrieval_contains": "Bring meals in a labeled container"
+  },
+  {
+    "id": "report-contents",
+    "type": "fact",
+    "question": "What is included in the daily report?",
+    "answer_contains": [
+      [
+        "meals"
+      ],
+      [
+        "bathroom"
+      ],
+      [
+        "behavior"
+      ]
+    ],
+    "retrieval_contains": "notes on meals, bathroom breaks, and behavior"
+  },
+  {
+    "id": "medication-how",
+    "type": "fact",
+    "question": "How should I send my dog's medication?",
+    "answer_contains": [
+      [
+        "original container"
+      ],
+      [
+        "instructions"
+      ]
+    ],
+    "retrieval_contains": "original container with written instructions"
+  },
+  {
+    "id": "first-visit",
+    "type": "yes-no",
+    "question": "Can my new dog stay for a full day on the first visit?",
+    "answer_contains": [
+      [
+        "evaluation"
+      ]
+    ],
+    "retrieval_contains": "complete a temperament evaluation before their first full day"
+  },
+  {
+    "id": "play-groups",
+    "type": "fact",
+    "question": "How are play groups put together?",
+    "answer_contains": [
+      [
+        "size"
+      ],
+      [
+        "age"
+      ],
+      [
+        "energy"
+      ]
+    ],
+    "retrieval_contains": "grouped by size, age, energy level, and play style"
+  },
+  {
+    "id": "removal-reasons",
+    "type": "fact",
+    "question": "What could get my dog removed from daycare?",
+    "answer_contains": [
+      [
+        "aggression"
+      ],
+      [
+        "resource guarding"
+      ]
+    ],
+    "retrieval_contains": "Aggression toward people or dogs"
+  },
+  {
+    "id": "flu-only-recommended",
+    "type": "fact",
+    "question": "Which vaccine is only recommended and not required?",
+    "answer_contains": [
+      [
+        "influenza",
+        "flu"
+      ]
+    ],
+    "retrieval_contains": "Canine influenza: recommended"
+  },
+  {
+    "id": "military-discount",
+    "type": "fact",
+    "question": "Do you give a military discount?",
+    "answer_contains": [
+      [
+        "10%"
+      ]
+    ],
+    "retrieval_contains": "Multi-dog, military, rescue, or referral discounts: 10%"
+  },
+  {
+    "id": "package-20",
+    "type": "multi",
+    "question": "What does the 20-day package cost and how long is it valid?",
+    "answer_contains": [
+      [
+        "$1,500"
+      ],
+      [
+        "90 days"
+      ]
+    ],
+    "retrieval_contains": "20-day package: $1,500"
+  },
+  {
+    "id": "dispute-charge",
+    "type": "multi",
+    "question": "Who do I contact about a charge I think is wrong, and how soon?",
+    "answer_contains": [
+      [
+        "nathan"
+      ],
+      [
+        "5 days",
+        "five days"
+      ]
+    ],
+    "retrieval_contains": "Questions about a charge should go to Nathan"
+  },
+  {
+    "id": "boarding-3-nights",
+    "type": "edge",
+    "question": "How much would three nights of boarding cost for one dog?",
+    "note": "3 x $125 = $375.",
+    "answer_contains": [
+      [
+        "$375"
+      ]
+    ],
+    "retrieval_contains": "Standard overnight: $125.00 per night"
+  },
+  {
+    "id": "boarding-two-dogs",
+    "type": "edge",
+    "question": "What is the nightly price for two dogs sharing a boarding room?",
+    "note": "$125 + $50 = $175.",
+    "answer_contains": [
+      [
+        "$175"
+      ]
+    ],
+    "retrieval_contains": [
+      "Standard overnight: $125.00 per night",
+      "Second dog sharing a room: $50.00 per night"
+    ]
+  },
+  {
+    "id": "late-7pm",
+    "type": "edge",
+    "question": "I picked my dog up at 7pm on a Tuesday. How much is the late fee?",
+    "note": "Closing is 6pm (hours document); 60 minutes late at $5 per 30 minutes = $10.",
+    "answer_contains": [
+      [
+        "$10"
+      ]
+    ],
+    "retrieval_contains": [
+      "Late pickup: $5.00 for every 30 minutes",
+      "Monday to Friday: 8:00am to 6:00pm"
+    ]
+  },
+  {
+    "id": "ten-day-savings",
+    "type": "edge",
+    "question": "How much do I save per day with the 10-day package compared with paying for single full days?",
+    "note": "$800 / 10 = $80 a day against $100: saves $20 a day ($200 in total).",
+    "answer_contains": [
+      [
+        "$20",
+        "$200"
+      ]
+    ],
+    "retrieval_contains": [
+      "10-day package: $800",
+      "Full day (over 4 hours): $100.00"
+    ]
+  },
+  {
+    "id": "late-cancel-package",
+    "type": "edge",
+    "question": "I'm using a package and cancel a daycare day two hours before drop-off. What happens?",
+    "answer_contains": [
+      [
+        "$50"
+      ],
+      [
+        "used",
+        "lost",
+        "not returned",
+        "forfeit"
+      ]
+    ],
+    "retrieval_contains": "Late cancellation or no-show: charged a fee of $50.00, and a package day is used."
+  },
+  {
+    "id": "expired-8-days",
+    "type": "edge",
+    "question": "My dog's DHPP booster expired 8 days ago. Can he attend today?",
+    "note": "The grace period is 5 days, so 8 days is too long.",
+    "answer_contains": [
+      [
+        "cannot",
+        "can't",
+        "not allowed",
+        "unable"
+      ]
+    ],
+    "answer_not_contains": [
+      "yes"
+    ],
+    "retrieval_contains": "grace period of 5 days"
+  },
+  {
+    "id": "puppy-5-months",
+    "type": "edge",
+    "question": "My puppy is 5 months old and not neutered. Is that allowed?",
+    "note": "Only dogs over 6 months need to be fixed.",
+    "answer_contains": [
+      [
+        "6 months",
+        "six months"
+      ]
+    ],
+    "retrieval_contains": "Dogs over 6 months old must be spayed or neutered"
+  },
+  {
+    "id": "sunday-false-premise",
+    "type": "edge",
+    "question": "Why are you closed on Sundays?",
+    "note": "False premise: Sundays are open 8am to 6pm.",
+    "answer_contains": [
+      [
+        "8:00"
+      ],
+      [
+        "6:00"
+      ]
+    ],
+    "retrieval_contains": "Sunday: 8:00am to 6:00pm"
+  },
+  {
+    "id": "unlimited-false-premise",
+    "type": "edge",
+    "question": "Is the unlimited monthly membership $250?",
+    "note": "False premise: it is $2,500.",
+    "answer_contains": [
+      [
+        "$2,500"
+      ]
+    ],
+    "retrieval_contains": "Unlimited monthly: $2,500 per month"
+  },
+  {
+    "id": "phone-and-sunday",
+    "type": "multi",
+    "question": "What's your phone number, and are you open on Sundays?",
+    "note": "The phone number is printed in every document, so only the Sunday hours decide which file the Sources line should show.",
+    "answer_contains": [
+      [
+        "111-111-1111"
+      ],
+      [
+        "8:00"
+      ]
+    ],
+    "retrieval_contains": "Sunday: 8:00am to 6:00pm"
+  },
+  {
+    "id": "training-and-cards",
+    "type": "multi",
+    "question": "How much is a training session, and do you accept cards?",
+    "answer_contains": [
+      [
+        "$100"
+      ],
+      [
+        "card"
+      ]
+    ],
+    "retrieval_contains": [
+      "Training session: $100.00",
+      "cash, check, cards"
+    ]
+  },
+  {
+    "id": "lunch-late-weight",
+    "type": "multi",
+    "question": "When is lunch, what is the late fee per 30 minutes, and what is the maximum dog weight?",
+    "answer_contains": [
+      [
+        "11:30"
+      ],
+      [
+        "$5"
+      ],
+      [
+        "250"
+      ]
+    ],
+    "retrieval_contains": [
+      "11:30 AM to 12:00 PM Lunch",
+      "Late pickup: $5.00 for every 30 minutes",
+      "up to 250 pounds"
+    ]
+  },
+  {
+    "id": "bath-and-surcharge",
+    "type": "multi",
+    "question": "How much is a bath, and how much extra is boarding on a holiday?",
+    "answer_contains": [
+      [
+        "$50"
+      ],
+      [
+        "$25"
+      ]
+    ],
+    "retrieval_contains": [
+      "Bath: $50.00",
+      "Holiday surcharge: $25.00 per night"
+    ]
+  },
+  {
+    "id": "unknown-tour",
+    "type": "unanswerable",
+    "question": "Can I tour the facility before signing up?"
+  },
+  {
+    "id": "unknown-insurance",
+    "type": "unanswerable",
+    "question": "Do you accept pet insurance?"
+  },
+  {
+    "id": "unknown-vet",
+    "type": "unanswerable",
+    "question": "Is there a veterinarian on staff?"
+  },
+  {
+    "id": "unknown-indoor",
+    "type": "unanswerable",
+    "question": "Do you have an indoor play area for rainy days?"
+  },
+  {
+    "id": "unknown-senior",
+    "type": "unanswerable",
+    "question": "Do you offer a senior citizen discount?"
+  },
+  {
+    "id": "bath-price",
+    "type": "fact",
+    "question": "How much is a bath?",
+    "answer_contains": [
+      [
+        "$50"
+      ]
+    ],
+    "retrieval_contains": "Bath: $50.00"
+  },
+  {
+    "id": "followup-nail",
+    "type": "follow-up",
+    "follow_up_to": "bath-price",
+    "question": "And a nail trim?",
+    "answer_contains": [
+      [
+        "$30"
+      ]
+    ]
+  },
+  {
+    "id": "boarding-night",
+    "type": "fact",
+    "question": "How much is boarding per night?",
+    "answer_contains": [
+      [
+        "$125"
+      ]
+    ],
+    "retrieval_contains": "Standard overnight: $125.00 per night"
+  },
+  {
+    "id": "followup-holiday-night",
+    "type": "follow-up",
+    "follow_up_to": "boarding-night",
+    "question": "What about on a holiday?",
+    "answer_contains": [
+      [
+        "$25",
+        "$150"
+      ]
+    ]
+  },
+  {
+    "id": "followup-late-holiday-cancel",
+    "type": "follow-up",
+    "follow_up_to": "holiday-boarding-cancel",
+    "question": "And what if I cancel late?",
+    "answer_contains": [
+      [
+        "$10"
+      ]
+    ]
+  },
+  {
+    "id": "followup-sick-return",
+    "type": "follow-up",
+    "follow_up_to": "sick-pickup-time",
+    "question": "How long before he can come back?",
+    "answer_contains": [
+      [
+        "2 days",
+        "two days"
+      ],
+      [
+        "vet"
+      ]
+    ]
+  }
+]
