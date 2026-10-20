@@ -1,0 +1,107 @@
+{
+  "name": "Ask the documents",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Ask the documents\n\nSend a POST to `/webhook/ask-docs` with `{\"question\": \"...\"}`.\n\n1. **Webhook** receives the question\n2. **Ask the RAG project** sends it to the chat server (port 8000) and gets back the answer and its sources\n3. **Send the answer back** returns that answer to whoever asked\n\nThe chat server (`python chat.py`) must be running.",
+        "height": 260,
+        "width": 620
+      },
+      "id": "39c7979e-2ea4-44eb-91c2-060c01ab7f94",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ask-docs",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "af6dbf20-76c6-478b-ac45-aef56b61bf78",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        352
+      ],
+      "webhookId": "b7c9e1f2-3a4d-4e5f-8a6b-9c0d1e2f3a03"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/ask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ question: $json.body.question }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "d90c2acd-fbbb-4810-88ed-836a1f39cf09",
+      "name": "Ask the RAG project",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        288,
+        352
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Vjd7RTN6T9z7AeIB",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "856c691a-868e-47f0-aee1-070ca0a4b69c",
+      "name": "Send the answer back",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        544,
+        352
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Ask the RAG project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask the RAG project": {
+      "main": [
+        [
+          {
+            "node": "Send the answer back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "pinData": {}
+}
