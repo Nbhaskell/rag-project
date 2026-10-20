@@ -45,8 +45,8 @@ def retrieve(question):
 
 def doc_texts():
     """Normalized text of each document in docs/, by file name (markdown and text files)."""
-    return {p.name: norm(p.read_text(encoding="utf-8", errors="ignore"))
-            for p in rag.DOCS_DIR.rglob("*") if p.suffix.lower() in {".md", ".txt"}}
+    return {key: norm(path.read_text(encoding="utf-8", errors="ignore"))
+            for key, path in rag.list_docs().items() if path.suffix.lower() in {".md", ".txt"}}
 
 
 def expected_sources(q, by_id, texts):

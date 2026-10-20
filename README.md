@@ -57,13 +57,7 @@ again each time you open a new terminal. If PowerShell refuses to run it, run
 
 1. **Add your documents.** Create a folder called `docs` in the project and copy your files into
    it. The `docs` folder is kept out of Git on purpose, so private documents stay private.
-2. **Build the index.**
-   ```
-   python rag.py ingest
-   ```
-   This rebuilds the index from scratch, so run it again whenever the documents change. It prints
-   a summary and warns about files it couldn't read and about unfilled `[bracket]` placeholders.
-3. **Chat.**
+2. **Chat.**
    ```
    python chat.py
    ```
@@ -71,6 +65,24 @@ again each time you open a new terminal. If PowerShell refuses to run it, run
    the model loads. Use the **New chat** button to clear its memory, and press Ctrl+C in the
    terminal to stop. For a plain terminal version, run `python rag.py` instead (type `quit` to
    exit).
+
+The chat builds and updates the search index by itself. When it starts it indexes any new or changed
+documents, and while it runs it checks the `docs` folder every few seconds: a file you add, edit or
+delete is picked up within about 10 seconds (it waits until the file has finished saving), and only
+that file is re-processed. The terminal shows lines like `[index] updated 03-pricing.md: 9 chunks`.
+It warns about files it couldn't read and about unfilled `[bracket]` placeholders, once per file.
+
+You can also manage the index yourself:
+
+```
+python rag.py sync     update the index with whatever changed, then stop
+python rag.py watch    keep the index up to date without the chat window (Ctrl+C to stop)
+python rag.py ingest   throw the index away and rebuild everything from scratch
+```
+
+`ingest` is only needed if the index looks wrong. Changing the chunk size, the embedding model or
+how files are read re-indexes everything automatically. To stop the chat from watching the folder,
+set `RAG_WATCH=0` before starting it.
 
 ## Writing documents that work well
 
@@ -100,7 +112,7 @@ $env:RAG_THINK = "0"     (PowerShell)
 
 `run_eval.py` asks a set of questions with known answers and reports how many it got right. It
 checks two things: whether the right text was retrieved, and whether the answer contains the
-expected facts. Run `python rag.py ingest` first, then:
+expected facts. Make sure the index is up to date first (`python rag.py sync`), then:
 
 ```
 python run_eval.py                        run everything
@@ -120,7 +132,8 @@ vary a little from run to run, so repeat a question several times before trustin
 |---|---|
 | `rag.py` | The pipeline: reading, chunking, indexing, retrieval and answering |
 | `chat.py` | The browser chat window (a small local web server) |
-| `run_eval.py` | The test runner |
+| `run_eval.py` | The question-answering test runner |
+| `test_indexing.py` | Tests for the automatic indexing (fast, no AI model needed; run `python test_indexing.py`) |
 | `eval_questions.json`, `eval_questions_samples.json` | Test questions and expected answers |
 | `samples/` | Two small made-up documents for trying the system out |
 | `docs/` | Your documents (not in Git) |

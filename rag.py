@@ -1,6 +1,9 @@
+import hashlib
 import os
 import re
 import sys
+import threading
+import time
 from pathlib import Path
 
 import chromadb
@@ -46,7 +49,17 @@ DONT_KNOW = ["don't know", "do not know", "not sure", "not provide", "doesn't pr
 # Template blanks like [Daycare Name] or [$___]; ignores markdown links and checkboxes.
 PLACEHOLDER = re.compile(r"\[(?![xX]\])[^\]\n]*[A-Za-z0-9_$][^\]\n]*\](?!\()")
 
+SUPPORTED_SUFFIXES = {".pdf", ".txt", ".md", ".docx"}
+SYNC_INTERVAL = 5   # seconds between checks of the docs folder while watching
+# Bump this whenever the way files are read or chunked changes, so existing files get indexed again.
+INDEX_VERSION = 1
+
 client = chromadb.PersistentClient(path=DB_DIR)
+
+index_lock = threading.RLock()  # only one indexing job runs at a time
+index_state = {"last_sync": None, "last_change": None, "last_summary": None}
+skipped = {}            # file key -> fingerprint of a version that was unreadable or empty (reported once)
+fingerprint_cache = {}  # file key -> ((modified time, size), fingerprint)
 
 
 def read_docx(path):
@@ -144,60 +157,218 @@ def embed(texts):
     return ollama.embed(model=EMBED_MODEL, input=texts)["embeddings"]
 
 
-def ingest():
+def get_collection():
+    return client.get_or_create_collection("docs", metadata={"hnsw:space": "cosine"})
+
+
+def doc_key(path):
+    """How a file is named in the index: its path inside docs/, with forward slashes."""
+    return path.relative_to(DOCS_DIR).as_posix()
+
+
+def list_docs():
+    """{key: path} for every supported file under docs/ (Word's temporary ~$ lock files are skipped)."""
+    return {doc_key(p): p for p in sorted(DOCS_DIR.rglob("*"))
+            if p.is_file() and p.suffix.lower() in SUPPORTED_SUFFIXES and not p.name.startswith("~$")}
+
+
+def file_fingerprint(key, path):
+    """A short code for "this file's content, indexed with these settings".
+
+    If the file changes, or CHUNK_SIZE, OVERLAP, the embedding model or INDEX_VERSION change, the
+    code changes and the file is indexed again. The fingerprint is cached by size and modified time,
+    so an unchanged file is not re-read every time the folder is checked.
+    """
+    stat = path.stat()
+    stamp = (stat.st_mtime_ns, stat.st_size, f"{INDEX_VERSION}|{EMBED_MODEL}|{CHUNK_SIZE}|{OVERLAP}")
+    cached = fingerprint_cache.get(key)
+    if cached and cached[0] == stamp:
+        return cached[1]
+    digest = hashlib.sha256(f"{stamp[2]}|".encode())
+    digest.update(path.read_bytes())
+    fingerprint_cache[key] = (stamp, digest.hexdigest())
+    return fingerprint_cache[key][1]
+
+
+def index_file(collection, key, path, fingerprint):
+    """Read one file and add its chunks to the index.
+
+    Returns (number of chunks, warnings, status) where status is "ok", "empty" (no readable text)
+    or "unreadable". Nothing is added unless the status is "ok".
+    """
     try:
-        client.delete_collection("docs")
-    except Exception:
-        pass
-    collection = client.create_collection("docs", metadata={"hnsw:space": "cosine"})
+        text = read_file(path)
+    except Exception as e:
+        return 0, [f"{key}: could not be read and was skipped ({e})"], "unreadable"
+    if not text.strip():
+        return 0, [f"{key}: no readable text, skipped. "
+                   "If it is a scanned PDF, it needs OCR or retyping."], "empty"
+    warnings = []
+    blanks = PLACEHOLDER.findall(text)
+    if blanks:
+        examples = ", ".join(blanks[:3])
+        warnings.append(
+            f"{key}: {len(blanks)} unfilled [bracket] placeholder(s), "
+            f"for example {examples}. Indexed anyway; fill them in and it will be updated."
+        )
+    chunks = chunk_text(text, path.stem, path.suffix.lower() in {".md", ".docx"})
+    if not chunks:
+        return 0, warnings + [f"{key}: only headings, no text under them, skipped."], "empty"
+    for i in range(0, len(chunks), 16):
+        batch = chunks[i:i + 16]
+        collection.add(
+            # the fingerprint in the id means a new version never collides with the old one
+            ids=[f"{key}-{fingerprint[:10]}-{i + j}" for j in range(len(batch))],
+            documents=batch,
+            embeddings=embed(batch),
+            metadatas=[{"source": key, "file_hash": fingerprint}] * len(batch),
+        )
+    return len(chunks), warnings, "ok"
 
-    files = [
-        p for p in DOCS_DIR.rglob("*")
-        if p.suffix.lower() in {".pdf", ".txt", ".md", ".docx"}
-        and not p.name.startswith("~$")  # Word's temporary lock files
-    ]
-    if not files:
-        print("No .pdf, .docx, .txt or .md files found in the docs folder.")
-        return
 
-    warnings, total_chunks, indexed = [], 0, 0
-    for file in files:
+def indexed_files(collection):
+    """{file key: set of fingerprints} for what is in the index right now."""
+    found = {}
+    for meta in collection.get(include=["metadatas"])["metadatas"]:
+        found.setdefault(meta["source"], set()).add(meta.get("file_hash"))
+    return found
+
+
+def ingest():
+    """Rebuild the whole index from scratch (use sync_docs to update only what changed)."""
+    with index_lock:
         try:
-            text = read_file(file)
-        except Exception as e:
-            warnings.append(f"{file.name}: could not be read and was skipped ({e})")
-            continue
-        if not text.strip():
-            warnings.append(
-                f"{file.name}: no readable text, skipped. "
-                "If it is a scanned PDF, it needs OCR or retyping."
-            )
-            continue
-        blanks = PLACEHOLDER.findall(text)
-        if blanks:
-            examples = ", ".join(blanks[:3])
-            warnings.append(
-                f"{file.name}: {len(blanks)} unfilled [bracket] placeholder(s), "
-                f"for example {examples}. Indexed anyway; fill them in and re-ingest."
-            )
+            client.delete_collection("docs")
+        except Exception:
+            pass
+        skipped.clear()
+        fingerprint_cache.clear()
+        collection = get_collection()
 
-        chunks = chunk_text(text, file.stem, file.suffix.lower() in {".md", ".docx"})
-        total_chunks += len(chunks)
-        indexed += 1
-        print(f"{file.name}: {len(chunks)} chunks")
-        for i in range(0, len(chunks), 16):
-            batch = chunks[i:i + 16]
-            collection.add(
-                ids=[f"{file.name}-{i + j}" for j in range(len(batch))],
-                documents=batch,
-                embeddings=embed(batch),
-                metadatas=[{"source": file.name}] * len(batch),
-            )
+        files = list_docs()
+        if not files:
+            print("No .pdf, .docx, .txt or .md files found in the docs folder.")
+            return
+
+        warnings, total_chunks, indexed = [], 0, 0
+        for key, path in files.items():
+            fingerprint = file_fingerprint(key, path)
+            count, file_warnings, status = index_file(collection, key, path, fingerprint)
+            warnings += file_warnings
+            if status == "ok":
+                total_chunks += count
+                indexed += 1
+                print(f"{key}: {count} chunks")
+            else:
+                skipped[key] = fingerprint
+        index_state["last_sync"] = time.time()
+        index_state["last_change"] = time.time()
     print(f"\nDone. {indexed} of {len(files)} files indexed, {total_chunks} chunks.")
     if warnings:
         print(f"\n{len(warnings)} warning(s):")
         for w in warnings:
             print(f"  - {w}")
+
+
+def sync_docs(settled=None, log=print):
+    """Bring the index up to date with docs/: add new files, re-index changed ones, drop deleted ones.
+
+    Only files that changed are re-read and re-embedded, so this is fast when little has changed.
+    settled: optional set of file keys that are safe to read; any other file is left for the next
+    round because it may still be being saved. Returns a summary dict.
+    """
+    summary = {"added": [], "updated": [], "removed": [], "unchanged": 0, "waiting": [], "warnings": []}
+    with index_lock:
+        collection = get_collection()
+        files = list_docs()
+        stored = indexed_files(collection)
+
+        for key in sorted(set(stored) - set(files)):  # deleted from docs/
+            collection.delete(where={"source": key})
+            skipped.pop(key, None)
+            fingerprint_cache.pop(key, None)
+            summary["removed"].append(key)
+            log(f"[index] removed {key}")
+
+        for key, path in files.items():
+            if settled is not None and key not in settled:
+                summary["waiting"].append(key)
+                continue
+            try:
+                fingerprint = file_fingerprint(key, path)
+            except OSError:  # locked or vanished while we looked: try again next round
+                summary["waiting"].append(key)
+                continue
+            if stored.get(key) == {fingerprint} or skipped.get(key) == fingerprint:
+                summary["unchanged"] += 1  # up to date, or already reported as unreadable/empty
+                continue
+
+            # clear half-finished leftovers of this exact version, then add it
+            collection.delete(where={"$and": [{"source": key}, {"file_hash": fingerprint}]})
+            count, warnings, status = index_file(collection, key, path, fingerprint)
+            summary["warnings"] += warnings
+            for w in warnings:
+                log(f"[index] warning: {w}")
+            if status == "ok":
+                skipped.pop(key, None)
+                # only now remove the old version, so a question asked mid-update still finds something
+                collection.delete(where={"$and": [{"source": key}, {"file_hash": {"$ne": fingerprint}}]})
+                kind = "updated" if key in stored else "added"
+                summary[kind].append(key)
+                log(f"[index] {kind} {key}: {count} chunks")
+            else:
+                skipped[key] = fingerprint  # don't retry (or repeat the warning) until the file changes
+                if status == "empty" and key in stored:  # the text is gone, so the old answers should be too
+                    collection.delete(where={"source": key})
+                    summary["removed"].append(key)
+                    log(f"[index] removed {key} (no text left)")
+
+        index_state["last_sync"] = time.time()
+        if summary["added"] or summary["updated"] or summary["removed"]:
+            index_state["last_change"] = time.time()
+        index_state["last_summary"] = summary
+    return summary
+
+
+def stat_snapshot():
+    """{file key: (modified time, size)} for every document; used to notice changes cheaply."""
+    snapshot = {}
+    for key, path in list_docs().items():
+        try:
+            stat = path.stat()
+            snapshot[key] = (stat.st_mtime_ns, stat.st_size)
+        except OSError:
+            pass
+    return snapshot
+
+
+def watch(stop=None, interval=SYNC_INTERVAL, log=print):
+    """Keep the index up to date until `stop` (a threading.Event) is set.
+
+    Syncs once straight away, to catch up with changes made while nothing was running, then checks
+    the docs folder every `interval` seconds. A changed file is only read once its size and modified
+    time have stopped changing between two checks, so a file that is still being saved is not read
+    half-written.
+    """
+    stop = stop or threading.Event()
+    try:
+        summary = sync_docs(log=log)
+        log(f"[index] watching {DOCS_DIR}/ ({sum(map(len, (summary['added'], summary['updated'])))} files "
+            f"indexed now, {summary['unchanged']} already up to date)")
+    except Exception as e:  # never let the watcher thread die quietly
+        log(f"[index] first sync failed: {e}")
+    synced = previous = stat_snapshot()
+    while not stop.wait(interval):
+        try:
+            current = stat_snapshot()
+            if current != synced:  # something was added, changed or removed since the last full sync
+                settled = {key for key, stamp in current.items() if previous.get(key) == stamp}
+                summary = sync_docs(settled=settled, log=log)
+                if not summary["waiting"]:
+                    synced = current
+            previous = current
+        except Exception as e:
+            log(f"[index] sync failed, will retry: {e}")
 
 
 SPLIT_PROMPT = (
@@ -248,7 +419,7 @@ def retrieve(question, history=()):
     groups = [0] * len(searches) + (list(range(1, len(parts) + 1)) if compound else [])
     per_query = SUB_TOP_K if compound else (TOP_K if len(searches) == 1 else TOP_K // 2)
 
-    results = client.get_collection("docs").query(query_embeddings=embed(queries), n_results=per_query)
+    results = get_collection().query(query_embeddings=embed(queries), n_results=per_query)
     found = {}  # passage text -> its entry, keeping the closest distance seen
     for group, docs, metas, dists in zip(groups, results["documents"], results["metadatas"], results["distances"]):
         for doc, meta, dist in zip(docs, metas, dists):
@@ -350,8 +521,19 @@ def ask(question, history=()):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "ingest":
+    command = sys.argv[1] if len(sys.argv) > 1 else ""
+    if command == "ingest":
         ingest()
+    elif command == "sync":
+        result = sync_docs()
+        print(f"Done: {len(result['added'])} added, {len(result['updated'])} updated, "
+              f"{len(result['removed'])} removed, {result['unchanged']} unchanged.")
+    elif command == "watch":
+        print(f"Watching {DOCS_DIR}/ for changes (press Ctrl+C to stop).")
+        try:
+            watch()
+        except KeyboardInterrupt:
+            print("\nStopped.")
     else:
         print("Ask a question (type 'quit' to exit).")
         history = []
