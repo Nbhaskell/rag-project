@@ -1,0 +1,23 @@
+A = eval_runs\2026-10-21_112549_baseline-fresh.json  (3 repeat(s), commit 08dbe19+uncommitted)
+B = eval_runs\2026-10-21_120030_split-off-fresh.json  (3 repeat(s), commit 08dbe19+uncommitted)
+
+Settings that differ:
+  SPLIT_QUESTIONS: True -> False
+
+                                 baseline-fresh  split-off-fresh    change   (means over the repeats)
+questions passed                          54/55            52/55      -2.0
+retrieval found the fact                  45/46            43/46      -2.0
+fact in the top chunk                     38/46            38/46      +0.0
+answers right                             55/55            53/55      -2.0
+sources line exactly right                43/55            45/55      +2.0
+average rank of the fact                   1.33             1.19     -0.14
+extra files in sources line                12.7              9.7      -3.0
+needed files missing                        1.0              2.3      +1.3
+characters sent per question                967              958      -9.0
+seconds per question                        7.1              6.7      -0.4
+slowest question (seconds)                114.8            128.8     +14.0
+questions with model errors                 0.0              0.0      +0.0
+
+Questions whose pass rate changed:
+  phone-and-sunday               3/3 -> 0/3    (worse)
+  lunch-late-weight              3/3 -> 0/3    (worse)
