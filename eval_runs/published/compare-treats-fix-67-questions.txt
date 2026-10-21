@@ -1,0 +1,20 @@
+A = eval_runs\published\2026-10-21_135217_step3.json  (3 repeat(s), commit 0cc5952+uncommitted)
+B = eval_runs\published\2026-10-21_155101_fix-loop-v3.json  (3 repeat(s), commit be24efe+uncommitted)
+
+Settings that differ: none
+
+                                          step3      fix-loop-v3    change   (means over the repeats)
+questions passed                          67/67            67/67      +0.0
+retrieval found the fact                  59/59            59/59      +0.0
+fact in the top chunk                     44/59            44/59      +0.0
+answers right                             67/67            67/67      +0.0
+sources line exactly right                63/67          63.7/67      +0.7
+average rank of the fact                   1.42             1.42     +0.00
+extra files in sources line                 4.3              3.3      -1.0
+needed files missing                        0.0              0.0      +0.0
+characters sent per question                980              980      +0.0
+seconds per question                        4.0              3.5      -0.4
+slowest question (seconds)                 14.3             24.2      +9.9
+questions with model errors                 0.0              0.0      +0.0
+
+Questions whose pass rate changed: none

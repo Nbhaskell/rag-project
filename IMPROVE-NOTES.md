@@ -49,6 +49,15 @@ measure it. Keep the README version short: pick the 4 to 6 strongest and cut the
 - With split search off the average rank of the fact looks better (1.42 -> 1.21) only because the facts it
   failed to find at all are left out of the average. Report hit rate and top-ranked rate beside it, never alone.
 
+### Style regressions pass the checks
+- A prompt change can leave every pass/fail untouched and still change how answers read: the first fix for the
+  `treats` loop cut Yes/No openers from 24/30 to 14/30 and every check still passed. Add a style metric (share of
+  yes/no answers that start with Yes or No, average answer length) to `run_eval.py` and `--compare`, and keep a
+  hand-read sample of before/after answers for any prompt change.
+- Prompts also need a cap and a retry: with a local thinking model, one conflicting instruction was enough to
+  produce a 38-minute loop. A hosted model has a required `max_tokens`, but the same conflict would still waste
+  tokens, so keep the wording fix and a cap in any model switch.
+
 ### Compare embedding models
 - `embeddinggemma` against `nomic-embed-text` (and a hosted embedding model) on the same question sets.
   A clean one-variable experiment.

@@ -39,8 +39,17 @@ Why first: every later change needs a before/after number, and the baseline can'
 - [x] Note the current top-ranked rate (tells us whether a reranker could help later): fact in the top chunk
       44/59 (75%, average rank 1.42) on the 67 questions and 38/46 (83%, 1.33) on the held-out set, so about
       1 fact in 5 is not ranked first: some headroom for a reranker.
-- [ ] Look into the `treats` question ("Will you give my dog treats?"): it hit the 180 s timeout in 5 of 9
-      held-out repeats (and cost about 3 minutes each time) but takes 2 to 12 s otherwise. Capture the model's thinking text to see whether it loops.
+- [x] `treats` hangs: diagnosed and fixed (see CLAUDE.md "Thinking loops"). The question hit the 180 s timeout in 5 of 9
+      held-out repeats (and cost about 3 minutes each time) but takes 2 to 12 s otherwise. Cause: the prompt told the model to begin a yes/no answer
+      with Yes or No while the document only gives a condition ("only with owner permission"); the thinking model
+      argued in circles with no length limit (Ollama's own cutoff is 163,840 tokens, about 38 minutes: the two
+      long stalls). Fix: an exception for a bare condition inside the Yes/No rule, a 3,000-token cap per answer
+      and a retry without thinking when the cap is hit. Four prompt wordings compared first (published logs in
+      `eval_runs/published/prompt-variant-*.log`): a broader sentence stopped the loops but cut Yes/No-style
+      answers from 44/66 to 33/66. Final evals (`fix-loop-v3`, `fix-loop-v3-fresh`): 67/67 and 55/55 answers, Yes/No
+      openers unchanged (25/30 and 21/36), no timeouts, slowest question 135 s -> 17 s on the held-out set.
+- [ ] Add a Yes/No-start rate for yes-no questions to the `run_eval.py` summary and `--compare`: the broad
+      sentence moved it from 24/30 to 14/30 without changing a single pass or fail, so only a manual look found it.
 
 ## Phase B: Visible improvements (local)
 
@@ -63,7 +72,10 @@ Why first: every later change needs a before/after number, and the baseline can'
       6:00pm" answer had no sources, the new ones do).
 - [x] n8n workflow: it passes the `/api/ask` JSON straight back, so callers now also get `passages` (larger
       response, nothing removed). Not run live against n8n.
-- [ ] Loosen the `package-refund` check with the next re-baseline (left alone here so the comparison is fair)
+- [ ] Widen the wording-fragile checks with the next re-baseline (left alone so comparisons stay fair), and say
+      so in the README: `package-refund` forbids the word "yes", and `puppy-5-months` wants "6 months" but a
+      correct answer can say "6-month threshold" (it failed 2 of 3 repeats under an earlier prompt, though both
+      answers were right). Both are grader wording flaws, not model errors.
 - [ ] Start a README draft
 
 ## Phase C: Decisions and making it safe
