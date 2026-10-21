@@ -18,11 +18,16 @@ EMBED_MODEL = "embeddinggemma"
 CHAT_MODEL = "qwen3:8b"
 CHUNK_SIZE = 800   # most characters in one chunk's text (the heading label is extra)
 OVERLAP = 100      # shared characters between neighboring chunks (only for text with no line breaks to cut at)
-TOP_K = 4          # chunks retrieved per question
+TOP_K = int(os.environ.get("RAG_TOP_K", "4"))  # chunks retrieved per question (RAG_TOP_K tries other values)
 HISTORY_MESSAGES = 6  # recent chat messages remembered (3 question/answer pairs)
 # Qwen3 reasons before answering: better answers on tricky questions, but slower. On by default;
 # turn it off by setting the environment variable RAG_THINK=0 before starting (e.g. on a slow machine).
 THINK = os.environ.get("RAG_THINK", "1") != "0"
+# A model call that goes quiet for this many seconds, or an answer that takes longer than this in total,
+# is given up on. Ollama has been seen to stall for 36 to 40 minutes on one request, so not waiting
+# forever is safer. RAG_MODEL_TIMEOUT changes it (raise it on a slow machine).
+MODEL_TIMEOUT = float(os.environ.get("RAG_MODEL_TIMEOUT", "180"))
+llm = ollama.Client(timeout=MODEL_TIMEOUT)
 
 # Which files the "Sources:" line lists (see sources_to_show): the best match's file, plus another
 # file only if its chunk is within SOURCE_WINDOW of the best chunk's distance and the answer shares
@@ -154,7 +159,7 @@ def chunk_text(text, doc_name="document", headings=True):
 
 
 def embed(texts):
-    return ollama.embed(model=EMBED_MODEL, input=texts)["embeddings"]
+    return llm.embed(model=EMBED_MODEL, input=texts)["embeddings"]
 
 
 def get_collection():
@@ -387,7 +392,7 @@ def split_question(question):
     to the chat model without thinking (about 0.2 seconds). Returns [question] if it can't split.
     """
     try:
-        reply = ollama.chat(
+        reply = llm.chat(
             model=CHAT_MODEL,
             messages=[{"role": "user", "content": SPLIT_PROMPT.format(question=question)}],
             think=False, options={"temperature": 0},
@@ -454,13 +459,23 @@ def answer_stream(question, history=()):
         f"Context:\n{context}\n\nQuestion: {question}"
     )
 
-    stream = ollama.chat(
+    stream = llm.chat(
         model=CHAT_MODEL,
         messages=history + [{"role": "user", "content": prompt}],
         stream=True,
         think=THINK,  # False skips Qwen3's "thinking" step: much faster on CPU, less accurate
     )
-    return chunks, (part["message"]["content"] for part in stream)
+
+    def pieces():
+        # Thinking text arrives as pieces too (with no answer text), so a model stuck in a thinking
+        # loop keeps the connection busy: the total time has to be checked as well as the silence.
+        deadline = time.time() + MODEL_TIMEOUT
+        for part in stream:
+            if time.time() > deadline:
+                raise TimeoutError(f"the model took longer than {MODEL_TIMEOUT:.0f} seconds to answer")
+            yield part["message"]["content"]
+
+    return chunks, pieces()
 
 
 def says_dont_know(answer):

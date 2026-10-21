@@ -161,6 +161,9 @@ set RAG_THINK=0          (Command Prompt)
 $env:RAG_THINK = "0"     (PowerShell)
 ```
 
+If a model call goes quiet, or an answer takes longer than 3 minutes in total, the program gives up
+instead of waiting. On a slow computer, raise the limit: `$env:RAG_MODEL_TIMEOUT = "600"` (seconds).
+
 ## Testing
 
 `run_eval.py` asks a set of questions with known answers and reports how many it got right. It
@@ -172,7 +175,14 @@ python run_eval.py                        run everything
 python run_eval.py --retrieval-only       retrieval checks only (fast, no chat model)
 python run_eval.py --id address           only the questions with these ids
 python run_eval.py --questions FILE.json  use a different question file
+python run_eval.py --label baseline --repeat 3   name the run and run all questions 3 times
+python run_eval.py --compare baseline other      compare two saved runs side by side
 ```
+
+Every run is saved to `eval_runs/` (not in git) with the settings it used, so two runs can be
+compared later with `--compare`. To try another number of retrieved chunks, set `RAG_TOP_K` (for
+example `$env:RAG_TOP_K = "6"`) and `RAG_SPLIT=0` turns off split search; the saved run records
+both. Runs worth sharing are copied into `eval_runs/published/`, which is in git.
 
 `eval_questions.json` holds the questions for the dog-daycare example documents the project was
 developed with. `eval_questions_fresh.json` is a second set of 55 questions for the same documents,
