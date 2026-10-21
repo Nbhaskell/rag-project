@@ -11,8 +11,11 @@ measure it. Keep the README version short: pick the 4 to 6 strongest and cut the
 - **Why not now:** a judge costs money per run, has its own errors, and would need checking itself.
 - **How:** a short rubric prompt ("does the answer state the same fact as the reference, with no
   contradicting claim?"), a different model from the one being graded where possible, temperature 0.
-- **Measure:** agreement with my hand grading on about 20 answers (planned in step 1). Only adopt the judge
-  if it agrees with me at least as often as the word matcher does.
+- **Measure:** agreement with my hand grading. Only adopt the judge if it agrees with me at least as often as
+  the word matcher does. Measured so far: the word matcher agreed with hand grading on 39 of 40 answers (20
+  it mostly passed, 20 including 8 it failed); no missed errors, one false alarm (`package-refund`, where the
+  documents are ambiguous and a defensible answer contained a forbidden "yes"). Sample is small and the
+  failures were mostly the obvious kind.
 
 ### Questions written by someone else
 - The held-out set was written by Claude from the documents: unseen by the prompt, not blind to the documents.

@@ -27,8 +27,15 @@ Why first: every later change needs a before/after number, and the baseline can'
 - [x] Fixed vs heading-aware chunks, retrieval-only on the same 55 questions (`6e0b2de` vs `2eb80d8`): top-ranked
       32/47 -> 44/47, average rank 1.43 -> 1.09, 2,520 -> 993 characters sent. See
       `eval_runs/published/historical-chunking.md`. (Throwaway checkouts removed.)
-- [ ] Hand-grade about 20 answers and report how often the word matcher agreed
-      (`python grade_answers.py sample baseline`, fill in the sheet, `python grade_answers.py score <sheet>`)
+- [x] Hand-grade 20 answers (`eval_runs/grading_baseline.md`): matcher agreed 20/20. Caveat: all 20 were
+      answers the matcher passed, so this only shows it never calls a wrong answer right.
+- [x] Hand-grade the second sheet, `eval_runs/grading_baseline-with-failures.md` (20 answers, 8 of which the
+      matcher marked wrong): agreed on 19 of 20 (7 of the 8 it failed, all 12 it passed). Both sheets together:
+      39 of 40. The one disagreement is `package-refund`: the matcher forbids the word "yes", but the documents
+      are ambiguous (Packages: non-refundable; Refunds: "if a dog is sent home early for illness or an incident,
+      we refund the unused portion") and the answer that reconciles the two was judged ok by hand.
+- [ ] When the baselines are re-run after step 3, loosen the `package-refund` check (or clarify the document)
+      and say so in the README: it is a test flaw found by hand grading, not a model fix.
 - [x] Note the current top-ranked rate (tells us whether a reranker could help later): fact in the top chunk
       44/59 (75%, average rank 1.42) on the 67 questions and 38/46 (83%, 1.33) on the held-out set, so about
       1 fact in 5 is not ranked first: some headroom for a reranker.
