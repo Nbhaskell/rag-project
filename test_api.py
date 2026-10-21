@@ -21,7 +21,10 @@ TOKEN = "test-token-123"
 
 
 def fake_answer_stream(question, history=()):
-    chunks = [{"source": "a.md", "distance": 0.3, "text": "Hours\nOpen 8am to 6pm.", "group": 0}]
+    chunks = [{"source": "a.md", "distance": 0.3, "text": "Hours\nOpen 8am to 6pm.", "group": 0,
+               "section": "Hours", "page": None},
+              {"source": "guide.pdf", "distance": 0.5, "text": "Guide\nA bath costs $50.", "group": 0,
+               "section": "", "page": 3}]
     return chunks, iter(["We are open ", f"8am to 6pm. (you asked: {question})"])
 
 
@@ -90,6 +93,18 @@ def test_ask_returns_answer_and_sources(env):
     check(status == 200, f"expected 200, got {status}: {body}")
     check("8am to 6pm" in body["answer"] and "When do you open?" in body["answer"], f"unexpected: {body}")
     check(body["sources"] == ["a.md"] and isinstance(body["seconds"], (int, float)), f"unexpected: {body}")
+
+
+@make
+def test_ask_returns_passages(env):
+    status, body = env.call("POST", "/api/ask", {"question": "When do you open?"})
+    check(status == 200, f"expected 200, got {status}: {body}")
+    first, second = body["passages"]
+    check(first == {"source": "a.md", "section": "Hours", "page": None, "text": "Open 8am to 6pm.",
+                    "distance": 0.3, "best": True, "listed": True}, f"unexpected first passage: {first}")
+    check(second["source"] == "guide.pdf" and second["page"] == 3 and second["text"] == "A bath costs $50."
+          and second["best"] is False and second["listed"] is False, f"unexpected second passage: {second}")
+    check(body["sources"] == ["a.md"], f"sources must stay as before for existing callers: {body}")
 
 
 @make
@@ -187,6 +202,17 @@ def test_chat_window_still_works(env):
     conn.close()
     text = "".join(line.get("text", "") for line in lines)
     check("8am to 6pm" in text and {"sources": ["a.md"]} in lines, f"streaming answer changed: {lines}")
+    passages = [line["passages"] for line in lines if "passages" in line]
+    check(len(passages) == 1 and lines[-1] == {"passages": passages[0]} and len(passages[0]) == 2,
+          f"the passages should arrive once, after the answer and sources: {lines}")
+
+
+def test_chat_page_shows_passages_as_text_not_html():
+    page = chat.PAGE
+    function = page[page.index("function passageList"):page.index('form.addEventListener("submit"')]
+    check("textContent" in function and "createTextNode" in function, "passages should be set as plain text")
+    check("innerHTML" not in function and "insertAdjacentHTML" not in function,
+          "text from a document must never be inserted as HTML")
 
 
 @make

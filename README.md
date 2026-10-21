@@ -15,9 +15,11 @@ then let the AI answer from just those pieces.)
 
 1. **Read and cut up the documents.** Supported files are `.md`, `.txt`, `.pdf` and `.docx`.
    Markdown and Word files are cut at their headings, one chunk per section, and each chunk starts
-   with a label such as `Pricing and Packages > Boarding` so it makes sense on its own.
+   with a label such as `Pricing and Packages > Boarding` so it makes sense on its own. PDFs are
+   cut page by page, so a chunk never spans two pages.
 2. **Index them.** Each chunk is turned into a list of numbers (an embedding) with the
-   `embeddinggemma` model and stored in a local ChromaDB database.
+   `embeddinggemma` model and stored in a local ChromaDB database, together with the file it came
+   from, its section and (for PDFs) its page number.
 3. **Find the relevant chunks.** Your question is turned into numbers the same way, and the 4
    closest chunks are looked up. For follow-up questions the previous question is searched too, and a
    question about several things ("when do you open, and how much is a bath?") is split so that
@@ -66,6 +68,11 @@ again each time you open a new terminal. If PowerShell refuses to run it, run
    terminal to stop. For a plain terminal version, run `python rag.py` instead (type `quit` to
    exit).
 
+Under each answer the chat lists its **Sources** (the files used) and a collapsed
+**Passages the model read** list. Open it to see the exact text the model was given, with its file,
+section and page, and the closest match marked. A passage from a file that is not in the Sources line
+is shown dimmed. It is there to check an answer against the original wording.
+
 The chat builds and updates the search index by itself. When it starts it indexes any new or changed
 documents, and while it runs it checks the `docs` folder every few seconds: a file you add, edit or
 delete is picked up within about 10 seconds (it waits until the file has finished saving), and only
@@ -93,8 +100,13 @@ JSON, a plain-text format for structured data.
 | Address | What it does |
 |---|---|
 | `GET /api/status` | Shows what is indexed: files, chunks, last update, and whether the folder watcher and thinking mode are on |
-| `POST /api/ask` | Send `{"question": "..."}` (and optionally `"history"`, a list of `{"role": "user" or "assistant", "content": "..."}`) and get back `{"answer": "...", "sources": ["file.md"], "seconds": 3.2}` |
+| `POST /api/ask` | Send `{"question": "..."}` (and optionally `"history"`, a list of `{"role": "user" or "assistant", "content": "..."}`) and get back `{"answer": "...", "sources": ["file.md"], "passages": [...], "seconds": 3.2}` |
 | `POST /api/reindex` | Update the index now. Send `{"full": true}` to rebuild everything instead |
+
+`passages` lists what the model was given, best match first. Each item has `source` (the file),
+`section` (the heading path, empty if there is none), `page` (a number for PDFs, otherwise `null`),
+`text` (the passage), `distance` (smaller is closer), `best` (true for the closest) and `listed` (true
+if its file is in `sources`). `sources` is unchanged, so existing callers keep working.
 
 Try it in PowerShell (use `127.0.0.1` rather than `localhost`; on Windows `localhost` can pause for a
 couple of seconds while it tries the IPv6 address first):
@@ -160,6 +172,9 @@ default. To turn it off for a terminal session:
 set RAG_THINK=0          (Command Prompt)
 $env:RAG_THINK = "0"     (PowerShell)
 ```
+
+To try something without touching your real index, point the program at other folders:
+`RAG_DOCS_DIR` (default `docs`) and `RAG_DB_DIR` (default `chroma_db`).
 
 If a model call goes quiet, or an answer takes longer than 3 minutes in total, the program gives up
 instead of waiting. On a slow computer, raise the limit: `$env:RAG_MODEL_TIMEOUT = "600"` (seconds).

@@ -8,7 +8,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from rag import (SPLIT_QUESTIONS, THINK, answer, answer_stream, index_status, ingest,
-                 sources_to_show, sync_docs, watch)
+                 passages, sources_to_show, sync_docs, watch)
 
 PORT = 8000
 
@@ -30,6 +30,15 @@ PAGE = """<!doctype html>
   .user { background: #2b4a6f; color: white; margin-left: auto; }
   .bot { background: white; border: 1px solid #ddd; }
   .src { font-size: 13px; color: #666; margin-top: 8px; }
+  details.passages { margin-top: 8px; font-size: 13px; color: #444; }
+  details.passages summary { cursor: pointer; color: #2b4a6f; }
+  .passage { border-left: 3px solid #ccd5e0; padding: 4px 10px; margin: 6px 0; background: #fafafa; }
+  .passage.best { border-left-color: #2b4a6f; }
+  .passage.unlisted { opacity: 0.7; }  /* read by the model, but its file is not in the Sources line */
+  .phead { font-weight: 600; }
+  .tag { font-weight: 400; font-size: 11px; background: #e6edf5; border-radius: 8px;
+         padding: 1px 7px; margin-left: 6px; white-space: nowrap; }
+  .ptext { margin-top: 3px; }
   form { display: flex; gap: 8px; padding: 12px 20px; background: white;
          border-top: 1px solid #ddd; max-width: 800px; width: 100%;
          box-sizing: border-box; margin: 0 auto; }
@@ -71,6 +80,39 @@ function add(cls, text) {
   return div;
 }
 
+// The passages the model read, as a collapsed list. Everything goes in with textContent, never as
+// HTML, so text from a document can't change the page.
+function passageList(items) {
+  const details = document.createElement("details");
+  details.className = "passages";
+  const summary = document.createElement("summary");
+  summary.textContent = "Passages the model read (" + items.length + ")";
+  details.appendChild(summary);
+  for (const p of items) {
+    const box = document.createElement("div");
+    box.className = "passage" + (p.best ? " best" : "") + (p.listed ? "" : " unlisted");
+    const head = document.createElement("div");
+    head.className = "phead";
+    let where = p.source;
+    if (p.section) where += " > " + p.section;
+    if (p.page) where += ", page " + p.page;
+    head.appendChild(document.createTextNode(where));
+    if (p.best) {
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = "best match";
+      head.appendChild(tag);
+    }
+    const body = document.createElement("div");
+    body.className = "ptext";
+    body.textContent = p.text;
+    box.appendChild(head);
+    box.appendChild(body);
+    details.appendChild(box);
+  }
+  return details;
+}
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const question = input.value.trim();
@@ -105,6 +147,7 @@ form.addEventListener("submit", async (e) => {
           s.textContent = "Sources: " + data.sources.join(", ");
           bot.appendChild(s);
         }
+        if (data.passages && data.passages.length) bot.appendChild(passageList(data.passages));
         if (data.error) bot.textContent = "Error: " + data.error;
         log.scrollTop = log.scrollHeight;
       }
@@ -271,6 +314,7 @@ class Handler(BaseHTTPRequestHandler):
             shown = sources_to_show(answer, chunks)
             if shown:
                 send({"sources": shown})
+            send({"passages": passages(chunks, shown)})
         except Exception as e:
             send({"error": str(e)})
 

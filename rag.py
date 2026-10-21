@@ -12,8 +12,8 @@ from docx import Document
 from docx.table import Table
 from pypdf import PdfReader
 
-DOCS_DIR = Path("docs")
-DB_DIR = "chroma_db"
+DOCS_DIR = Path(os.environ.get("RAG_DOCS_DIR", "docs"))   # RAG_DOCS_DIR / RAG_DB_DIR point experiments at
+DB_DIR = os.environ.get("RAG_DB_DIR", "chroma_db")        # another folder without touching the real index
 EMBED_MODEL = "embeddinggemma"
 CHAT_MODEL = "qwen3:8b"
 CHUNK_SIZE = 800   # most characters in one chunk's text (the heading label is extra)
@@ -57,7 +57,7 @@ PLACEHOLDER = re.compile(r"\[(?![xX]\])[^\]\n]*[A-Za-z0-9_$][^\]\n]*\](?!\()")
 SUPPORTED_SUFFIXES = {".pdf", ".txt", ".md", ".docx"}
 SYNC_INTERVAL = 5   # seconds between checks of the docs folder while watching
 # Bump this whenever the way files are read or chunked changes, so existing files get indexed again.
-INDEX_VERSION = 1
+INDEX_VERSION = 2   # 2: chunks also store their section and (PDFs) page
 
 client = chromadb.PersistentClient(path=DB_DIR)
 
@@ -80,13 +80,19 @@ def read_docx(path):
     return "\n".join(lines)
 
 
-def read_file(path):
-    if path.suffix.lower() == ".docx":
-        return read_docx(path)
-    if path.suffix.lower() == ".pdf":
+def read_pages(path):
+    """[(page number, text)] for a PDF, one entry per page; [(None, text)] for any other file."""
+    suffix = path.suffix.lower()
+    if suffix == ".pdf":
         reader = PdfReader(str(path))
-        return "\n".join(page.extract_text() or "" for page in reader.pages)
-    return path.read_text(encoding="utf-8", errors="ignore")
+        return [(number, page.extract_text() or "") for number, page in enumerate(reader.pages, 1)]
+    if suffix == ".docx":
+        return [(None, read_docx(path))]
+    return [(None, path.read_text(encoding="utf-8", errors="ignore"))]
+
+
+def read_file(path):
+    return "\n".join(text for _, text in read_pages(path))
 
 
 HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$")
@@ -121,14 +127,15 @@ def split_body(body):
     return [p for p in pieces if p]
 
 
-def chunk_text(text, doc_name="document", headings=True):
-    """Split text into chunks that each cover one section.
+def chunk_sections(text, doc_name="document", headings=True):
+    """Split text into chunks that each cover one section. Returns [{"text", "section"}].
 
     With headings=True (markdown and Word files) the text is cut at its headings, and every chunk
     starts with a label like "Pricing and Packages > Boarding" so it says what it is about even
     when read alone. The first "# " heading is the document title; otherwise doc_name is used.
     Sections longer than CHUNK_SIZE are cut between lines. Without headings (PDF, txt) the whole
-    text is one section, labelled with doc_name.
+    text is one section, labelled with doc_name. "section" is the heading path without the title
+    ("Boarding"), or "" when there is none.
     """
     title, path, sections, body, have_title = doc_name, [], [], [], False
 
@@ -154,8 +161,14 @@ def chunk_text(text, doc_name="document", headings=True):
     chunks = []
     for section_path, section in sections:
         label = " > ".join([title] + section_path)
-        chunks += [f"{label}\n{piece}" for piece in split_body(section)]
+        chunks += [{"text": f"{label}\n{piece}", "section": " > ".join(section_path)}
+                   for piece in split_body(section)]
     return chunks
+
+
+def chunk_text(text, doc_name="document", headings=True):
+    """Just the text of each chunk from chunk_sections."""
+    return [c["text"] for c in chunk_sections(text, doc_name, headings)]
 
 
 def embed(texts):
@@ -202,9 +215,10 @@ def index_file(collection, key, path, fingerprint):
     or "unreadable". Nothing is added unless the status is "ok".
     """
     try:
-        text = read_file(path)
+        pages = read_pages(path)
     except Exception as e:
         return 0, [f"{key}: could not be read and was skipped ({e})"], "unreadable"
+    text = "\n".join(page_text for _, page_text in pages)
     if not text.strip():
         return 0, [f"{key}: no readable text, skipped. "
                    "If it is a scanned PDF, it needs OCR or retyping."], "empty"
@@ -216,19 +230,31 @@ def index_file(collection, key, path, fingerprint):
             f"{key}: {len(blanks)} unfilled [bracket] placeholder(s), "
             f"for example {examples}. Indexed anyway; fill them in and it will be updated."
         )
-    chunks = chunk_text(text, path.stem, path.suffix.lower() in {".md", ".docx"})
+    headings = path.suffix.lower() in {".md", ".docx"}
+    # A PDF is chunked one page at a time, so every chunk knows its page (a chunk never spans two pages).
+    chunks = [{**chunk, "page": page}
+              for page, page_text in pages for chunk in chunk_sections(page_text, path.stem, headings)]
     if not chunks:
         return 0, warnings + [f"{key}: only headings, no text under them, skipped."], "empty"
     for i in range(0, len(chunks), 16):
         batch = chunks[i:i + 16]
+        texts = [chunk["text"] for chunk in batch]
         collection.add(
             # the fingerprint in the id means a new version never collides with the old one
             ids=[f"{key}-{fingerprint[:10]}-{i + j}" for j in range(len(batch))],
-            documents=batch,
-            embeddings=embed(batch),
-            metadatas=[{"source": key, "file_hash": fingerprint}] * len(batch),
+            documents=texts,
+            embeddings=embed(texts),
+            metadatas=[chunk_metadata(key, fingerprint, chunk) for chunk in batch],
         )
     return len(chunks), warnings, "ok"
+
+
+def chunk_metadata(key, fingerprint, chunk):
+    """What is stored next to a chunk in the index (page only for PDFs: the index takes no None)."""
+    meta = {"source": key, "file_hash": fingerprint, "section": chunk["section"]}
+    if chunk["page"] is not None:
+        meta["page"] = chunk["page"]
+    return meta
 
 
 def indexed_files(collection):
@@ -405,9 +431,10 @@ def split_question(question):
 
 
 def retrieve(question, history=()):
-    """Find the passages to answer from. Returns a list of {"source", "distance", "text", "group"},
-    in the order they were found; "group" says which search found each one (0 is the question
-    itself, 1 and up are its separate parts) so the Sources line can treat each topic fairly.
+    """Find the passages to answer from. Returns a list of {"source", "distance", "text", "group",
+    "section", "page"}, in the order they were found; "group" says which search found each one (0 is
+    the question itself, 1 and up are its separate parts) so the Sources line can treat each topic
+    fairly. "page" is None except for PDFs.
 
     A follow-up like "what about the second one?" searches poorly alone, so the previous question
     plus the new one is searched too. A question about several things is also split and each part
@@ -429,7 +456,8 @@ def retrieve(question, history=()):
     for group, docs, metas, dists in zip(groups, results["documents"], results["metadatas"], results["distances"]):
         for doc, meta, dist in zip(docs, metas, dists):
             if doc not in found or dist < found[doc]["distance"]:
-                found[doc] = {"source": meta["source"], "distance": dist, "text": doc, "group": group}
+                found[doc] = {"source": meta["source"], "distance": dist, "text": doc, "group": group,
+                              "section": meta.get("section", ""), "page": meta.get("page")}
     return list(found.values())
 
 
@@ -486,9 +514,21 @@ def says_dont_know(answer):
 def gives_no_answer(answer):
     """True for a refusal like "I don't know". False for an answer that merely adds a caveat,
     such as "Saturday hours are 8 to 6. The context doesn't say what a bath costs."
+
+    An answer that opens with "I don't know" is still a refusal when the rest only describes what the
+    documents do cover. It is a partial answer, not a refusal, when a sentence that is not itself a
+    "don't know" states a figure (a number, time or price): "I don't know the weight limit. The rabies
+    vaccination is valid for 3 years." or "I don't know. The context says we are open on Sundays 8am to 6pm."
+    (The figure test is a rough rule, checked against saved answers; see PORTFOLIO-TODO.md.)
     """
     sentences = [s for s in re.split(r"(?<=[.!?])\s+|\n+", answer.strip()) if s.strip()]
-    return bool(sentences) and (says_dont_know(sentences[0]) or all(says_dont_know(s) for s in sentences))
+    if not sentences:
+        return False
+    if all(says_dont_know(s) for s in sentences):
+        return True
+    if not says_dont_know(sentences[0]):
+        return False
+    return not any(re.search(r"\d", s) for s in sentences if not says_dont_know(s))
 
 
 def content_words(text):
@@ -525,11 +565,26 @@ def sources_to_show(answer, chunks):
     return shown
 
 
+def passages(chunks, shown):
+    """The retrieved passages as plain data for the API and the chat page, best match first.
+
+    text is the passage without its "Title > Section" label line (the label is in source and section).
+    best marks the closest passage; listed says whether its file is in the Sources line (shown).
+    """
+    return [{
+        "source": c["source"], "section": c.get("section", ""), "page": c.get("page"),
+        "text": c["text"].split("\n", 1)[-1].strip(), "distance": round(c["distance"], 3),
+        "best": i == 0, "listed": c["source"] in shown,
+    } for i, c in enumerate(chunks)]
+
+
 def answer(question, history=()):
-    """Answer a question in one go (no streaming) as {"answer": text, "sources": [files]}."""
+    """Answer a question in one go (no streaming) as {"answer": text, "sources": [files],
+    "passages": [...]} (see passages)."""
     chunks, pieces = answer_stream(question, history)
     text = "".join(pieces).strip()
-    return {"answer": text, "sources": sources_to_show(text, chunks)}
+    shown = sources_to_show(text, chunks)
+    return {"answer": text, "sources": shown, "passages": passages(chunks, shown)}
 
 
 def when(timestamp):

@@ -248,6 +248,85 @@ def test_watch_follows_edits(env):
         thread.join(timeout=5)
 
 
+def make_pdf(pages):
+    """A tiny valid PDF with one line of text per page, so the tests can have real PDF files
+    (no brackets or backslashes in the text). pypdf reads it back like any other PDF."""
+    font_id = 3 + 2 * len(pages)
+    kids = " ".join(f"{3 + 2 * i} 0 R" for i in range(len(pages)))
+    objects = ["<< /Type /Catalog /Pages 2 0 R >>", f"<< /Type /Pages /Kids [{kids}] /Count {len(pages)} >>"]
+    for i, text in enumerate(pages):
+        stream = f"BT /F1 12 Tf 72 720 Td ({text}) Tj ET"
+        objects.append(f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents {4 + 2 * i} 0 R "
+                       f"/Resources << /Font << /F1 {font_id} 0 R >> >> >>")
+        objects.append(f"<< /Length {len(stream)} >>\nstream\n{stream}\nendstream")
+    objects.append("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
+    out, offsets = b"%PDF-1.4\n", []
+    for number, body in enumerate(objects, 1):
+        offsets.append(len(out))
+        out += f"{number} 0 obj\n{body}\nendobj\n".encode()
+    xref = len(out)
+    out += f"xref\n0 {len(objects) + 1}\n0000000000 65535 f \n".encode()
+    out += "".join(f"{offset:010d} 00000 n \n" for offset in offsets).encode()
+    out += f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode()
+    return out
+
+
+@make
+def test_chunks_store_their_section(env):
+    env.write("a.md", "# Pet Rules\n\nIntro line.\n\n## Fees\n### Baths\nA bath costs $50.\n\n## Hours\nOpen 8am.\n")
+    env.sync()
+    sections = {d.split("\n")[0]: m["section"] for d, m in env.chunks("a.md")}
+    check(sections == {"Pet Rules": "", "Pet Rules > Fees > Baths": "Fees > Baths", "Pet Rules > Hours": "Hours"},
+          f"each chunk should store its heading path without the title: {sections}")
+    check(all("page" not in m for _, m in env.chunks("a.md")), "a markdown file has no page numbers")
+
+
+@make
+def test_pdf_chunks_know_their_page(env):
+    (env.docs / "guide.pdf").write_bytes(make_pdf(["Open 8am to 6pm on weekdays", "A bath costs 50 dollars",
+                                                    "Nail trims are 15 dollars"]))
+    s = env.sync()
+    check(s["added"] == ["guide.pdf"], f"the PDF should be indexed: {s}")
+    pages = {}
+    for text, meta in env.chunks("guide.pdf"):
+        pages.setdefault(meta["page"], []).append(text)
+        check(meta["section"] == "", f"a PDF has no headings, so no section: {meta}")
+    check(sorted(pages) == [1, 2, 3], f"every page should give a chunk with its page number: {sorted(pages)}")
+    check("8am" in pages[1][0] and "bath" in pages[2][0] and "Nail" in pages[3][0], f"wrong page text: {pages}")
+    check(all(len(texts) == 1 for texts in pages.values()), f"a chunk must not span pages: {pages}")
+
+
+@make
+def test_word_headings_become_sections(env):
+    from docx import Document
+    doc = Document()
+    doc.add_heading("Pet Rules", 1)  # a Word title has no text under it, so it gives no chunk of its own
+    doc.add_heading("Hours", 2)
+    doc.add_paragraph("Open 8am to 6pm.")
+    doc.add_heading("Fees", 2)
+    table = doc.add_table(rows=2, cols=2)
+    for row, (name, price) in zip(table.rows, [("Bath", "$50"), ("Nail trim", "$30")]):
+        row.cells[0].text, row.cells[1].text = name, price
+    doc.save(str(env.docs / "rules.docx"))
+    env.sync()
+    sections = {m["section"]: d for d, m in env.chunks("rules.docx")}
+    check(sorted(sections) == ["Fees", "Hours"], f"each Word heading should be a section: {sorted(sections)}")
+    check("Bath | $50" in sections["Fees"] and "8am" in sections["Hours"], f"unexpected chunks: {sections}")
+    check(all("page" not in m for _, m in env.chunks("rules.docx")), "a Word file has no page numbers")
+
+
+@make
+def test_new_index_version_reindexes(env):
+    env.write("a.md", DOC)
+    env.sync()
+    rag.INDEX_VERSION += 1
+    try:
+        s = env.sync()
+    finally:
+        rag.INDEX_VERSION -= 1
+    check(s["updated"] == ["a.md"], f"a new INDEX_VERSION should re-index the file: {s}")
+
+
 TESTS = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
 
 if __name__ == "__main__":
