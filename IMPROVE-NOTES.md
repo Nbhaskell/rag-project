@@ -61,9 +61,22 @@ measure it. Keep the README version short: pick the 4 to 6 strongest and cut the
 - **Plan:** show the retrieved passages instead (step 2) and stop tuning the thresholds. If a "primary
   source" is still wanted, choose it by a simple rule that I can explain.
 
-### False-premise questions
-- "Why are you closed on Sundays?" gets a correct answer that opens with "I don't know.", so no source is shown.
-- **Plan:** treat an answer as a refusal only when it is essentially just the refusal.
+### False-premise and partial answers (fixed, with a caveat)
+- "Why are you closed on Sundays?" got a correct answer that opens with "I don't know.", so no source was shown.
+  Fixed: an opener followed by a sentence with a figure (number, time, price) is treated as a partial answer.
+- **Caveat:** the figure test is a rough rule, written after looking at saved answers and checked on the same
+  answers. An answer with no digits (for example "I don't know the weight. Rabies shots are valid for several
+  years.") would still be treated as a refusal. A sturdier way would be asking the model for a structured
+  reply (answer, plus which passages it used) instead of guessing from its wording.
+
+### Which passage did the answer use?
+- The page lists every passage the model read; it cannot say which one(s) the answer came from. A strong/weak
+  badge from the distance score was tried and dropped (not reliable). **How:** have the model name the passages it
+  used, or compare the answer's wording with each passage; measure against hand-marked answers.
+
+### PDFs are cut page by page
+- A fact that runs across a page break is split in two chunks. Fine for now; if it matters, chunk the whole PDF
+  and map each chunk back to the pages it covers (a page range).
 
 ## Product and platform
 

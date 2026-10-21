@@ -1,0 +1,22 @@
+A = eval_runs\published\2026-10-21_112549_baseline-fresh.json  (3 repeat(s), commit 08dbe19+uncommitted)
+B = eval_runs\published\2026-10-21_141220_step3-fresh.json  (3 repeat(s), commit 0cc5952+uncommitted)
+
+Settings that differ:
+  INDEX_VERSION: 1 -> 2
+
+                                 baseline-fresh      step3-fresh    change   (means over the repeats)
+questions passed                          54/55          53.7/55      -0.3
+retrieval found the fact                  45/46            45/46      +0.0
+fact in the top chunk                     38/46            38/46      +0.0
+answers right                             55/55          54.7/55      -0.3
+sources line exactly right                43/55            43/55      +0.0
+average rank of the fact                   1.33             1.33     +0.00
+extra files in sources line                12.7             13.3      +0.7
+needed files missing                        1.0              0.3      -0.7
+characters sent per question                967              967      +0.0
+seconds per question                        7.1              7.3      +0.2
+slowest question (seconds)                114.8            135.5     +20.7
+questions with model errors                 0.0              0.0      +0.0
+
+Questions whose pass rate changed:
+  sunday-false-premise           3/3 -> 2/3    (worse)

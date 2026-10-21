@@ -1,0 +1,20 @@
+A = eval_runs\published\2026-10-21_092754_baseline.json  (3 repeat(s), commit 08dbe19+uncommitted)
+B = eval_runs\published\2026-10-21_135217_step3.json  (3 repeat(s), commit 0cc5952+uncommitted)
+
+Settings that differ:
+  INDEX_VERSION: 1 -> 2
+
+                                       baseline            step3    change   (means over the repeats)
+questions passed                        66.7/67            67/67      +0.3
+retrieval found the fact                  59/59            59/59      +0.0
+fact in the top chunk                     44/59            44/59      +0.0
+answers right                           66.7/67            67/67      +0.3
+sources line exactly right              62.7/67            63/67      +0.3
+average rank of the fact                   1.42             1.42     +0.00
+extra files in sources line                 5.0              4.3      -0.7
+needed files missing                        0.0              0.0      +0.0
+characters sent per question                980              980      +0.0
+seconds per question                        3.7              4.0      +0.3
+
+Questions whose pass rate changed:
+  package-refund                 2/3 -> 3/3    (better)
