@@ -65,6 +65,70 @@ def test_passages_describe_each_chunk():
     check(got[2]["section"] == "" and got[2]["page"] is None, f"missing fields should default: {got[2]}")
 
 
+class FakeLlm:
+    """Stands in for the model client: each call to chat() returns the next prepared stream."""
+
+    def __init__(self, streams):
+        self.streams, self.calls = list(streams), []
+
+    def chat(self, **kwargs):
+        self.calls.append(kwargs)
+        return iter(self.streams.pop(0))
+
+
+def piece(content="", thinking="", done_reason=None):
+    return {"message": {"content": content, "thinking": thinking}, "done_reason": done_reason}
+
+
+def ask_with(streams, think=True):
+    """Runs answer_stream against prepared model streams. Returns (answer text, the fake client)."""
+    saved = rag.llm, rag.retrieve, rag.THINK
+    fake = FakeLlm(streams)
+    rag.llm, rag.THINK = fake, think
+    rag.retrieve = lambda question, history=(): [
+        {"source": "a.md", "distance": 0.3, "text": "Feeding\nTreats are only given with owner permission.",
+         "group": 0, "section": "Feeding", "page": None}]
+    try:
+        _, pieces = rag.answer_stream("Will you give my dog treats?", [])
+        return "".join(pieces).strip(), fake
+    finally:
+        rag.llm, rag.retrieve, rag.THINK = saved
+
+
+def test_answers_are_capped_in_length():
+    answer, fake = ask_with([[piece(thinking="ok"), piece("Fine.", done_reason="stop")]])
+    check(answer == "Fine." and len(fake.calls) == 1, f"unexpected: {answer!r}, {len(fake.calls)} calls")
+    check(fake.calls[0]["options"] == {"num_predict": rag.MAX_ANSWER_TOKENS} and fake.calls[0]["think"] is True,
+          f"the first call should carry the token cap and thinking: {fake.calls[0]}")
+
+
+def test_a_thinking_loop_is_asked_again_without_thinking():
+    loop = [piece(thinking="But the user's question is a direct yes/no.") for _ in range(5)] + [
+        piece(done_reason="length")]
+    answer, fake = ask_with([loop, [piece("Only with the owner's permission.", done_reason="stop")]])
+    check(answer == "Only with the owner's permission.", f"the second ask should give the answer: {answer!r}")
+    check(len(fake.calls) == 2 and fake.calls[1]["think"] is False
+          and fake.calls[1]["options"] == {"num_predict": rag.MAX_ANSWER_TOKENS},
+          f"the second call should have thinking off and the same cap: {fake.calls}")
+
+
+def test_a_long_answer_that_did_speak_is_not_asked_again():
+    answer, fake = ask_with([[piece("The first half of a long answer", done_reason="length")]])
+    check(answer.startswith("The first half") and len(fake.calls) == 1, f"unexpected: {answer!r}, {fake.calls}")
+
+
+def test_no_second_ask_when_thinking_is_already_off():
+    answer, fake = ask_with([[piece(done_reason="length")]], think=False)
+    check(answer == "" and len(fake.calls) == 1, f"nothing to fall back to: {answer!r}, {len(fake.calls)} calls")
+
+
+def test_the_prompt_lets_an_answer_state_a_condition():
+    _, fake = ask_with([[piece("Only with the owner's permission.", done_reason="stop")]])
+    prompt = fake.calls[0]["messages"][-1]["content"]
+    check('begin with "Yes" or "No"' in prompt and "does not say whether this case meets it" in prompt,
+          "the prompt should still ask for Yes/No, with the exception for a bare condition")
+
+
 TESTS = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
 
 if __name__ == "__main__":

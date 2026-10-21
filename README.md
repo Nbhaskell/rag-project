@@ -179,6 +179,10 @@ To try something without touching your real index, point the program at other fo
 If a model call goes quiet, or an answer takes longer than 3 minutes in total, the program gives up
 instead of waiting. On a slow computer, raise the limit: `$env:RAG_MODEL_TIMEOUT = "600"` (seconds).
 
+An answer may also use at most 3,000 tokens (`RAG_MAX_TOKENS`), thinking included. Normal answers use a
+few hundred, but the thinking model can occasionally fall into a loop and never answer. If it uses
+its whole budget without answering, the question is asked again with thinking off.
+
 ## Testing
 
 `run_eval.py` asks a set of questions with known answers and reports how many it got right. It

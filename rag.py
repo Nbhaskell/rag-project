@@ -28,6 +28,11 @@ THINK = os.environ.get("RAG_THINK", "1") != "0"
 # forever is safer. RAG_MODEL_TIMEOUT changes it (raise it on a slow machine).
 MODEL_TIMEOUT = float(os.environ.get("RAG_MODEL_TIMEOUT", "180"))
 llm = ollama.Client(timeout=MODEL_TIMEOUT)
+# The most tokens (thinking included) one answer may take. Qwen3 can fall into a thinking loop that
+# never ends (one hit Ollama's own cutoff of 163,840 tokens, 38 minutes); normal answers use a few
+# hundred tokens (99% under about 1,100). An answer that uses it all without answering is asked
+# again with thinking off. RAG_MAX_TOKENS changes it.
+MAX_ANSWER_TOKENS = int(os.environ.get("RAG_MAX_TOKENS", "3000"))
 
 # Which files the "Sources:" line lists (see sources_to_show): the best match's file, plus another
 # file only if its chunk is within SOURCE_WINDOW of the best chunk's distance and the answer shares
@@ -482,26 +487,41 @@ def answer_stream(question, history=()):
         "for the answer, but leave out unrelated details. For a yes/no question that the context answers, begin with "
         "\"Yes\" or \"No\" and check that it agrees with the rest of your sentence "
         "(if the context says something is not allowed, the answer to \"is it allowed?\" is No). "
+        "The exception is a rule that only gives a condition and does not say whether this case meets it "
+        "(for example \"Treats are only given with owner permission.\"): then state the condition instead. "
         "The question may refer back to the earlier conversation (for example \"that trail\" or \"it\"); "
         "work out what it refers to from the earlier messages, then look for the answer in the context.\n\n"
         f"Context:\n{context}\n\nQuestion: {question}"
     )
 
-    stream = llm.chat(
-        model=CHAT_MODEL,
-        messages=history + [{"role": "user", "content": prompt}],
-        stream=True,
-        think=THINK,  # False skips Qwen3's "thinking" step: much faster on CPU, less accurate
-    )
+    messages = history + [{"role": "user", "content": prompt}]
+
+    def ask_model(think):
+        return llm.chat(
+            model=CHAT_MODEL,
+            messages=messages,
+            stream=True,
+            think=think,  # False skips Qwen3's "thinking" step: much faster on CPU, less accurate
+            options={"num_predict": MAX_ANSWER_TOKENS},
+        )
 
     def pieces():
         # Thinking text arrives as pieces too (with no answer text), so a model stuck in a thinking
         # loop keeps the connection busy: the total time has to be checked as well as the silence.
         deadline = time.time() + MODEL_TIMEOUT
-        for part in stream:
+        spoke, last = False, {}
+        for part in ask_model(THINK):
             if time.time() > deadline:
                 raise TimeoutError(f"the model took longer than {MODEL_TIMEOUT:.0f} seconds to answer")
+            spoke = spoke or bool(part["message"]["content"])
+            last = part
             yield part["message"]["content"]
+        if THINK and not spoke and last.get("done_reason") == "length":
+            # It used its whole token budget thinking and never answered: ask again without thinking.
+            for part in ask_model(False):
+                if time.time() > deadline:
+                    raise TimeoutError(f"the model took longer than {MODEL_TIMEOUT:.0f} seconds to answer")
+                yield part["message"]["content"]
 
     return chunks, pieces()
 
