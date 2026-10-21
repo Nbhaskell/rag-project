@@ -1,0 +1,4440 @@
+{
+  "label": "step3",
+  "created": "2026-10-21T13:52:17",
+  "git": "0cc5952+uncommitted",
+  "questions_file": "eval_questions.json",
+  "retrieval_only": false,
+  "question_ids": null,
+  "settings": {
+    "CHAT_MODEL": "qwen3:8b",
+    "EMBED_MODEL": "embeddinggemma",
+    "CHUNK_SIZE": 800,
+    "OVERLAP": 100,
+    "TOP_K": 4,
+    "SUB_TOP_K": 2,
+    "MAX_PARTS": 4,
+    "THINK": true,
+    "SPLIT_QUESTIONS": true,
+    "INDEX_VERSION": 2,
+    "SOURCE_WINDOW": 0.1,
+    "SOURCE_MIN_SHARED": 4,
+    "SOURCE_MIN_SHARED_BEST": 2
+  },
+  "repeats": [
+    {
+      "summary": {
+        "questions": 67,
+        "questions_passed": 67,
+        "by_type": {
+          "fact": [
+            34,
+            34
+          ],
+          "yes-no": [
+            5,
+            5
+          ],
+          "edge": [
+            5,
+            5
+          ],
+          "multi": [
+            15,
+            15
+          ],
+          "unanswerable": [
+            4,
+            4
+          ],
+          "follow-up": [
+            4,
+            4
+          ]
+        },
+        "retrieval_total": 59,
+        "retrieval_ok": 59,
+        "top_ranked": 44,
+        "avg_rank": 1.42,
+        "avg_context_chars": 980,
+        "answers_total": 67,
+        "answers_ok": 67,
+        "sources_total": 67,
+        "sources_exact": 63,
+        "sources_extra": 5,
+        "sources_missing": 0,
+        "avg_seconds": 4.0,
+        "slowest_seconds": 11.0,
+        "model_errors": 0
+      },
+      "results": [
+        {
+          "id": "vaccines-required",
+          "type": "fact",
+          "question": "Which vaccinations does my dog need before attending?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog must have current proof of the following vaccinations before their first visit:  \n- **Rabies** (valid for 3 years, depending on the vaccine given)  \n- **DHPP** (distemper/parvo, valid for 1 year after the booster series)  \n- **Bordetella** (kennel cough, must be given within the last 12 months)  \n- **Canine influenza** is recommended but not required.  \n\nPuppies must also be at least 4 months old and have completed their puppy vaccination series. Additionally, dogs over 6 months old must be spayed or neutered to attend.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 923,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.9,
+          "known_issue": null
+        },
+        {
+          "id": "flu-vaccine",
+          "type": "yes-no",
+          "question": "Is the canine influenza vaccine required?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, the canine influenza vaccine is not required. The context states it is \"recommended\" but does not list it as a mandatory vaccination. The required vaccinations are Rabies, DHPP, and Bordetella.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 945,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "rabies-valid",
+          "type": "fact",
+          "question": "How long is a rabies vaccination valid for?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The rabies vaccination is valid for 3 years, depending on the vaccine given.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1094,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.5,
+          "known_issue": null
+        },
+        {
+          "id": "paper-photo",
+          "type": "yes-no",
+          "question": "Can I send a photo of my dog's paper vaccination records?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, you cannot send a photo of your dog's paper vaccination records. The context explicitly states that photos of paper records are not accepted; vaccination records must be provided in their original format via email, in person, or through an online form.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 899,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.7,
+          "known_issue": null
+        },
+        {
+          "id": "grace-period",
+          "type": "fact",
+          "question": "Is there a grace period if my dog's vaccination expires?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, there is a grace period of 5 days if your dog's vaccination expires. The dog cannot attend until updated proof is received, but a 5-day grace period is allowed.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1105,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "sick-wait",
+          "type": "fact",
+          "question": "How long after being sick can my dog come back?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The dog may return after 2 days if fully recovered, or with a vet's note, as stated in the Sick Dog Policy.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1175,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.6,
+          "known_issue": null
+        },
+        {
+          "id": "sick-symptom-window",
+          "type": "fact",
+          "question": "How many hours without vomiting or diarrhea before I can bring my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The policy states that dogs cannot be brought if they have had vomiting, diarrhea, or other listed symptoms in the last **48 hours**. Therefore, your dog must be free from vomiting or diarrhea for **48 hours** before being allowed. If symptoms persist beyond this period, the dog may return after **2 days** (or with a vet's note if still ill).",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 929,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 6.9,
+          "known_issue": null
+        },
+        {
+          "id": "neuter-age",
+          "type": "fact",
+          "question": "At what age does my dog have to be spayed or neutered?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Dogs over 6 months old must be spayed or neutered to attend. The context does not specify a minimum age for when the procedure must occur, only that dogs exceeding 6 months of age must already have undergone the procedure.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 343,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 11.0,
+          "known_issue": null
+        },
+        {
+          "id": "unneutered-8mo",
+          "type": "edge",
+          "question": "My dog is 8 months old and not neutered. Can he attend?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No. Dogs over 6 months old must be spayed or neutered to attend, and the context does not allow exceptions for this rule. Since your dog is 8 months old and not neutered, he cannot attend.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 818,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.7,
+          "known_issue": null
+        },
+        {
+          "id": "min-age",
+          "type": "fact",
+          "question": "What is the minimum age for a puppy to attend?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The minimum age for a puppy to attend is 4 months old. Puppies must be at least 4 months old and have completed their vaccination series.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 818,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.4,
+          "known_issue": null
+        },
+        {
+          "id": "medication-fee",
+          "type": "multi",
+          "question": "Can staff give my dog medication, and what does it cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, staff can give your dog medication if the owner provides it in its original container with written instructions. The cost is $10 per dose.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 747,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 6.7,
+          "known_issue": null
+        },
+        {
+          "id": "eval-cost",
+          "type": "fact",
+          "question": "How much does the temperament evaluation cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The temperament evaluation is free of cost.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1403,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "eval-length",
+          "type": "fact",
+          "question": "How long does the temperament evaluation take?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The temperament evaluation takes about 1 hour.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1432,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.1,
+          "known_issue": null
+        },
+        {
+          "id": "eval-bring",
+          "type": "fact",
+          "question": "What do I need to bring to the temperament evaluation?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "You need to bring vaccination records, the signed owner agreement, and the dog's vet contact information.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1571,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "weight-limit",
+          "type": "fact",
+          "question": "What is the maximum weight for a dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The maximum weight for a dog is 250 pounds.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 758,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "incident-policy",
+          "type": "fact",
+          "question": "What happens after three incidents within five days?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "After three incidents within 5 days, the dog is suspended for 1 day, then re-evaluated or removed. Staff have the final decision, prioritizing the safety of all dogs and team members.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1087,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.7,
+          "known_issue": null
+        },
+        {
+          "id": "reevaluation",
+          "type": "fact",
+          "question": "How soon can a declined dog be re-evaluated?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A declined dog may be re-evaluated after **30 days or 1 month**. This is the standard rule stated in the context. Exceptions or alternative timelines (e.g., suspensions due to incidents) apply to different scenarios and are not relevant here.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1222,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.0,
+          "known_issue": null
+        },
+        {
+          "id": "full-day-price",
+          "type": "fact",
+          "question": "How much is a full day of daycare?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The cost for a full day of daycare (over 4 hours) is $100.00.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 929,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "half-day-price",
+          "type": "fact",
+          "question": "How much is a half day of daycare, and how many hours is that?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A half day of daycare costs $50.00 and lasts up to 4 hours.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 659,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.0,
+          "known_issue": null
+        },
+        {
+          "id": "five-hours",
+          "type": "edge",
+          "question": "I'll be picking my dog up after 5 hours. Is that a half day or a full day, and what does it cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, picking up your dog after 5 hours is considered a full day because the pricing is based on the duration of stay, not the pick-up time. A full day (over 4 hours) costs $100.00. Note that if your dog was dropped off after 9:00am, it may also be charged as a full day, but the duration here (5 hours) already qualifies as full day.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1208,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md",
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [
+            "04-hours-and-schedule.md",
+            "05-daily-routine.md"
+          ],
+          "sources_missing": [],
+          "seconds": 9.4,
+          "known_issue": null
+        },
+        {
+          "id": "second-dog-two-dogs-total",
+          "type": "edge",
+          "question": "How much for two dogs from the same household for one full day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The cost for two dogs from the same household for one full day is $100.00 (for the first dog's full day) plus $50.00 (for the second dog), totaling **$150.00**.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 840,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 7.1,
+          "known_issue": null
+        },
+        {
+          "id": "ten-day-package",
+          "type": "multi",
+          "question": "How much is the 10-day package and how long is it valid?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The 10-day package costs $800 and is valid for 90 days.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 814,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "unlimited-monthly",
+          "type": "fact",
+          "question": "What does the unlimited monthly membership cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The unlimited monthly membership costs $2,500 per month.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 972,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.4,
+          "known_issue": null
+        },
+        {
+          "id": "unused-days",
+          "type": "fact",
+          "question": "Can unused package days be transferred to another dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, unused package days can be transferred to another dog. The context explicitly states that \"Unused days can be transferred to another dog.\" There are no exceptions or conditions mentioned regarding this rule.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 947,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_missing": [],
+          "seconds": 4.3,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-price",
+          "type": "fact",
+          "question": "How much is a standard overnight stay?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The standard overnight stay costs $125.00 per night. This price is listed under the Boarding section and does not include additional charges such as the second dog fee or holiday surcharge, which apply only if applicable.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 840,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-checkin",
+          "type": "fact",
+          "question": "What are the boarding check-in and check-out times?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The boarding check-in time is between 8:00am and 9:00am. Check-out is by 6:00pm.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 789,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 5.1,
+          "known_issue": null
+        },
+        {
+          "id": "late-pickup-fee",
+          "type": "fact",
+          "question": "What is the fee for picking up late?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The fee for picking up late is $5.00 for every 30 minutes after closing time. This applies if pickup occurs after the scheduled closing time, as stated in the \"Pricing and Packages > Fees\" section and referenced in the \"Hours and Schedule\" section.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1124,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.8,
+          "known_issue": null
+        },
+        {
+          "id": "discounts",
+          "type": "fact",
+          "question": "What discounts do you offer and how much are they?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The discounts offered are 10% for multi-dog, military, rescue, or referral cases. No other discounts are mentioned in the context.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 277,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "sunday-hours",
+          "type": "fact",
+          "question": "What are your hours on Sundays?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The regular hours on Sundays are 8:00am to 6:00pm. There are no exceptions or modified hours listed for Sundays in the context.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 925,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.0,
+          "known_issue": null
+        },
+        {
+          "id": "closed-christmas",
+          "type": "yes-no",
+          "question": "Are you open on Christmas Day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, we are closed on Christmas Day.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 887,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.5,
+          "known_issue": null
+        },
+        {
+          "id": "evening-pickup",
+          "type": "fact",
+          "question": "What is the evening pick-up window?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The evening pick-up window is between 5:30pm and 6:00pm. Pickup after closing time (6:00pm) incurs a late fee.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1233,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "late-dropoff",
+          "type": "fact",
+          "question": "What happens if I drop my dog off after 9am?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "If you drop your dog off after 9:00am, they may be charged for a full day. This applies regardless of when the drop-off occurs, with no exceptions or grace periods mentioned in the context.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1388,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-notice",
+          "type": "fact",
+          "question": "How far ahead do I need to reserve boarding?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "To reserve boarding, you must book at least 3 days ahead. For holiday boarding, cancellations require notice of at least 10 days, but this applies to cancellations, not reservations. The reservation requirement is specifically 3 days in advance.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 940,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "address",
+          "type": "fact",
+          "question": "Where is the daycare located?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The daycare is located at 123 puppy drive, Oakland ME.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 758,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.2,
+          "known_issue": null
+        },
+        {
+          "id": "staff-ratio",
+          "type": "fact",
+          "question": "How many dogs does each staff member supervise?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Each staff member supervises a group of dogs at a ratio of 1 staff member for every 5 dogs.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 976,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "nap-time",
+          "type": "fact",
+          "question": "When is nap time?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Nap time is from 12:00 PM to 2:30 PM. Dogs rest in individual or shared quiet areas during this period.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1214,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.5,
+          "known_issue": null
+        },
+        {
+          "id": "bring-blanket",
+          "type": "yes-no",
+          "question": "Can my dog bring a blanket or toy?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog is allowed to bring a leash, toys, or a blanket.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 777,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.4,
+          "known_issue": null
+        },
+        {
+          "id": "daily-report",
+          "type": "fact",
+          "question": "How will I get an update on my dog's day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, you will receive a daily email report with notes on your dog's meals, bathroom breaks, and behavior, along with daily photos of your dog.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 927,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.0,
+          "known_issue": null
+        },
+        {
+          "id": "cancel-notice",
+          "type": "fact",
+          "question": "How far ahead do I have to cancel a daycare day to avoid a charge?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "To avoid a charge for cancelling a daycare day, you must cancel **at least 12 hours before drop-off** by phone, email, or text. If you cancel late or do not show, a $50.00 fee applies.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 977,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.9,
+          "known_issue": null
+        },
+        {
+          "id": "late-cancel-fee",
+          "type": "fact",
+          "question": "What is the fee for a late cancellation or no-show for daycare?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The fee for a late cancellation or no-show for daycare is $50.00. This applies when the cancellation is not made at least 12 hours before drop-off, or if the client does not show up.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1060,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-deposit",
+          "type": "fact",
+          "question": "How much is the boarding deposit?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The boarding deposit is $25.00. This deposit is required at the time of booking and is applied to the final bill.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 940,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.3,
+          "known_issue": null
+        },
+        {
+          "id": "cancel-boarding-3-days",
+          "type": "edge",
+          "question": "What happens to my deposit if I cancel boarding 3 days before arrival?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The deposit is partly refunded if you cancel boarding 3 days before arrival, as this is less than the 5-day threshold required for a full refund. The exact amount of the partial refund is not specified in the context.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 980,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.8,
+          "known_issue": null
+        },
+        {
+          "id": "package-refund",
+          "type": "yes-no",
+          "question": "Can I get a refund on package days I haven't used?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, you cannot get a refund on unused package days under normal circumstances. Package days are non-refundable after purchase, except if the dog is permanently removed by the service. Refunds for unused portions are only applicable in specific cases like illness or incidents leading to early discharge, which are separate from standard package day cancellations.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1360,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 6.4,
+          "known_issue": null
+        },
+        {
+          "id": "payment-methods",
+          "type": "fact",
+          "question": "What payment methods do you accept?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The payment methods accepted are cash, check, and card.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 677,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.2,
+          "known_issue": null
+        },
+        {
+          "id": "refund-timing",
+          "type": "fact",
+          "question": "How long does it take to receive a refund?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The refund is issued to the original payment method within 5 business days.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1209,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "sick-sent-home-refund",
+          "type": "multi",
+          "question": "If my dog is sent home early because they got sick, do I get a refund?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, if your dog is sent home early due to illness, you will receive a refund for the unused portion of the stay, as stated in the Refunds policy.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1403,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.0,
+          "known_issue": null
+        },
+        {
+          "id": "expired-rabies",
+          "type": "edge",
+          "question": "My dog's rabies vaccination expired yesterday. Can I still bring him?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, you can still bring your dog because the grace period of 5 days applies to expired vaccinations. However, you must provide updated proof of vaccination before the expiration date is past the grace period. Note that the rabies vaccination's validity period (3 years) is separate from the grace period rule for expired vaccines.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1127,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "full-day-and-cancel",
+          "type": "multi",
+          "question": "How much is a full day of daycare, and how far ahead do I have to cancel to avoid a charge?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A full day of daycare costs $100.00. To avoid a charge, you must cancel at least 12 hours before drop-off. Cancelling on time (within this window) results in no charge and a package day returned. Late cancellations or no-shows incur a $50.00 fee.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 802,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.7,
+          "known_issue": null
+        },
+        {
+          "id": "open-and-bath",
+          "type": "multi",
+          "question": "What time do you open on Saturdays, and how much is a bath?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The opening time on Saturdays is 8:00am. A bath costs $50.00.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 812,
+          "sources_shown": [
+            "04-hours-and-schedule.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.7,
+          "known_issue": null
+        },
+        {
+          "id": "eval-and-vaccines",
+          "type": "multi",
+          "question": "Does my dog need a temperament evaluation, and which vaccines are required?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog needs a temperament evaluation before their first full day at Barks n Woofs. The required vaccines are rabies (valid for 3 years), DHPP (distemper/parvo, valid for 1 year after the booster series), and Bordetella (must be given within the last 12 months). Canine influenza is recommended but not required. Puppies must also be at least 4 months old and have completed their puppy vaccination series.",
+          "problems": [],
+          "retrieval_rank": 4,
+          "context_chars": 1664,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md",
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 6.5,
+          "known_issue": null
+        },
+        {
+          "id": "close-and-late-fee",
+          "type": "multi",
+          "question": "What time do you close, and what is the fee for picking up late?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The closing time is 6:00pm daily. The late pickup fee is $5.00 for every 30 minutes after closing time.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1008,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.8,
+          "known_issue": null
+        },
+        {
+          "id": "deposit-and-checkin",
+          "type": "multi",
+          "question": "How much is the boarding deposit, and what time is check-in?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The boarding deposit is $25.00. Check-in is between 8:00am and 9:00am.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 765,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "nail-and-nap",
+          "type": "multi",
+          "question": "How much is a nail trim, and when is nap time?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A nail trim costs $30.00. Nap time is from 12:00 PM to 2:30 PM.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1208,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.3,
+          "known_issue": null
+        },
+        {
+          "id": "ratio-and-eval-length",
+          "type": "multi",
+          "question": "How many dogs does each staff member supervise, and how long does the temperament evaluation take?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Each staff member supervises a group of 5 dogs. The temperament evaluation takes about 1 hour.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 1279,
+          "sources_shown": [
+            "05-daily-routine.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md",
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.7,
+          "known_issue": null
+        },
+        {
+          "id": "unlimited-and-expiry",
+          "type": "multi",
+          "question": "How much is the unlimited monthly membership, and how long until package days expire?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The unlimited monthly membership costs $2,500 per month. Package days expire 90 days after purchase unless stated otherwise.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 841,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.6,
+          "known_issue": null
+        },
+        {
+          "id": "blanket-and-christmas",
+          "type": "multi",
+          "question": "Can my dog bring a blanket, and are you open on Christmas Day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog can bring a blanket as it is allowed. We are closed on Christmas Day.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 885,
+          "sources_shown": [
+            "05-daily-routine.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md",
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.4,
+          "known_issue": null
+        },
+        {
+          "id": "weight-and-rabies",
+          "type": "multi",
+          "question": "What is the maximum weight for a dog, and how long is a rabies vaccination valid?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The maximum weight for a dog is **250 pounds**. A rabies vaccination is valid for **3 years**, depending on the vaccine given.",
+          "problems": [],
+          "retrieval_rank": 4,
+          "context_chars": 1070,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.0,
+          "known_issue": null
+        },
+        {
+          "id": "half-day-and-sick-return",
+          "type": "multi",
+          "question": "How much is a half day, and how long after being sick can my dog return?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A half day costs $50.00 for up to 4 hours. A dog who has been ill may return after 2 days, or with a vet's note.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1126,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.9,
+          "known_issue": null
+        },
+        {
+          "id": "three-topics",
+          "type": "multi",
+          "question": "What is the full-day price, how much is the boarding deposit, and how many dogs does each staff member supervise?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The full-day price is $100.00 for over 4 hours. The boarding deposit is $25.00. Each staff member supervises 1 staff member for every 5 dogs.",
+          "problems": [],
+          "retrieval_rank": 4,
+          "context_chars": 1448,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.1,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-grooming",
+          "type": "unanswerable",
+          "question": "Do you offer full grooming and haircuts?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 622,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-transport",
+          "type": "unanswerable",
+          "question": "Do you offer pickup and drop-off transportation for dogs?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 634,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.9,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-webcam",
+          "type": "unanswerable",
+          "question": "Is there a webcam so I can watch my dog during the day?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention a webcam or live video feed for monitoring dogs. Photos are shared daily, but this does not imply access to a webcam.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 577,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-cats",
+          "type": "unanswerable",
+          "question": "Do you take cats?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context provided does not mention anything about accepting cats. All information relates to dogs, such as vaccination requirements, spay/neuter rules, and items to bring. There is no explicit statement or implication about cats being allowed or not allowed.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 599,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "followup-half-day",
+          "type": "follow-up",
+          "question": "And a half day?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "A half day (up to 4 hours) costs $50.00.",
+          "problems": [],
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.3,
+          "known_issue": null
+        },
+        {
+          "id": "followup-second-dog",
+          "type": "follow-up",
+          "question": "What about for a second dog sharing the room?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "The cost for a second dog sharing the room is $50.00 per night. This applies in addition to the standard overnight stay fee of $125.00 per night. The second dog fee is separate from the holiday surcharge, which applies only to the standard overnight stay. No other conditions or exceptions are mentioned for this specific scenario.",
+          "problems": [],
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.3,
+          "known_issue": null
+        },
+        {
+          "id": "followup-bordetella",
+          "type": "follow-up",
+          "question": "What about bordetella?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "Bordetella (also called kennel cough) must be given within the last 12 months. If a dog's Bordetella vaccination expires, the dog cannot attend until updated proof is received. A grace period of 5 days is allowed for expired vaccinations, but this applies to all vaccines, including Bordetella. The requirement specifically mandates the vaccination must be within the last 12 months, with no exception stated for Bordetella.",
+          "problems": [],
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "followup-cancel-fee",
+          "type": "follow-up",
+          "question": "And what's the fee if I miss that?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "If you miss the 12-hour cancellation deadline (i.e., cancel late or do not show), a fee of **$50.00** applies, and a package day is used. This applies regardless of whether you cancel or fail to attend. No other fees are specified for this scenario in the context.",
+          "problems": [],
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        }
+      ]
+    },
+    {
+      "summary": {
+        "questions": 67,
+        "questions_passed": 67,
+        "by_type": {
+          "fact": [
+            34,
+            34
+          ],
+          "yes-no": [
+            5,
+            5
+          ],
+          "edge": [
+            5,
+            5
+          ],
+          "multi": [
+            15,
+            15
+          ],
+          "unanswerable": [
+            4,
+            4
+          ],
+          "follow-up": [
+            4,
+            4
+          ]
+        },
+        "retrieval_total": 59,
+        "retrieval_ok": 59,
+        "top_ranked": 44,
+        "avg_rank": 1.42,
+        "avg_context_chars": 980,
+        "answers_total": 67,
+        "answers_ok": 67,
+        "sources_total": 67,
+        "sources_exact": 63,
+        "sources_extra": 4,
+        "sources_missing": 0,
+        "avg_seconds": 3.9,
+        "slowest_seconds": 20.8,
+        "model_errors": 0
+      },
+      "results": [
+        {
+          "id": "vaccines-required",
+          "type": "fact",
+          "question": "Which vaccinations does my dog need before attending?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog must have current proof of the following vaccinations before their first visit:  \n- **Rabies** (valid for 3 years, depending on the vaccine given).  \n- **DHPP** (distemper/parvo, valid for 1 year after the booster series).  \n- **Bordetella** (kennel cough, must be given within the last 12 months).  \n**Canine influenza** is recommended but not required.  \n\nPuppies must also be at least 4 months old and have completed their puppy vaccination series to attend.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 923,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.1,
+          "known_issue": null
+        },
+        {
+          "id": "flu-vaccine",
+          "type": "yes-no",
+          "question": "Is the canine influenza vaccine required?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, the canine influenza vaccine is not required. It is listed as \"recommended\" in the context, meaning it is advised but not mandatory for dogs to attend Barks n Woofs.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 945,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "rabies-valid",
+          "type": "fact",
+          "question": "How long is a rabies vaccination valid for?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The rabies vaccination is valid for 3 years, depending on the vaccine given.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1094,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "paper-photo",
+          "type": "yes-no",
+          "question": "Can I send a photo of my dog's paper vaccination records?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, you cannot send a photo of your dog's paper vaccination records. The context explicitly states that photos of paper records are not accepted. Vaccination records must be provided through email, in person, or by online form, and they must include the dog's name, vaccine, date given, and expiration date.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 899,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.7,
+          "known_issue": null
+        },
+        {
+          "id": "grace-period",
+          "type": "fact",
+          "question": "Is there a grace period if my dog's vaccination expires?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, there is a grace period of 5 days if your dog's vaccination expires. The dog cannot attend until updated proof is received, but a 5-day grace period is allowed.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1105,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "sick-wait",
+          "type": "fact",
+          "question": "How long after being sick can my dog come back?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Your dog may return after 2 days if they have recovered from illness, or with a vet's note if they are still unwell. If the dog shows signs of illness during their stay, they will be separated and the owner will be contacted for pickup within 1 hour.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1175,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.4,
+          "known_issue": null
+        },
+        {
+          "id": "sick-symptom-window",
+          "type": "fact",
+          "question": "How many hours without vomiting or diarrhea before I can bring my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The context states that dogs cannot be brought if they have had vomiting, diarrhea, or other symptoms in the last **48 hours**. Therefore, your dog must be free of vomiting or diarrhea for **48 hours** before bringing them. If the dog has been ill (with these symptoms), they may return after **2 days** (48 hours) or with a vet's note. \n\n**Answer:** 48 hours.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 929,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.2,
+          "known_issue": null
+        },
+        {
+          "id": "neuter-age",
+          "type": "fact",
+          "question": "At what age does my dog have to be spayed or neutered?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Dogs over 6 months old must be spayed or neutered to attend. The context does not specify a minimum age for the procedure itself, only that dogs exceeding 6 months require spaying/neutering for attendance.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 343,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 8.3,
+          "known_issue": null
+        },
+        {
+          "id": "unneutered-8mo",
+          "type": "edge",
+          "question": "My dog is 8 months old and not neutered. Can he attend?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No. Dogs over 6 months old must be spayed or neutered to attend. Your dog is 8 months old and not neutered, so he cannot attend.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 818,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.3,
+          "known_issue": null
+        },
+        {
+          "id": "min-age",
+          "type": "fact",
+          "question": "What is the minimum age for a puppy to attend?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The minimum age for a puppy to attend is 4 months old. Puppies must be at least 4 months old and have completed their vaccination series. This applies to all puppies, with no exceptions or grace periods mentioned for age requirements.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 818,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "medication-fee",
+          "type": "multi",
+          "question": "Can staff give my dog medication, and what does it cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, staff can give your dog medication if the owner provides it in its original container with written instructions. The cost is $10 per dose.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 747,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.9,
+          "known_issue": null
+        },
+        {
+          "id": "eval-cost",
+          "type": "fact",
+          "question": "How much does the temperament evaluation cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The temperament evaluation is free of cost.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1403,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.7,
+          "known_issue": null
+        },
+        {
+          "id": "eval-length",
+          "type": "fact",
+          "question": "How long does the temperament evaluation take?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The temperament evaluation takes about 1 hour.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1432,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 1.9,
+          "known_issue": null
+        },
+        {
+          "id": "eval-bring",
+          "type": "fact",
+          "question": "What do I need to bring to the temperament evaluation?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "You need to bring vaccination records, the signed owner agreement, and the dog's vet contact information.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1571,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.6,
+          "known_issue": null
+        },
+        {
+          "id": "weight-limit",
+          "type": "fact",
+          "question": "What is the maximum weight for a dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The maximum weight for a dog is 250 pounds.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 758,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.5,
+          "known_issue": null
+        },
+        {
+          "id": "incident-policy",
+          "type": "fact",
+          "question": "What happens after three incidents within five days?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "After three incidents within 5 days, the dog is suspended for 1 day and then re-evaluated or removed. Staff have the final decision.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1087,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "reevaluation",
+          "type": "fact",
+          "question": "How soon can a declined dog be re-evaluated?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The context states that a dog who was declined may be re-evaluated after **30 days or 1 month**. There are no exceptions or grace periods mentioned for this specific re-evaluation timeline. \n\nAnswer: A declined dog can be re-evaluated after **30 days or 1 month**.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1222,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "full-day-price",
+          "type": "fact",
+          "question": "How much is a full day of daycare?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A full day of daycare (over 4 hours) costs $100.00.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 929,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.5,
+          "known_issue": null
+        },
+        {
+          "id": "half-day-price",
+          "type": "fact",
+          "question": "How much is a half day of daycare, and how many hours is that?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A half day of daycare costs $50.00 and is defined as \"up to 4 hours.\" The duration is not fixed at a specific number of hours but is capped at 4 hours.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 659,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.4,
+          "known_issue": null
+        },
+        {
+          "id": "five-hours",
+          "type": "edge",
+          "question": "I'll be picking my dog up after 5 hours. Is that a half day or a full day, and what does it cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, picking up your dog after 5 hours is considered a full day, which costs $100.00. The pricing rules state that full days are for stays over 4 hours, and half days are for up to 4 hours. The duration of 5 hours exceeds the half-day limit, so it is charged as a full day. Note that pickup times (e.g., midday or evening) are separate from duration-based pricing.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1208,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 20.8,
+          "known_issue": null
+        },
+        {
+          "id": "second-dog-two-dogs-total",
+          "type": "edge",
+          "question": "How much for two dogs from the same household for one full day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The cost for two dogs from the same household for one full day is $100.00 (for the first dog) plus $50.00 (for the second dog), totaling **$150.00**. This applies because the full-day rate is $100.00, and the second dog from the same household incurs an additional $50.00 per day.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 840,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.4,
+          "known_issue": null
+        },
+        {
+          "id": "ten-day-package",
+          "type": "multi",
+          "question": "How much is the 10-day package and how long is it valid?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The 10-day package costs $800 and is valid for 90 days.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 814,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "unlimited-monthly",
+          "type": "fact",
+          "question": "What does the unlimited monthly membership cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The unlimited monthly membership costs $2,500 per month with terms.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 972,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "unused-days",
+          "type": "fact",
+          "question": "Can unused package days be transferred to another dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, unused package days can be transferred to another dog.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 947,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_missing": [],
+          "seconds": 3.0,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-price",
+          "type": "fact",
+          "question": "How much is a standard overnight stay?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The standard overnight stay is $125.00 per night. This applies unless there is a holiday surcharge, which adds $25.00 per night on listed holidays. Check-in is between 8:00am and 9:00am, and check-out is by 6:00pm.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 840,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-checkin",
+          "type": "fact",
+          "question": "What are the boarding check-in and check-out times?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The boarding check-in time is between 8:00am and 9:00am. Check-out is by 6:00pm.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 789,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "late-pickup-fee",
+          "type": "fact",
+          "question": "What is the fee for picking up late?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The fee for picking up late is $5.00 for every 30 minutes after closing time. Pickup after closing time incurs this late fee, as stated in the Pricing and Packages section.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1124,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "discounts",
+          "type": "fact",
+          "question": "What discounts do you offer and how much are they?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The discounts offered are 10% for multi-dog, military, rescue, or referral customers. No other discounts are mentioned in the context.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 277,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.0,
+          "known_issue": null
+        },
+        {
+          "id": "sunday-hours",
+          "type": "fact",
+          "question": "What are your hours on Sundays?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The regular hours on Sundays are 8:00am to 6:00pm. There are no exceptions or modified hours mentioned for Sundays in the context.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 925,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "closed-christmas",
+          "type": "yes-no",
+          "question": "Are you open on Christmas Day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, we are closed on Christmas Day.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 887,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.4,
+          "known_issue": null
+        },
+        {
+          "id": "evening-pickup",
+          "type": "fact",
+          "question": "What is the evening pick-up window?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The evening pick-up window is between 5:30pm and 6:00pm.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1233,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.3,
+          "known_issue": null
+        },
+        {
+          "id": "late-dropoff",
+          "type": "fact",
+          "question": "What happens if I drop my dog off after 9am?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "If you drop your dog off after 9:00am, they may be charged for a full day. This applies regardless of when the drop-off occurs, and there are no exceptions or grace periods mentioned for this rule.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1388,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-notice",
+          "type": "fact",
+          "question": "How far ahead do I need to reserve boarding?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "To reserve boarding, you need to book **at least 3 days ahead**. This is specified under the Reservations section. Note that holiday boarding has additional cancellation requirements (10 days ahead), but this does not affect the reservation lead time.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 940,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "address",
+          "type": "fact",
+          "question": "Where is the daycare located?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The daycare is located at 123 puppy drive, Oakland ME.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 758,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 1.8,
+          "known_issue": null
+        },
+        {
+          "id": "staff-ratio",
+          "type": "fact",
+          "question": "How many dogs does each staff member supervise?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Each staff member supervises a group of dogs at a ratio of 1 staff member for every 5 dogs.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 976,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "nap-time",
+          "type": "fact",
+          "question": "When is nap time?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Nap time is from 12:00 PM to 2:30 PM. Dogs rest in individual or shared quiet areas during this period.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1214,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "bring-blanket",
+          "type": "yes-no",
+          "question": "Can my dog bring a blanket or toy?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog can bring a blanket or toy. The context explicitly states that \"a leash, toys, or a blanket: allowed\" under the \"What to Bring\" section. No exceptions or restrictions are mentioned for bringing these items.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 777,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.2,
+          "known_issue": null
+        },
+        {
+          "id": "daily-report",
+          "type": "fact",
+          "question": "How will I get an update on my dog's day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, you will receive a daily email report with notes on your dog's meals, bathroom breaks, and behavior. Photos are also shared daily via email.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 927,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.7,
+          "known_issue": null
+        },
+        {
+          "id": "cancel-notice",
+          "type": "fact",
+          "question": "How far ahead do I have to cancel a daycare day to avoid a charge?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "To avoid a charge for cancelling a daycare day, you must cancel **at least 12 hours before drop-off**. If you cancel late or do not show up, a $50.00 fee applies.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 977,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.4,
+          "known_issue": null
+        },
+        {
+          "id": "late-cancel-fee",
+          "type": "fact",
+          "question": "What is the fee for a late cancellation or no-show for daycare?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The fee for a late cancellation or no-show for daycare is $50.00. This applies if the cancellation is not made at least 12 hours before drop-off, or if the dog does not show up.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1060,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_missing": [],
+          "seconds": 3.3,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-deposit",
+          "type": "fact",
+          "question": "How much is the boarding deposit?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The boarding deposit is $25.00. This deposit is required at the time of booking and is applied to the final bill. There are no exceptions or alternative amounts mentioned for this deposit.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 940,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "cancel-boarding-3-days",
+          "type": "edge",
+          "question": "What happens to my deposit if I cancel boarding 3 days before arrival?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The deposit is partly refunded if you cancel boarding 3 days before arrival, as this is less than the 5-day threshold required for a full refund. The context does not specify the exact amount of the partial refund.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 980,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "package-refund",
+          "type": "yes-no",
+          "question": "Can I get a refund on package days I haven't used?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, you cannot get a refund on unused package days unless the dog is permanently removed by us. Package days are non-refundable after purchase, except in that specific exception. Refunds for unused portions are only provided if the dog is sent home early for illness or an incident, which is a separate policy.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1360,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 7.0,
+          "known_issue": null
+        },
+        {
+          "id": "payment-methods",
+          "type": "fact",
+          "question": "What payment methods do you accept?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The payment methods accepted are Cash, Check, and Card.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 677,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 1.8,
+          "known_issue": null
+        },
+        {
+          "id": "refund-timing",
+          "type": "fact",
+          "question": "How long does it take to receive a refund?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The refund is issued to the original payment method within 5 business days.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1209,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "sick-sent-home-refund",
+          "type": "multi",
+          "question": "If my dog is sent home early because they got sick, do I get a refund?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, if your dog is sent home early due to illness, you will receive a refund for the unused portion of the stay.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1403,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "expired-rabies",
+          "type": "edge",
+          "question": "My dog's rabies vaccination expired yesterday. Can I still bring him?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, you can still bring your dog if the rabies vaccination expired yesterday, as there is a 5-day grace period allowed. However, you must provide updated proof of vaccination before the dog is allowed to attend. The grace period applies to expired vaccinations, but the dog cannot stay until the proof is received.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1127,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 6.1,
+          "known_issue": null
+        },
+        {
+          "id": "full-day-and-cancel",
+          "type": "multi",
+          "question": "How much is a full day of daycare, and how far ahead do I have to cancel to avoid a charge?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A full day of daycare costs $100.00. To avoid a charge, you must cancel at least 12 hours before drop-off. Late cancellations or no-shows incur a $50.00 fee.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 802,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.1,
+          "known_issue": null
+        },
+        {
+          "id": "open-and-bath",
+          "type": "multi",
+          "question": "What time do you open on Saturdays, and how much is a bath?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The opening time on Saturdays is 8:00am. A bath costs $50.00.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 812,
+          "sources_shown": [
+            "04-hours-and-schedule.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "eval-and-vaccines",
+          "type": "multi",
+          "question": "Does my dog need a temperament evaluation, and which vaccines are required?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog needs a temperament evaluation before their first full day at Barks n Woofs. The evaluation is free, lasts about 1 hour, and assesses the dog\u2019s comfort, play style, and reactions to handling, noise, and other dogs. Results determine approval for group play, approved with conditions (e.g., small groups only), or not approved.  \n\nFor required vaccines:  \n- **Rabies** (valid for 3 years, depending on the vaccine).  \n- **DHPP** (distemper/parvo, valid for 1 year after the booster series).  \n- **Bordetella** (kennel cough, must be given within the last 12 months).  \n- **Canine influenza** is recommended but not required.  \n\nPuppies must be at least 4 months old and have completed their puppy vaccination series before attending.",
+          "problems": [],
+          "retrieval_rank": 4,
+          "context_chars": 1664,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md",
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 6.4,
+          "known_issue": null
+        },
+        {
+          "id": "close-and-late-fee",
+          "type": "multi",
+          "question": "What time do you close, and what is the fee for picking up late?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The closing time is 6:00pm daily. The late pickup fee is $5.00 for every 30 minutes after closing time.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1008,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "deposit-and-checkin",
+          "type": "multi",
+          "question": "How much is the boarding deposit, and what time is check-in?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The boarding deposit is $25.00, which is due at booking and applied to the final bill. Check-in is between 8:00am and 9:00am.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 765,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.7,
+          "known_issue": null
+        },
+        {
+          "id": "nail-and-nap",
+          "type": "multi",
+          "question": "How much is a nail trim, and when is nap time?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A nail trim costs $30.00. Nap time is from 12:00 PM to 2:30 PM.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1208,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.6,
+          "known_issue": null
+        },
+        {
+          "id": "ratio-and-eval-length",
+          "type": "multi",
+          "question": "How many dogs does each staff member supervise, and how long does the temperament evaluation take?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Each staff member supervises 5 dogs in play groups. The temperament evaluation takes about 1 hour.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 1279,
+          "sources_shown": [
+            "05-daily-routine.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md",
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.5,
+          "known_issue": null
+        },
+        {
+          "id": "unlimited-and-expiry",
+          "type": "multi",
+          "question": "How much is the unlimited monthly membership, and how long until package days expire?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The unlimited monthly membership costs $2,500 per month. Package days expire 90 days after purchase unless stated otherwise.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 841,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.3,
+          "known_issue": null
+        },
+        {
+          "id": "blanket-and-christmas",
+          "type": "multi",
+          "question": "Can my dog bring a blanket, and are you open on Christmas Day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog can bring a blanket as it is allowed. We are closed on Christmas Day.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 885,
+          "sources_shown": [
+            "05-daily-routine.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md",
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "weight-and-rabies",
+          "type": "multi",
+          "question": "What is the maximum weight for a dog, and how long is a rabies vaccination valid?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The maximum weight for a dog is 250 pounds. A rabies vaccination is valid for 3 years, depending on the vaccine given.",
+          "problems": [],
+          "retrieval_rank": 4,
+          "context_chars": 1070,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.8,
+          "known_issue": null
+        },
+        {
+          "id": "half-day-and-sick-return",
+          "type": "multi",
+          "question": "How much is a half day, and how long after being sick can my dog return?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The cost for a half day is $50.00 (up to 4 hours). A dog who has been ill may return after 2 days or with a vet's note.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1126,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.1,
+          "known_issue": null
+        },
+        {
+          "id": "three-topics",
+          "type": "multi",
+          "question": "What is the full-day price, how much is the boarding deposit, and how many dogs does each staff member supervise?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The full-day price is $100.00 for over 4 hours. The boarding deposit is $25.00. Each staff member supervises 5 dogs, with a ratio of 1 staff member for every 5 dogs.",
+          "problems": [],
+          "retrieval_rank": 4,
+          "context_chars": 1448,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-grooming",
+          "type": "unanswerable",
+          "question": "Do you offer full grooming and haircuts?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention full grooming or haircuts as services offered. The add-ons listed include a bath and nail trim, but these are separate services and do not constitute full grooming or haircuts.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 622,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.4,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-transport",
+          "type": "unanswerable",
+          "question": "Do you offer pickup and drop-off transportation for dogs?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention anything about offering pickup and drop-off transportation for dogs. It only provides details about scheduled drop-off and pick-up windows, late fees, and payment methods.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 634,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.3,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-webcam",
+          "type": "unanswerable",
+          "question": "Is there a webcam so I can watch my dog during the day?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention anything about a webcam or live video feed for monitoring dogs.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 577,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.3,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-cats",
+          "type": "unanswerable",
+          "question": "Do you take cats?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 599,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "followup-half-day",
+          "type": "follow-up",
+          "question": "And a half day?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "A half day (up to 4 hours) costs $50.00.",
+          "problems": [],
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "followup-second-dog",
+          "type": "follow-up",
+          "question": "What about for a second dog sharing the room?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "The cost for a second dog sharing the room is $50.00 per night. This applies in addition to the standard overnight stay rate of $125.00 per night. There is no separate holiday surcharge mentioned for the second dog, but the standard holiday surcharge of $25.00 per night applies to the overall stay if it falls on a listed holiday. Check-in is between 8:00am and 9:00am, and check-out is by 6:00pm.",
+          "problems": [],
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.9,
+          "known_issue": null
+        },
+        {
+          "id": "followup-bordetella",
+          "type": "follow-up",
+          "question": "What about bordetella?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "Bordetella (kennel cough) must be given within the last 12 months. There is no grace period mentioned for expired Bordetella vaccinations in the context.",
+          "problems": [],
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.6,
+          "known_issue": null
+        },
+        {
+          "id": "followup-cancel-fee",
+          "type": "follow-up",
+          "question": "And what's the fee if I miss that?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "The fee for missing the cancellation deadline (late cancellation or no-show) is **$50.00**, and a package day is used. This applies if you cancel less than 12 hours before drop-off or do not attend. There are no exceptions or grace periods mentioned for this rule.",
+          "problems": [],
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.5,
+          "known_issue": null
+        }
+      ]
+    },
+    {
+      "summary": {
+        "questions": 67,
+        "questions_passed": 67,
+        "by_type": {
+          "fact": [
+            34,
+            34
+          ],
+          "yes-no": [
+            5,
+            5
+          ],
+          "edge": [
+            5,
+            5
+          ],
+          "multi": [
+            15,
+            15
+          ],
+          "unanswerable": [
+            4,
+            4
+          ],
+          "follow-up": [
+            4,
+            4
+          ]
+        },
+        "retrieval_total": 59,
+        "retrieval_ok": 59,
+        "top_ranked": 44,
+        "avg_rank": 1.42,
+        "avg_context_chars": 980,
+        "answers_total": 67,
+        "answers_ok": 67,
+        "sources_total": 67,
+        "sources_exact": 63,
+        "sources_extra": 4,
+        "sources_missing": 0,
+        "avg_seconds": 4.0,
+        "slowest_seconds": 11.1,
+        "model_errors": 0
+      },
+      "results": [
+        {
+          "id": "vaccines-required",
+          "type": "fact",
+          "question": "Which vaccinations does my dog need before attending?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The required vaccinations for your dog before attending Barks n Woofs are:  \n- **Rabies** (valid for 3 years, depending on the vaccine given).  \n- **DHPP** (distemper/parvo, valid for 1 year after the booster series).  \n- **Bordetella** (kennel cough, must be given within the last 12 months).  \n- **Canine influenza** is recommended but not required.  \n\nPuppies must also be at least 4 months old and have completed their puppy vaccination series.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 923,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 6.8,
+          "known_issue": null
+        },
+        {
+          "id": "flu-vaccine",
+          "type": "yes-no",
+          "question": "Is the canine influenza vaccine required?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, the canine influenza vaccine is not required. It is listed as \"recommended\" in the context, which means it is advised but not mandatory for dogs to attend Barks n Woofs.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 945,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "rabies-valid",
+          "type": "fact",
+          "question": "How long is a rabies vaccination valid for?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The rabies vaccination is valid for 3 years, depending on the vaccine given.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1094,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.5,
+          "known_issue": null
+        },
+        {
+          "id": "paper-photo",
+          "type": "yes-no",
+          "question": "Can I send a photo of my dog's paper vaccination records?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No. The context states that photos of paper vaccination records are not accepted. Owners must provide vaccination records from their veterinarian via email, in person, or by online form, with specific details required.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 899,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.7,
+          "known_issue": null
+        },
+        {
+          "id": "grace-period",
+          "type": "fact",
+          "question": "Is there a grace period if my dog's vaccination expires?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, there is a grace period of 5 days if a dog's vaccination expires. The dog cannot attend until updated proof is received, but a 5-day grace period is allowed.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1105,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.7,
+          "known_issue": null
+        },
+        {
+          "id": "sick-wait",
+          "type": "fact",
+          "question": "How long after being sick can my dog come back?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The dog may return after 2 days or with a vet's note.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1175,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 9.6,
+          "known_issue": null
+        },
+        {
+          "id": "sick-symptom-window",
+          "type": "fact",
+          "question": "How many hours without vomiting or diarrhea before I can bring my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The dog must not have had vomiting or diarrhea for **48 hours** before being allowed to attend. If the dog has been ill with these symptoms, they may return after **2 days** (48 hours) or with a vet's note.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 929,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 6.5,
+          "known_issue": null
+        },
+        {
+          "id": "neuter-age",
+          "type": "fact",
+          "question": "At what age does my dog have to be spayed or neutered?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Dogs over 6 months old must be spayed or neutered to attend. The context does not specify an age limit for when the procedure must occur, only that it is required for dogs over 6 months old.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 343,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 8.7,
+          "known_issue": null
+        },
+        {
+          "id": "unneutered-8mo",
+          "type": "edge",
+          "question": "My dog is 8 months old and not neutered. Can he attend?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No. Dogs over 6 months old must be spayed or neutered to attend, and the context does not allow exceptions or grace periods for this requirement. Your dog is 8 months old and not neutered, so he cannot attend.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 818,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.1,
+          "known_issue": null
+        },
+        {
+          "id": "min-age",
+          "type": "fact",
+          "question": "What is the minimum age for a puppy to attend?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The minimum age for a puppy to attend is 4 months old. Puppies must be at least 4 months old and have completed their puppy vaccination series. This applies to all puppies, with no exceptions or grace periods mentioned for age requirements.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 818,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "medication-fee",
+          "type": "multi",
+          "question": "Can staff give my dog medication, and what does it cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, staff can give your dog medication if provided in its original container with written instructions. The cost is $10 per dose.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 747,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 11.1,
+          "known_issue": null
+        },
+        {
+          "id": "eval-cost",
+          "type": "fact",
+          "question": "How much does the temperament evaluation cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The temperament evaluation is free of cost. The context explicitly states \"Cost: free of cost\" and confirms it under \"Pricing and Packages > Fees\" as \"Temperament evaluation: Free.\" No additional fees apply to the evaluation itself.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1403,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "eval-length",
+          "type": "fact",
+          "question": "How long does the temperament evaluation take?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The temperament evaluation takes about 1 hour.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1432,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.4,
+          "known_issue": null
+        },
+        {
+          "id": "eval-bring",
+          "type": "fact",
+          "question": "What do I need to bring to the temperament evaluation?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "You need to bring vaccination records, the signed owner agreement, and the dog's vet contact information.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1571,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.4,
+          "known_issue": null
+        },
+        {
+          "id": "weight-limit",
+          "type": "fact",
+          "question": "What is the maximum weight for a dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The maximum weight for a dog is 250 pounds.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 758,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "incident-policy",
+          "type": "fact",
+          "question": "What happens after three incidents within five days?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "After three incidents within five days, the dog is suspended for 1 day and then re-evaluated or removed. Staff have the final decision and prioritize safety.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1087,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "reevaluation",
+          "type": "fact",
+          "question": "How soon can a declined dog be re-evaluated?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The context states that a dog who was declined may be re-evaluated after **30 days or 1 month**. There are no exceptions or alternative timeframes provided for this specific scenario. \n\n**Answer:** A declined dog can be re-evaluated after **30 days or 1 month**.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1222,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "full-day-price",
+          "type": "fact",
+          "question": "How much is a full day of daycare?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The cost for a full day of daycare is $100.00 for over 4 hours.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 929,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.3,
+          "known_issue": null
+        },
+        {
+          "id": "half-day-price",
+          "type": "fact",
+          "question": "How much is a half day of daycare, and how many hours is that?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "A half day of daycare costs $50.00 and is up to 4 hours.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 659,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.9,
+          "known_issue": null
+        },
+        {
+          "id": "five-hours",
+          "type": "edge",
+          "question": "I'll be picking my dog up after 5 hours. Is that a half day or a full day, and what does it cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, picking up your dog after 5 hours qualifies as a full day (over 4 hours), which costs $100.00. The duration of care determines the rate, not the pickup time. If pickup occurs after 6:00pm, a late fee applies, but this scenario does not mention that.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1208,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 8.6,
+          "known_issue": null
+        },
+        {
+          "id": "second-dog-two-dogs-total",
+          "type": "edge",
+          "question": "How much for two dogs from the same household for one full day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The cost for two dogs from the same household for one full day is $100.00 (full day rate) plus $50.00 (second dog surcharge), totaling $150.00.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 840,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.4,
+          "known_issue": null
+        },
+        {
+          "id": "ten-day-package",
+          "type": "multi",
+          "question": "How much is the 10-day package and how long is it valid?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The 10-day package costs $800 and is valid for 90 days.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 814,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.7,
+          "known_issue": null
+        },
+        {
+          "id": "unlimited-monthly",
+          "type": "fact",
+          "question": "What does the unlimited monthly membership cost?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The unlimited monthly membership costs $2,500 per month with terms.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 972,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "unused-days",
+          "type": "fact",
+          "question": "Can unused package days be transferred to another dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, unused package days can be transferred to another dog. The context explicitly states this rule without exceptions or conditions.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 947,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-price",
+          "type": "fact",
+          "question": "How much is a standard overnight stay?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The standard overnight stay costs $125.00 per night. This applies unless there is a holiday surcharge, which adds $25.00 per night on listed holidays. Check-in is between 8:00am and 9:00am, and check-out is by 6:00pm.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 840,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-checkin",
+          "type": "fact",
+          "question": "What are the boarding check-in and check-out times?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The boarding check-in time is between 8:00am and 9:00am. Check-out is by 6:00pm.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 789,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "late-pickup-fee",
+          "type": "fact",
+          "question": "What is the fee for picking up late?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The fee for picking up late is $5.00 for every 30 minutes after closing time. This applies to pickups after closing time, as stated in the \"Pricing and Packages > Fees\" section. The context does not specify exceptions or grace periods for this fee.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1124,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.5,
+          "known_issue": null
+        },
+        {
+          "id": "discounts",
+          "type": "fact",
+          "question": "What discounts do you offer and how much are they?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The discounts offered are 10% for multi-dog, military, rescue, or referral cases. No other discounts are mentioned in the context. The second dog from the same household incurs an additional $50 per day, which is not a discount.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 277,
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "sunday-hours",
+          "type": "fact",
+          "question": "What are your hours on Sundays?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The hours on Sundays are 8:00am to 6:00pm. This is the regular operating time for all days including Sundays, with no exceptions or modified hours noted for Sundays in the context.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 925,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "closed-christmas",
+          "type": "yes-no",
+          "question": "Are you open on Christmas Day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, we are closed on Christmas Day.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 887,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "evening-pickup",
+          "type": "fact",
+          "question": "What is the evening pick-up window?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The evening pick-up window is between 5:30pm and 6:00pm.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1233,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "late-dropoff",
+          "type": "fact",
+          "question": "What happens if I drop my dog off after 9am?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "If you drop your dog off after 9:00am, they may be charged for a full day. This applies regardless of when the drop-off occurs, and there are no exceptions or grace periods mentioned for this rule.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1388,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-notice",
+          "type": "fact",
+          "question": "How far ahead do I need to reserve boarding?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "To reserve boarding, you must book at least 3 days ahead. This is a requirement for boarding reservations. Note that cancellation policies (e.g., 5-day notice for refunds) are separate from the reservation deadline. No exceptions or grace periods are mentioned for the 3-day rule.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 940,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "address",
+          "type": "fact",
+          "question": "Where is the daycare located?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The daycare is located at 123 puppy drive, Oakland ME.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 758,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.2,
+          "known_issue": null
+        },
+        {
+          "id": "staff-ratio",
+          "type": "fact",
+          "question": "How many dogs does each staff member supervise?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Each staff member supervises a group of dogs at a ratio of 1 staff member for every 5 dogs.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 976,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "nap-time",
+          "type": "fact",
+          "question": "When is nap time?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Nap time is from 12:00 PM to 2:30 PM. Dogs rest in individual or shared quiet areas during this period.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1214,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.7,
+          "known_issue": null
+        },
+        {
+          "id": "bring-blanket",
+          "type": "yes-no",
+          "question": "Can my dog bring a blanket or toy?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, a leash, toys, or a blanket are allowed to bring.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 777,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.3,
+          "known_issue": null
+        },
+        {
+          "id": "daily-report",
+          "type": "fact",
+          "question": "How will I get an update on my dog's day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, you will receive a daily email with notes on your dog's meals, bathroom breaks, and behavior, along with daily photos.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 927,
+          "sources_shown": [
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.7,
+          "known_issue": null
+        },
+        {
+          "id": "cancel-notice",
+          "type": "fact",
+          "question": "How far ahead do I have to cancel a daycare day to avoid a charge?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "To avoid a charge for cancelling a daycare day, you must cancel **at least 12 hours before drop-off**. This is specified in the \"Cancelling a Daycare Day\" policy. Cancelling on time (within this window) results in no charge and a package day returned. Late cancellations or no-shows incur a $50 fee.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 977,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.7,
+          "known_issue": null
+        },
+        {
+          "id": "late-cancel-fee",
+          "type": "fact",
+          "question": "What is the fee for a late cancellation or no-show for daycare?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The fee for a late cancellation or no-show for daycare is $50.00.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1060,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "boarding-deposit",
+          "type": "fact",
+          "question": "How much is the boarding deposit?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The boarding deposit is $25.00. This deposit is required at the time of booking and is applied to the final bill. There are no exceptions or alternative amounts mentioned for this deposit.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 940,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.4,
+          "known_issue": null
+        },
+        {
+          "id": "cancel-boarding-3-days",
+          "type": "edge",
+          "question": "What happens to my deposit if I cancel boarding 3 days before arrival?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "If you cancel boarding 3 days before arrival, which is less than 5 days before arrival, the deposit is **partly refunded**. The context does not specify the exact percentage or amount of the partial refund. The deposit is applied to the final bill as per the deposits policy, but the refund amount for late cancellations (less than 5 days) is described only as \"partly refunded\" without further details.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 980,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.0,
+          "known_issue": null
+        },
+        {
+          "id": "package-refund",
+          "type": "yes-no",
+          "question": "Can I get a refund on package days I haven't used?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, you cannot get a refund on unused package days unless the dog is permanently removed by us. Package days are non-refundable after purchase, except in that specific case. Additionally, refunds for unused portions are only provided if the dog is sent home early due to illness or an incident. General unused days do not qualify for refunds under the stated policy.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1360,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 6.4,
+          "known_issue": null
+        },
+        {
+          "id": "payment-methods",
+          "type": "fact",
+          "question": "What payment methods do you accept?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The payment methods accepted are Cash, Check, and Card.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 677,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 1.8,
+          "known_issue": null
+        },
+        {
+          "id": "refund-timing",
+          "type": "fact",
+          "question": "How long does it take to receive a refund?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The refund is issued to the original payment method within 5 business days.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1209,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "sick-sent-home-refund",
+          "type": "multi",
+          "question": "If my dog is sent home early because they got sick, do I get a refund?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, if your dog is sent home early due to illness, you will receive a refund for the unused portion of the stay, as stated in the Refunds policy.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1403,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.9,
+          "known_issue": null
+        },
+        {
+          "id": "expired-rabies",
+          "type": "edge",
+          "question": "My dog's rabies vaccination expired yesterday. Can I still bring him?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, you can still bring your dog because there is a 5-day grace period allowed for expired vaccinations. However, you must provide updated proof of the rabies vaccination before the grace period ends. The rabies vaccine is valid for 3 years, but the expiration date depends on the specific vaccine used. If the vaccination expired yesterday, the grace period starts today, and you must submit updated documentation within those 5 days to comply with the policy.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1127,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.7,
+          "known_issue": null
+        },
+        {
+          "id": "full-day-and-cancel",
+          "type": "multi",
+          "question": "How much is a full day of daycare, and how far ahead do I have to cancel to avoid a charge?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The cost of a full day of daycare is $100.00. To avoid a charge, you must cancel at least 12 hours before drop-off. Cancelling on time (within this window) results in no charge and a package day returned. Late cancellations or no-shows incur a $50.00 fee.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 802,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.0,
+          "known_issue": null
+        },
+        {
+          "id": "open-and-bath",
+          "type": "multi",
+          "question": "What time do you open on Saturdays, and how much is a bath?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The opening time on Saturdays is 8:00am. A bath costs $50.00.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 812,
+          "sources_shown": [
+            "04-hours-and-schedule.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.0,
+          "known_issue": null
+        },
+        {
+          "id": "eval-and-vaccines",
+          "type": "multi",
+          "question": "Does my dog need a temperament evaluation, and which vaccines are required?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog needs a temperament evaluation before their first full day at Barks n Woofs. The required vaccines are:  \n- **Rabies** (valid for 3 years, depending on the vaccine).  \n- **DHPP** (distemper/parvo, valid for 1 year after the booster series).  \n- **Bordetella** (must be given within the last 12 months).  \n**Canine influenza** is recommended but not required.  \n\nOwners must also ensure puppies are at least 4 months old and have completed their puppy vaccination series.",
+          "problems": [],
+          "retrieval_rank": 4,
+          "context_chars": 1664,
+          "sources_shown": [
+            "02-temperament-and-admission-policy.md",
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 7.2,
+          "known_issue": null
+        },
+        {
+          "id": "close-and-late-fee",
+          "type": "multi",
+          "question": "What time do you close, and what is the fee for picking up late?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The closing time is 6:00pm daily. The late pickup fee is $5.00 for every 30 minutes after closing time.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1008,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "deposit-and-checkin",
+          "type": "multi",
+          "question": "How much is the boarding deposit, and what time is check-in?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The boarding deposit is $25.00, and check-in is between 8:00am and 9:00am.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 765,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.4,
+          "known_issue": null
+        },
+        {
+          "id": "nail-and-nap",
+          "type": "multi",
+          "question": "How much is a nail trim, and when is nap time?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The nail trim costs $30.00. Nap time occurs from 12:00 PM to 2:30 PM.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1208,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "ratio-and-eval-length",
+          "type": "multi",
+          "question": "How many dogs does each staff member supervise, and how long does the temperament evaluation take?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Each staff member supervises a group of 5 dogs during play groups. The temperament evaluation takes about 1 hour.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 1279,
+          "sources_shown": [
+            "05-daily-routine.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "02-temperament-and-admission-policy.md",
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "unlimited-and-expiry",
+          "type": "multi",
+          "question": "How much is the unlimited monthly membership, and how long until package days expire?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The unlimited monthly membership costs $2,500 per month. Package days expire 90 days after purchase unless stated otherwise. The context specifies that all packages (5-day, 10-day, 20-day) have a 90-day expiration period, and no exceptions are mentioned for this rule.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 841,
+          "sources_shown": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md",
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_missing": [],
+          "seconds": 5.5,
+          "known_issue": null
+        },
+        {
+          "id": "blanket-and-christmas",
+          "type": "multi",
+          "question": "Can my dog bring a blanket, and are you open on Christmas Day?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, your dog can bring a blanket as it is allowed. We are closed on Christmas Day.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 885,
+          "sources_shown": [
+            "05-daily-routine.md",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "04-hours-and-schedule.md",
+            "05-daily-routine.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "weight-and-rabies",
+          "type": "multi",
+          "question": "What is the maximum weight for a dog, and how long is a rabies vaccination valid?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The maximum weight for a dog is **250 pounds**. A rabies vaccination is valid for **3 years**, depending on the vaccine given.",
+          "problems": [],
+          "retrieval_rank": 4,
+          "context_chars": 1070,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md",
+            "02-temperament-and-admission-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "half-day-and-sick-return",
+          "type": "multi",
+          "question": "How much is a half day, and how long after being sick can my dog return?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The cost for a half day is $50.00 (up to 4 hours). A dog who has been ill may return after 2 days or with a vet's note.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1126,
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md",
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.6,
+          "known_issue": null
+        },
+        {
+          "id": "three-topics",
+          "type": "multi",
+          "question": "What is the full-day price, how much is the boarding deposit, and how many dogs does each staff member supervise?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The full-day price is $100.00 for over 4 hours. The boarding deposit is $25.00. Each staff member supervises 5 dogs in a play group.",
+          "problems": [],
+          "retrieval_rank": 4,
+          "context_chars": 1448,
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md",
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md",
+            "05-daily-routine.md",
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.6,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-grooming",
+          "type": "unanswerable",
+          "question": "Do you offer full grooming and haircuts?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention full grooming or haircuts specifically. It only lists services like baths, nail trims, and others, but not comprehensive grooming packages or haircut services.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 622,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.1,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-transport",
+          "type": "unanswerable",
+          "question": "Do you offer pickup and drop-off transportation for dogs?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 634,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.7,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-webcam",
+          "type": "unanswerable",
+          "question": "Is there a webcam so I can watch my dog during the day?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention whether a webcam is available for viewing dogs during the day.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 577,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "unknown-cats",
+          "type": "unanswerable",
+          "question": "Do you take cats?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 599,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "followup-half-day",
+          "type": "follow-up",
+          "question": "And a half day?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "A half day (up to 4 hours) costs $50.00.",
+          "problems": [],
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.2,
+          "known_issue": null
+        },
+        {
+          "id": "followup-second-dog",
+          "type": "follow-up",
+          "question": "What about for a second dog sharing the room?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "The cost for a second dog sharing the room is $50.00 per night. This applies in addition to the standard overnight stay fee of $125.00 per night. The holiday surcharge of $25.00 per night applies only to the standard overnight stay, not to the second dog's fee. Check-in is between 8:00am and 9:00am, and check-out is by 6:00pm for all stays.",
+          "problems": [],
+          "sources_shown": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_expected": [
+            "03-pricing-and-packages.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.3,
+          "known_issue": null
+        },
+        {
+          "id": "followup-bordetella",
+          "type": "follow-up",
+          "question": "What about bordetella?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "Bordetella (kennel cough) must be given within the last 12 months. If a dog's Bordetella vaccination expires, a grace period of 5 days is allowed before the dog cannot attend.",
+          "problems": [],
+          "sources_shown": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_expected": [
+            "01-vaccination-and-health-requirements.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "followup-cancel-fee",
+          "type": "follow-up",
+          "question": "And what's the fee if I miss that?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "The fee for missing the 12-hour cancellation deadline (late cancellation or no-show) is **$50.00**, and a package day is used. There is no mention of additional fees or exceptions for this scenario.",
+          "problems": [],
+          "sources_shown": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_expected": [
+            "06-cancellation-payment-and-refund-policy.md"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.3,
+          "known_issue": null
+        }
+      ]
+    }
+  ]
+}

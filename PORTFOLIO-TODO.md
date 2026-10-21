@@ -39,19 +39,31 @@ Why first: every later change needs a before/after number, and the baseline can'
 - [x] Note the current top-ranked rate (tells us whether a reranker could help later): fact in the top chunk
       44/59 (75%, average rank 1.42) on the 67 questions and 38/46 (83%, 1.33) on the held-out set, so about
       1 fact in 5 is not ranked first: some headroom for a reranker.
-- [ ] Look into the `treats` question ("Will you give my dog treats?"): it hit the 180 s timeout in 3 of 6
-      held-out runs but takes 2 to 12 s otherwise. Capture the model's thinking text to see whether it loops.
+- [ ] Look into the `treats` question ("Will you give my dog treats?"): it hit the 180 s timeout in 5 of 9
+      held-out repeats (and cost about 3 minutes each time) but takes 2 to 12 s otherwise. Capture the model's thinking text to see whether it loops.
 
 ## Phase B: Visible improvements (local)
 
 ### Step 3: Citations (M)
-- [ ] Save `section` for all files and `page` for PDFs (chunk PDFs page by page); bump `INDEX_VERSION`
-- [ ] Add one PDF to the demo set
-- [ ] Add a `passages` field to the API (keep `sources` so n8n still works)
-- [ ] Collapsed passages list in the chat page: escaped text, best-match marker, strong/weak hint
-- [ ] Fix the "I don't know." opener bug (false-premise questions get no sources)
-- [ ] Stop tuning the Sources thresholds
-- [ ] Re-run the evals against the baseline; check the n8n workflow still works
+- [x] Save `section` for all files and `page` for PDFs (chunk PDFs page by page); bump `INDEX_VERSION` (now 2)
+- [ ] Add one PDF to the demo set. Waiting on the `demo_docs/` decision in step 4 (adding a PDF to `docs/` now
+      would duplicate content and disturb the baselines). Tested with generated PDFs and Word files instead.
+- [x] Add a `passages` field to the API (kept `sources`, so n8n still works)
+- [x] Collapsed passages list in the chat page: plain text (not HTML), best-match marker, dimmed passages whose
+      file is not in Sources. The strong/weak hint was measured and dropped: it is not reliable (see
+      CLAUDE.md "Citations").
+- [x] Fix the "I don't know." opener bug: an opener followed by a figure is a partial answer and gets sources
+      (checked on 518 saved answers: flips 6, all partial answers, no real refusal)
+- [x] Stop tuning the Sources thresholds (nothing changed in them)
+- [x] Re-run the evals against the baseline (labels `step3`, `step3-fresh`, in `eval_runs/published/` with
+      comparison tables): retrieval identical (59/59 and 45/46, top-chunk 44/59 and 38/46, same characters
+      sent); answers 66.7 -> 67 of 67 and 55 -> 54.7 of 55. The only changed questions are run-to-run variation:
+      `package-refund` 2/3 -> 3/3, and `sunday-false-premise` 3/3 -> 2/3 because one repeat answered just
+      "I don't know." (the opener bug itself is fixed: the baseline's "I don't know. ...open Sundays 8:00am to
+      6:00pm" answer had no sources, the new ones do).
+- [x] n8n workflow: it passes the `/api/ask` JSON straight back, so callers now also get `passages` (larger
+      response, nothing removed). Not run live against n8n.
+- [ ] Loosen the `package-refund` check with the next re-baseline (left alone here so the comparison is fair)
 - [ ] Start a README draft
 
 ## Phase C: Decisions and making it safe
