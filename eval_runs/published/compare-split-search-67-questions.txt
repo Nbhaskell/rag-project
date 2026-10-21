@@ -1,0 +1,26 @@
+A = eval_runs\2026-10-21_092754_baseline.json  (3 repeat(s), commit 08dbe19+uncommitted)
+B = eval_runs\2026-10-21_114156_split-off.json  (3 repeat(s), commit 08dbe19+uncommitted)
+
+Settings that differ:
+  SPLIT_QUESTIONS: True -> False
+
+                                       baseline        split-off    change   (means over the repeats)
+questions passed                        66.7/67            61/67      -5.7
+retrieval found the fact                  59/59            53/59      -6.0
+fact in the top chunk                     44/59            44/59      +0.0
+answers right                           66.7/67            62/67      -4.7
+sources line exactly right              62.7/67          57.3/67      -5.3
+average rank of the fact                   1.42             1.21     -0.21
+extra files in sources line                 5.0              4.0      -1.0
+needed files missing                        0.0              8.7      +8.7
+characters sent per question                980             1002     +22.0
+seconds per question                        3.7              4.8      +1.1
+
+Questions whose pass rate changed:
+  open-and-bath                  3/3 -> 0/3    (worse)
+  close-and-late-fee             3/3 -> 0/3    (worse)
+  nail-and-nap                   3/3 -> 0/3    (worse)
+  weight-and-rabies              3/3 -> 0/3    (worse)
+  half-day-and-sick-return       3/3 -> 0/3    (worse)
+  three-topics                   3/3 -> 0/3    (worse)
+  package-refund                 2/3 -> 3/3    (better)

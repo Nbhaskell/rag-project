@@ -1,0 +1,67 @@
+[PASS] vaccines-required      retrieval ok   answer n/a  (0.0s)
+[PASS] flu-vaccine            retrieval ok   answer n/a  (0.0s)
+[PASS] rabies-valid           retrieval ok   answer n/a  (0.0s)
+[PASS] paper-photo            retrieval ok   answer n/a  (0.0s)
+[PASS] grace-period           retrieval ok   answer n/a  (0.0s)
+[PASS] sick-wait              retrieval ok   answer n/a  (0.0s)
+[PASS] sick-symptom-window    retrieval ok   answer n/a  (0.0s)
+[PASS] neuter-age             retrieval ok   answer n/a  (0.0s)
+[PASS] unneutered-8mo         retrieval ok   answer n/a  (0.0s)
+[PASS] min-age                retrieval ok   answer n/a  (0.0s)
+[PASS] medication-fee         retrieval ok   answer n/a  (0.0s)
+[PASS] eval-cost              retrieval ok   answer n/a  (0.0s)
+[PASS] eval-length            retrieval ok   answer n/a  (0.0s)
+[PASS] eval-bring             retrieval ok   answer n/a  (0.0s)
+[PASS] weight-limit           retrieval ok   answer n/a  (0.0s)
+[PASS] incident-policy        retrieval ok   answer n/a  (0.0s)
+[PASS] reevaluation           retrieval ok   answer n/a  (0.0s)
+[PASS] full-day-price         retrieval ok   answer n/a  (0.0s)
+[PASS] half-day-price         retrieval ok   answer n/a  (0.0s)
+[PASS] five-hours             retrieval ok   answer n/a  (0.0s)
+[PASS] second-dog-two-dogs-total retrieval ok   answer n/a  (0.0s)
+[PASS] ten-day-package        retrieval ok   answer n/a  (0.0s)
+[PASS] unlimited-monthly      retrieval ok   answer n/a  (0.0s)
+[PASS] unused-days            retrieval ok   answer n/a  (0.0s)
+[PASS] boarding-price         retrieval ok   answer n/a  (0.0s)
+[PASS] boarding-checkin       retrieval ok   answer n/a  (0.0s)
+[PASS] late-pickup-fee        retrieval ok   answer n/a  (0.0s)
+[PASS] discounts              retrieval ok   answer n/a  (0.0s)
+[PASS] sunday-hours           retrieval ok   answer n/a  (0.0s)
+[PASS] closed-christmas       retrieval ok   answer n/a  (0.0s)
+[PASS] evening-pickup         retrieval ok   answer n/a  (0.0s)
+[PASS] late-dropoff           retrieval ok   answer n/a  (0.0s)
+[PASS] boarding-notice        retrieval ok   answer n/a  (0.0s)
+[PASS] address                retrieval ok   answer n/a  (0.0s)
+[PASS] staff-ratio            retrieval ok   answer n/a  (0.0s)
+[PASS] nap-time               retrieval ok   answer n/a  (0.0s)
+[PASS] bring-blanket          retrieval ok   answer n/a  (0.0s)
+[PASS] daily-report           retrieval ok   answer n/a  (0.0s)
+[PASS] cancel-notice          retrieval ok   answer n/a  (0.0s)
+[PASS] late-cancel-fee        retrieval ok   answer n/a  (0.0s)
+[PASS] boarding-deposit       retrieval ok   answer n/a  (0.0s)
+[PASS] cancel-boarding-3-days retrieval ok   answer n/a  (0.0s)
+[PASS] package-refund         retrieval ok   answer n/a  (0.0s)
+[PASS] payment-methods        retrieval ok   answer n/a  (0.0s)
+[PASS] refund-timing          retrieval ok   answer n/a  (0.0s)
+[PASS] sick-sent-home-refund  retrieval ok   answer n/a  (0.0s)
+[PASS] expired-rabies         retrieval ok   answer n/a  (0.0s)
+[PASS] unknown-grooming       retrieval n/a  answer n/a  (0.0s)
+[PASS] unknown-transport      retrieval n/a  answer n/a  (0.0s)
+[PASS] unknown-webcam         retrieval n/a  answer n/a  (0.0s)
+[PASS] unknown-cats           retrieval n/a  answer n/a  (0.0s)
+[SKIP] followup-half-day
+[SKIP] followup-second-dog
+[SKIP] followup-bordetella
+[SKIP] followup-cancel-fee
+
+Summary
+  fact          34/34 passed
+  yes-no        5/5 passed
+  edge          5/5 passed
+  multi         3/3 passed
+  unanswerable  4/4 passed
+  retrieval checks: 47/47
+    fact in the top-ranked chunk: 32/47, average rank 1.43
+    text sent to the model per question: 2520 characters on average
+
+Details saved to eval_results.json
