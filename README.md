@@ -103,6 +103,10 @@ JSON, a plain-text format for structured data.
 | `POST /api/ask` | Send `{"question": "..."}` (and optionally `"history"`, a list of `{"role": "user" or "assistant", "content": "..."}`) and get back `{"answer": "...", "sources": ["file.md"], "passages": [...], "seconds": 3.2}` |
 | `POST /api/reindex` | Update the index now. Send `{"full": true}` to rebuild everything instead |
 
+While the chat is running, http://127.0.0.1:8000/docs shows these addresses as an interactive page:
+what to send, what comes back, and a "Try it out" button. (The page loads its styling from the
+internet, so it needs a connection; the API itself does not.)
+
 `passages` lists what the model was given, best match first. Each item has `source` (the file),
 `section` (the heading path, empty if there is none), `page` (a number for PDFs, otherwise `null`),
 `text` (the passage), `distance` (smaller is closer), `best` (true for the closest) and `listed` (true
@@ -216,7 +220,7 @@ vary a little from run to run, so repeat a question several times before trustin
 | Path | What it is |
 |---|---|
 | `rag.py` | The pipeline: reading, chunking, indexing, retrieval and answering |
-| `chat.py` | The browser chat window (a small local web server) |
+| `chat.py` | The browser chat window and the JSON API (a small local web server built with FastAPI) |
 | `run_eval.py` | The question-answering test runner |
 | `test_indexing.py`, `test_api.py` | Fast tests for the automatic indexing and the API (no AI model needed; run `python test_indexing.py` and `python test_api.py`) |
 | `eval_questions.json`, `eval_questions_fresh.json`, `eval_questions_samples.json` | Test questions and expected answers (the "fresh" set is kept apart on purpose, see Testing) |
