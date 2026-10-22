@@ -77,6 +77,13 @@ measure it. Keep the README version short: pick the 4 to 6 strongest and cut the
   spending limit is the real backstop. Visitors behind one shared address (an office, a mobile network) share an
   allowance. Nothing detects a slow, spread-out abuser, and there is no CAPTCHA.
 
+### Changing the documents changes the tests
+- Adding a document can turn an "unanswerable" question into an answerable one: a first draft of the demo PDF had a
+  page on tours, and the held-out `unknown-tour` question went from 3/3 to 0/3 although the model was right.
+  The corpus and its question sets have to be versioned together, and new content checked against every
+  `unknown-*` question. A sturdier design would record which corpus a question set was written for and warn when
+  the documents in the folder are not those.
+
 ### Compare embedding models
 - `embeddinggemma` against `nomic-embed-text` (and a hosted embedding model) on the same question sets.
   A clean one-variable experiment.

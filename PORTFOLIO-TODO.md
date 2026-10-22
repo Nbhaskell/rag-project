@@ -4,9 +4,13 @@ Turning this project into a portfolio piece. Sizes: S = an hour or two, M = a fe
 L = more than a day. Tick items off as they are done. "What I'd improve" ideas live in
 `IMPROVE-NOTES.md`.
 
-**Definition of done:** anyone can open a link, answers show sources, the README has a before/after eval
-result, and the repo runs from a clean clone with one command (`docker compose up` after copying
-`.env.example`).
+**Definition of done (revised 2026-10-22):** anyone can open a link (a free **recorded demo page** on GitHub
+Pages; a live server would need a paid hosted model, so it is optional, see "Later"), answers show sources, the
+README has a before/after eval result, and the repo runs from a clean clone with one command (`docker compose up`
+after copying `.env.example`, with Ollama on the machine).
+
+**Free first (decided 2026-10-22):** no paid service or account is required for anything on this list. The Claude
+API was dropped from the required path because it needs an account, a payment method and a key; see "Later".
 
 ## Phase A: Measure first (local)
 
@@ -126,43 +130,78 @@ Why first: every later change needs a before/after number, and the baseline can'
       One deliberate tightening: the chat window's own `/ask` now takes only JSON up to 100 KB, like the API.
 - [ ] Restart any running chat server after merging: it keeps the old code until it is restarted.
 
-## Phase D: Make it deployable
+## Phase D: Make it runnable by anyone (free)
 
-### Step 6: Hosted model and embeddings (M to L)
-- [ ] `generate()` switch between local and hosted
-- [ ] Embedding change, re-index, re-run evals
-- [ ] Re-run the evals on the hosted model, including the question splitter (second column in the table)
+### Step 6 (revised): Demo documents and a real PDF (S to M)
+- [x] `demo_docs/`: the six fictional daycare documents, committed (decided 2026-10-22; they are made up; the
+      user is fine with their first name staying in them)
+- [x] One new fictional PDF, a 3-page visitor guide, in `demo_docs/`, made by `tools/make_demo_pdf.py` (needs
+      `pip install fpdf2`, development only, not in `requirements.txt`; the output is byte-identical each run)
+      with 9 questions of its own (`eval_questions_pdf.json`): 9/9 on every one of 5 repeats, and the page of the
+      passage holding the fact is right 6 of 6 times. It is new content, so the saved eval numbers for the six
+      documents stay comparable. Two mistakes caught on the way: the first draft's nap time contradicted the daily
+      routine, and its page about tours made the held-out `unknown-tour` question answerable (3/3 to 0/3 on the
+      demo corpus), so that page was replaced. (A generated PDF, still not a real-world one.)
+- [x] Both daycare sets re-run on the 7-document demo corpus (`demo-corpus`, `demo-corpus-fresh`, 3 repeats) and
+      compared with the 6-document runs: 67/67 and 54/55 questions passed, 59/59 and 45/46 retrieval, no question
+      changed. Only the Sources line differs on the 67 set (3.3 to 7.0 unneeded files per 3 repeats): the PDF is
+      listed for `address` and `nap-time` (and the question combining naps) because it consistently restates the
+      address and nap hours; the eval's expected sources only know the markdown files. The chat page shows
+      "07-visitor-guide.pdf, page N" for its passages (checked in the browser).
+- [ ] Cosmetic, not done: the model writes markdown bold (`**30 days**`) and the chat page shows the asterisks.
+- [ ] The embedding swap and hosted model that used to be here moved to "Later"; the in-app embedding model only
+      mattered for a small cloud server, since anyone running this locally needs Ollama for the chat model anyway.
 
 ### Step 7: Docker (M)
 - [ ] Configurable bind address and port (the server only binds to 127.0.0.1 today) and allowed hosts
+- [ ] Ollama stays outside the app image: the container reaches Ollama on the host (`OLLAMA_HOST`); an optional
+      compose profile can run Ollama in a container too (slow without a GPU, and the models are several GB)
 - [ ] Index built from `demo_docs/` at startup
-- [ ] Non-root user, health check on `/api/status`, `.env.example`, `docker compose up`
+- [ ] Non-root user, health check on `/health`, `.env.example`, `docker compose up`
+- [ ] Say plainly in the README what a reviewer needs: Docker, Ollama and about 6 GB for the two models
 
 ### Step 8: Repo preparation (S)
 - [ ] Scan git history for secrets and private data
 - [ ] Decide what to do with `CLAUDE.md` before the repo goes public
 - [ ] License, repo description and topics
-- [ ] GitHub Actions workflow running `test_indexing.py` and `test_api.py`
+- [ ] GitHub Actions workflow running the test files that need no Ollama (`test_indexing.py`, `test_api.py`,
+      `test_answers.py`, `test_guard.py`)
 
 ## Phase E: Ship and document
 
-### Step 9: Deploy (M)
-- [ ] Secrets in the host settings; spending cap set first
-- [ ] "Waking up" message if the host sleeps
-- [ ] Streaming still works through the host's proxy; logging and rate limiting handle streamed answers and
-      dropped connections
-- [ ] Run the eval against the live URL and save it
-- [ ] Make the repo public
+### Step 9 (revised): Recorded demo page on GitHub Pages (M)
+- [ ] A static page, no server: about 10 real recorded questions with their answers, sources and passages from
+      the local model, in the chat window's look, clearly labelled "recorded from the local model on <date>, not
+      live", including a refusal and one known weakness (an injection). A script captures them from a running
+      server so the page can be refreshed.
+- [ ] Publish with GitHub Pages (free from a public repo as far as I know; check current terms) and make the repo
+      public.
 
 ### Step 10: README, diagram and GIF (M)
-- [ ] Reviewer-first layout: pitch, live link and GIF at the top
+- [ ] Reviewer-first layout: pitch, link to the recorded demo and GIF at the top
 - [ ] Mermaid architecture diagram (ingest flow and query flow)
 - [ ] Design decisions with numbers: split search, chunking, the Sources finding, the hand-written retrieval
       loop (be accurate about which libraries are used) with a short code excerpt
 - [ ] Eval table linked to the saved runs, with the sample-size note
 - [ ] Move the user guide, API and n8n sections into `docs/`
 - [ ] "What I'd improve" from `IMPROVE-NOTES.md`
-- [ ] Record the GIF last, on the live site: streamed answer with sources, a two-topic question, an "I don't know"
+- [ ] Say plainly why there is no live server (a local model is hard to host cheaply) and how to run it locally
+- [ ] Record the GIF last, on a local server: streamed answer with sources, a two-topic question, an "I don't know"
+
+## Later (optional): a live demo with the Claude API
+Only if you decide to pay for it. Nothing above blocks it, and the safety pieces are already built (rate and
+daily limits, the busy limit, request ids, the log, friendly errors, switchable reindex). What it would take:
+- [ ] You create an Anthropic account and an API key and put the key in the host's environment settings, never in
+      the repo or in chat. Set a spending limit with the provider first (the in-app daily cap resets on a restart).
+- [ ] A small `generate()` switch in `rag.py` between the local model and a hosted one (the chat model is called in
+      three places: the question splitter, the streamed answer and, for embeddings, `embed()`), plus mapping the
+      provider's errors in `classify_error()`. Built and tested with fakes first, so it needs no key.
+- [ ] Re-run the evals and the injection set on the hosted model (about $0.10 per 366 question runs on Haiku 5.5
+      at the prices cached on 2026-10-06; check current prices) and add a second column to the eval table. The
+      prompt was tuned on Qwen, so do not assume it carries over.
+- [ ] A small embedding model inside the app (re-index and re-run the evals), so a small cloud server needs no
+      Ollama; then a host (check its current free tier and memory), the secrets, a "waking up" message, streaming
+      through the host's proxy, and `RAG_ALLOW_REINDEX=0`, `RAG_WATCH=0`, `RAG_PROXY_HOPS=1` on the demo.
 
 ## Optional, after the definition of done
 - [ ] Larger second corpus, then one reranker experiment if the top-ranked rate shows headroom

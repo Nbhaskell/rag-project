@@ -1,0 +1,20 @@
+A = eval_runs\published\2026-10-21_160253_fix-loop-v3-fresh.json  (3 repeat(s), commit be24efe+uncommitted)
+B = eval_runs\published\2026-10-22_105009_demo-corpus-fresh.json  (3 repeat(s), commit 7dcba92+uncommitted)
+
+Settings that differ: none
+
+                               fix-loop-v3-fres demo-corpus-fres    change   (means over the repeats)
+questions passed                          54/55            54/55      +0.0
+retrieval found the fact                  45/46            45/46      +0.0
+fact in the top chunk                     38/46            38/46      +0.0
+answers right                             55/55            55/55      +0.0
+sources line exactly right                42/55            44/55      +2.0
+average rank of the fact                   1.33             1.33     +0.00
+extra files in sources line                13.7             12.0      -1.7
+needed files missing                        0.7              0.7      +0.0
+characters sent per question                967             1026     +59.0
+seconds per question                        4.3              5.3      +1.0
+slowest question (seconds)                 17.4             25.3      +7.9
+questions with model errors                 0.0              0.0      +0.0
+
+Questions whose pass rate changed: none
