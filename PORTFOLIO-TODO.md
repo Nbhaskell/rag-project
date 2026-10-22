@@ -194,9 +194,13 @@ Why first: every later change needs a before/after number, and the baseline can'
       `tools/capture_demo.py` records from a running app (also `--only`, `--refresh-text`); `/api/status` now reports
       the model names. Reviewed in a browser: desktop and a 375 px phone, light and dark, no console errors, no sideways
       scroll, deep links (`#pdf-two`). `test_demo_page.py` (7 tests, mutation-checked) is in CI; 82 tests in all.
-- [ ] Publish: needs your go-ahead to make the repo public, then GitHub Pages (source: GitHub Actions) and a Pages
-      workflow in a separate small PR (not added earlier because it would fail on every push while Pages is off).
-      Then set the repo description and topics and add the CI badge.
+- [x] Published (2026-10-22, with your explicit go-ahead): final gitleaks run (42 commits, no leaks) and checks that
+      nothing private is tracked, then the repo made public; checked as an anonymous visitor (README and LICENSE
+      load, `CLAUDE.local.md` and `docs/` do not exist). GitHub Pages turned on with source "GitHub Actions"
+      (`https://nbhaskell.github.io/rag-project/`, HTTPS enforced); description and 12 topics set; this PR adds
+      `.github/workflows/pages.yml`, the tests badge and the README link to the recording.
+- [ ] After this PR is merged: confirm the Pages deployment ran and the live URL serves the page; then set the
+      repository's website field to that URL.
 
 ### Step 10: README, diagram and GIF (M)
 - [ ] Reviewer-first layout: pitch, link to the recorded demo and GIF at the top
