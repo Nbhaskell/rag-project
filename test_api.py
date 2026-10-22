@@ -10,8 +10,10 @@ import json
 import os
 import sys
 import threading
+import time
 import traceback
-from http.server import ThreadingHTTPServer
+
+import uvicorn
 
 import chat
 import rag
@@ -37,10 +39,16 @@ class Api(Env):
 
     def __init__(self):
         super().__init__()
-        self.server = ThreadingHTTPServer(("127.0.0.1", 0), chat.Handler)
-        self.port = self.server.server_address[1]
-        threading.Thread(target=self.server.serve_forever, daemon=True).start()
         os.environ.pop("RAG_API_TOKEN", None)
+        # the real app under uvicorn on a free port
+        self.server = uvicorn.Server(uvicorn.Config(chat.app, host="127.0.0.1", port=0, log_level="warning"))
+        self.thread = threading.Thread(target=self.server.run, daemon=True)
+        self.thread.start()
+        end = time.time() + 15
+        while not self.server.started and time.time() < end:
+            time.sleep(0.02)
+        check(self.server.started, "the test server did not start")
+        self.port = self.server.servers[0].sockets[0].getsockname()[1]
 
     def call(self, method, path, body=None, headers=None, content_type="application/json"):
         headers = dict(headers or {})
@@ -60,8 +68,8 @@ class Api(Env):
 
     def close(self):
         os.environ.pop("RAG_API_TOKEN", None)
-        self.server.shutdown()
-        self.server.server_close()
+        self.server.should_exit = True
+        self.thread.join(timeout=10)
         super().close()
 
 
@@ -226,6 +234,82 @@ def test_errors_come_back_as_json(env):
     finally:
         rag.answer_stream = original
     check(status == 500 and "model is down" in body["error"], f"expected a JSON 500, got {status} {body}")
+
+
+def stream(env, path, body, content_type="application/json"):
+    """POST to the chat window's address. Returns (status, the lines of JSON it sent)."""
+    conn = http.client.HTTPConnection("127.0.0.1", env.port, timeout=30)
+    conn.request("POST", path, body=body if isinstance(body, str) else json.dumps(body),
+                 headers={"Content-Type": content_type})
+    response = conn.getresponse()
+    lines = [json.loads(line) for line in response.read().decode().splitlines() if line]
+    conn.close()
+    return response.status, lines
+
+
+@make
+def test_chat_page_posts_to_an_address_that_exists(env):
+    check('fetch("/ask"' in chat.PAGE, "the page is expected to post to /ask")
+    status, lines = stream(env, "/ask", {"question": "hi", "history": []})
+    check(status == 200 and {"sources": ["a.md"]} in lines and lines[-1].keys() == {"passages"},
+          f"/ask should stream like /: {status} {lines}")
+
+
+@make
+def test_chat_stream_checks_its_input(env):
+    status, lines = stream(env, "/ask", "question=hi", content_type="text/plain")
+    check(status == 415 and "error" in lines[0], f"a plain-text post should be 415 with an error line: {status} {lines}")
+    status, lines = stream(env, "/ask", {"question": "   "})
+    check(status == 400 and "error" in lines[0], f"a blank question should be 400 with an error line: {status} {lines}")
+    status, lines = stream(env, "/ask", "{not json")
+    check(status == 400 and "error" in lines[0], f"broken JSON should be 400: {status} {lines}")
+    status, lines = stream(env, "/ask", json.dumps({"question": "x" * (chat.MAX_BODY + 10)}))
+    check(status == 413 and "error" in lines[0], f"a huge body should be 413: {status} {lines}")
+
+
+@make
+def test_docs_page_is_served_and_host_checked(env):
+    status, page = env.call("GET", "/docs")
+    check(status == 200 and "swagger" in page.lower(), f"/docs should show the API page: {status}")
+    status, spec = env.call("GET", "/openapi.json")
+    check(status == 200 and {"/api/ask", "/api/status", "/api/reindex"} <= set(spec["paths"]), f"unexpected: {spec}")
+    ask = spec["paths"]["/api/ask"]["post"]
+    properties = ask["requestBody"]["content"]["application/json"]["schema"]["properties"]
+    check({"question", "history"} <= set(properties), f"the docs should describe the request body: {properties}")
+    check("/ask" not in spec["paths"] and "/" not in spec["paths"], "the chat window's own addresses stay out of the docs")
+    check(env.call("GET", "/docs", headers={"Host": "evil.example.com"})[0] == 403, "/docs must be host-checked too")
+    check(env.call("GET", "/openapi.json", headers={"Host": "evil.example.com"})[0] == 403, "so must the spec")
+
+
+@make
+def test_checks_run_in_a_safe_order(env):
+    os.environ["RAG_API_TOKEN"] = TOKEN
+    # the host is checked first, then the token, then anything about the body
+    status, _ = env.call("POST", "/api/ask", "{not json", headers={"Host": "evil.example.com"})
+    check(status == 403, f"a bad Host comes first: {status}")
+    status, _ = env.call("POST", "/api/ask", "{not json")
+    check(status == 401, f"a missing token comes before the body is looked at: {status}")
+    status, _ = env.call("POST", "/api/ask", "question=hi", content_type="text/plain")
+    check(status == 401, f"so does the content type: {status}")
+    status, _ = env.call("POST", "/api/ask", "{not json", headers={"Authorization": f"Bearer {TOKEN}"})
+    check(status == 400, f"with the token, the broken JSON is reported: {status}")
+
+
+@make
+def test_a_body_without_content_length_is_still_limited(env):
+    conn = http.client.HTTPConnection("127.0.0.1", env.port, timeout=30)
+    big = json.dumps({"question": "x" * (chat.MAX_BODY + 10)}).encode()
+    conn.putrequest("POST", "/api/ask")
+    conn.putheader("Content-Type", "application/json")
+    conn.putheader("Transfer-Encoding", "chunked")
+    conn.endheaders()
+    for i in range(0, len(big), 8192):
+        piece = big[i:i + 8192]
+        conn.send(f"{len(piece):x}\r\n".encode() + piece + b"\r\n")
+    conn.send(b"0\r\n\r\n")
+    status = conn.getresponse().status
+    conn.close()
+    check(status == 413, f"a chunked body over the limit should be 413, got {status}")
 
 
 TESTS = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]

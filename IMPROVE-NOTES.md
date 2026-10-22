@@ -113,6 +113,6 @@ measure it. Keep the README version short: pick the 4 to 6 strongest and cut the
   "I don't know" rate, to spot gaps in the documents.
 
 ## Parked, not an "improvement"
-- **FastAPI:** parked by choice. Do it before the public deploy because the built-in server handles one
+- **FastAPI:** done on 2026-10-22 (it was parked by choice until then). Do it before the public deploy because the built-in server handles one
   request at a time. README line: started with the standard library to learn the request cycle, moved to
   FastAPI for deployment.

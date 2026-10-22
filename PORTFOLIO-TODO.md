@@ -81,10 +81,15 @@ Why first: every later change needs a before/after number, and the baseline can'
 ## Phase C: Decisions and making it safe
 
 ### Step 4: Open decisions (S, before step 5)
-- [ ] Commit the fictional daycare docs as `demo_docs/`?
-- [ ] Host: Render, Fly.io or a VPS?
-- [ ] Hosted model: which one?
-- [ ] Embeddings in the demo: in-process model (recommended), hosted API, or Ollama on a VPS?
+- [x] Commit the fictional daycare docs as `demo_docs/`: yes (decided 2026-10-22). Also add one PDF made from a
+      daycare document so page numbers show.
+- [ ] Host: Render, Fly.io or a VPS? (can wait until step 9; check current free-tier memory first: chromadb plus an
+      embedding model may need about 1 GB)
+- [x] Hosted model: Claude Haiku 5.5 (`claude-haiku-5-5`, about $0.0003 per question), pending its own eval run
+      (the prompt was tuned on Qwen); Sonnet 5.5 is the fallback if Haiku's scores fall short. The user creates the
+      Anthropic API key and sets it in the host's settings; it never goes in the repo or chat.
+- [x] Embeddings in the demo: a small model inside the app (ONNX), so no second service or key. New embedding model
+      means re-index, re-run evals, and a new row in the eval table.
 
 ### Step 5: Hardening (M)
 - [ ] JSON-line query and retrieval logging, rotating file, retention note
@@ -97,9 +102,13 @@ Why first: every later change needs a before/after number, and the baseline can'
 - [ ] `/api/reindex` off or token-protected on the demo
 - [ ] A few prompt-injection questions in the eval
 
-### FastAPI (M), parked
-- [ ] Do it before the public deploy. If it is un-parked, do it right before step 5, or the logging, rate
-      limiting, streaming and error handling get written twice.
+### FastAPI (M), un-parked on 2026-10-22: done before step 5 so hardening is written once
+- [x] Move the request layer in `chat.py` to FastAPI (`rag.py` untouched). Every behaviour kept: host check, token,
+      JSON-only bodies (415), 100 KB limit (413, also for chunked bodies), JSON `error` bodies, the order of the
+      checks, the streaming chat endpoint, the folder watcher; added typed request/response models and the
+      automatic `/docs` page. All 15 original API tests pass unchanged against it (now 20 with the new ones).
+      One deliberate tightening: the chat window's own `/ask` now takes only JSON up to 100 KB, like the API.
+- [ ] Restart any running chat server after merging: it keeps the old code until it is restarted.
 
 ## Phase D: Make it deployable
 
