@@ -65,7 +65,9 @@ SYNC_INTERVAL = 5   # seconds between checks of the docs folder while watching
 # Bump this whenever the way files are read or chunked changes, so existing files get indexed again.
 INDEX_VERSION = 2   # 2: chunks also store their section and (PDFs) page
 
-client = chromadb.PersistentClient(path=DB_DIR)
+# ChromaDB sends anonymized usage events to its makers unless told not to; this program is meant to keep
+# everything on your own computer, so that is switched off.
+client = chromadb.PersistentClient(path=DB_DIR, settings=chromadb.config.Settings(anonymized_telemetry=False))
 
 index_lock = threading.RLock()  # only one indexing job runs at a time
 index_state = {"last_sync": None, "last_change": None, "last_summary": None}

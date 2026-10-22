@@ -1,0 +1,13 @@
+# Keep the build context small and keep private or generated things out of the image.
+.git
+venv/
+__pycache__/
+*.pyc
+docs/
+templates/
+chroma_db*/
+logs/
+eval_runs/
+eval_results.json
+.env
+.env.*

@@ -8,3 +8,4 @@ eval_results.json
 eval_runs/*
 !eval_runs/published/
 logs/
+.env

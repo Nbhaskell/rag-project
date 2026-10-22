@@ -1,0 +1,34 @@
+# Start with:  docker compose up --build        (stop with Ctrl+C, or `docker compose down`)
+# It needs Ollama running on this machine with the two models pulled (see the README).
+# Settings are optional: copy .env.example to .env to change any of them.
+name: local-rag
+
+services:
+  app:
+    build: .
+    image: local-rag:latest
+    ports:
+      # Published on this computer's own address only. BIND_ADDRESS=0.0.0.0 would open it to your network.
+      - "${BIND_ADDRESS:-127.0.0.1}:${HOST_PORT:-8000}:8000"
+    environment:
+      # Ollama runs outside the container. host.docker.internal is the machine running Docker.
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - rag-data:/data                                 # the search index and the log
+      - ${DOCS_PATH:-./demo_docs}:/app/demo_docs:ro    # the documents to answer from (read only)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"            # makes that name work on Linux too
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  rag-data:

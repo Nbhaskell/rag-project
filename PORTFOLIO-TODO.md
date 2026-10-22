@@ -153,12 +153,19 @@ Why first: every later change needs a before/after number, and the baseline can'
       mattered for a small cloud server, since anyone running this locally needs Ollama for the chat model anyway.
 
 ### Step 7: Docker (M)
-- [ ] Configurable bind address and port (the server only binds to 127.0.0.1 today) and allowed hosts
-- [ ] Ollama stays outside the app image: the container reaches Ollama on the host (`OLLAMA_HOST`); an optional
-      compose profile can run Ollama in a container too (slow without a GPU, and the models are several GB)
-- [ ] Index built from `demo_docs/` at startup
-- [ ] Non-root user, health check on `/health`, `.env.example`, `docker compose up`
-- [ ] Say plainly in the README what a reviewer needs: Docker, Ollama and about 6 GB for the two models
+- [x] Configurable bind address and port: `RAG_HOST` and `PORT` (`listen_address()`), compose publishes
+      `${BIND_ADDRESS:-127.0.0.1}:${HOST_PORT:-8000}:8000`; a warning at start if `RAG_ALLOWED_HOSTS` names a public
+      host while there is no token and `/api/reindex` is on
+- [x] Ollama stays outside the image: the container reaches the host's Ollama through `host.docker.internal`
+      (verified on this PC with Docker Desktop even though Ollama listens only on 127.0.0.1; on Linux Ollama would
+      need `OLLAMA_HOST=0.0.0.0`, untested). A compose profile running Ollama in a container was left out: about
+      6 GB of downloads and it could not be tested here.
+- [x] Index built from `demo_docs/` at startup (7 documents, 50 chunks); a restart reuses it (volume `rag-data`)
+- [x] Non-root user (uid 10001), read-only root filesystem, no extra capabilities, health check on `/health`,
+      `.env.example`, `.dockerignore`, `docker compose up --build`; checked: a `.env` reaches the container
+- [x] README "Run it with Docker": what a reviewer needs (Docker, Ollama, about 6 GB for the two models)
+- [x] Found on the way: ChromaDB's anonymized telemetry was on by default; now off in code and in the image
+- [ ] Tested from a clean clone (`git clone` into an empty folder, `docker compose up --build`)
 
 ### Step 8: Repo preparation (S)
 - [ ] Scan git history for secrets and private data

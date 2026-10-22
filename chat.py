@@ -19,8 +19,6 @@ import guard
 from rag import (MODEL_TIMEOUT, SPLIT_QUESTIONS, THINK, answer, answer_stream, classify_error, get_collection,
                  gives_no_answer, index_status, ingest, passages, sources_to_show, sync_docs, watch)
 
-PORT = 8000
-
 PAGE = """<!doctype html>
 <html>
 <head>
@@ -556,10 +554,39 @@ async def chat_stream(request: Request):
     return StreamingResponse(stream(), media_type="application/x-ndjson")
 
 
+def listen_address():
+    """(host, port) to listen on: 127.0.0.1 and 8000 unless RAG_HOST and PORT say otherwise. Only a container
+    needs RAG_HOST=0.0.0.0 (and then publishes the port on the host's own loopback address only)."""
+    host = os.environ.get("RAG_HOST", "").strip() or "127.0.0.1"
+    try:
+        port = int(os.environ.get("PORT", "8000"))
+    except ValueError:
+        port = 8000
+    return host, port
+
+
+def exposure_warning(allowed_hosts, has_token, reindex_on):
+    """A warning for a server that is set up to be reached by others (it answers to a name other than
+    localhost) while anyone who can reach it may make it re-process every document; None otherwise."""
+    public_names = sorted(set(allowed_hosts) - {"localhost", "127.0.0.1", "[::1]"})
+    if public_names and not has_token and reindex_on:
+        return (f"RAG_ALLOWED_HOSTS names {', '.join(public_names)}, but there is no RAG_API_TOKEN and /api/reindex is "
+                "on: anyone who can reach this server can make it re-process every document. Set "
+                "RAG_ALLOW_REINDEX=0 (and RAG_WATCH=0), or a token.")
+    return None
+
+
 def main():
     global watching
-    url = f"http://localhost:{PORT}"
-    print(f"Chat is running at {url}  (press Ctrl+C to stop)")
+    host, port = listen_address()
+    url = f"http://localhost:{port}"
+    if host in ("127.0.0.1", "localhost", "::1"):
+        print(f"Chat is running at {url}  (press Ctrl+C to stop)")
+    else:  # in a container this is the container's own port, not necessarily the one it is published on
+        print(f"Chat is listening on {host}:{port}  (press Ctrl+C to stop)")
+    warning = exposure_warning(ALLOWED_HOSTS, bool(os.environ.get("RAG_API_TOKEN")), guards.allow_reindex)
+    if warning:
+        print(f"WARNING: {warning}")
     log = guard.setup_logging()
     if log is not None:
         print(f"Logging questions and events to {log.baseFilename} (RAG_LOG=0 turns it off)")
@@ -572,7 +599,7 @@ def main():
         webbrowser.open(url)
     # proxy_headers=False: who the visitor is behind a proxy is decided only by RAG_PROXY_HOPS (guard.client_ip);
     # by default uvicorn would silently trust X-Forwarded-For from 127.0.0.1.
-    uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning", proxy_headers=False)
+    uvicorn.run(app, host=host, port=port, log_level="warning", proxy_headers=False)
     print("\nStopped.")
 
 
