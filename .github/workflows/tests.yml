@@ -28,6 +28,7 @@ jobs:
           python test_answers.py
           python test_indexing.py
           python test_api.py
+          python test_demo_page.py
 
   docker:
     name: The Docker image builds and starts

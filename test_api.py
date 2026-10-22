@@ -108,7 +108,8 @@ def test_status_lists_the_index(env):
     check(status == 200, f"status should be 200, got {status}")
     check(body["files"] == 1 and body["documents"] == ["a.md"] and body["chunks"] == 2, f"unexpected: {body}")
     check(body["last_sync"] and body["auth_required"] is False, f"unexpected: {body}")
-    check({"thinking", "split_search", "watching"} <= set(body), f"missing fields: {body}")
+    check({"thinking", "split_search", "watching", "chat_model", "embed_model"} <= set(body), f"missing fields: {body}")
+    check(body["chat_model"] == chat.CHAT_MODEL and body["embed_model"] == chat.EMBED_MODEL, f"wrong models: {body}")
 
 
 @make
