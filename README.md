@@ -12,6 +12,11 @@ sources and passages, including one that goes wrong. It is a recording, not a li
 [Why there is no live demo](#why-there-is-no-live-demo) for the reason and [Run it yourself](#run-it-yourself) to ask
 your own questions.
 
+![The chat window: a question about two topics answered with sources and the passages the model read, then a question the documents do not cover answered with "I don't know"](media/demo.gif)
+
+*A screen recording of the real chat window on the demo documents: a two-topic question with its sources and the passages
+the model read, then a question the documents do not cover.*
+
 **What is in here**
 
 - A retrieval pipeline written by hand (no LangChain or LlamaIndex): heading-aware chunking, a self-updating index,
