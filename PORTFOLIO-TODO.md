@@ -212,7 +212,9 @@ Why first: every later change needs a before/after number, and the baseline can'
       private documents folder); n8n keeps its own `n8n/README.md`
 - [x] "What I'd improve" from `IMPROVE-NOTES.md`
 - [x] Say plainly why there is no live server (a local model is hard to host cheaply) and how to run it locally
-- [ ] Record the GIF last, on a local server: streamed answer with sources, a two-topic question, an "I don't know"
+- [x] GIF recorded on a local server with Claude in Chrome (2026-10-22): a two-topic question with sources and the opened
+      passages, then "Do you take cats?" answered "I don't know" with no sources (`media/demo.gif`, 1.7 MB). The answers
+      were fast because the model was already loaded, so the streaming is barely visible
 
 ## Later (optional): a live demo with the Claude API
 Only if you decide to pay for it. Nothing above blocks it, and the safety pieces are already built (rate and
