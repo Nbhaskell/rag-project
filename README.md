@@ -58,7 +58,9 @@ again each time you open a new terminal. If PowerShell refuses to run it, run
 ## Using it
 
 1. **Add your documents.** Create a folder called `docs` in the project and copy your files into
-   it. The `docs` folder is kept out of Git on purpose, so private documents stay private.
+   it. The `docs` folder is kept out of Git on purpose, so private documents stay private. To try the
+   system first, use the made-up documents in `demo_docs/` (see below): copy them into `docs/`, or start
+   with `RAG_DOCS_DIR=demo_docs` (and `RAG_DB_DIR=chroma_db_demo` to keep their index apart).
 2. **Chat.**
    ```
    python chat.py
@@ -269,8 +271,9 @@ that goes with the two files in `samples/`. `eval_questions_injection.json` has 
 make the model break its rules (ignore its instructions, reveal them, follow an order or a false claim
 hidden in the question); run it with `--questions eval_questions_injection.json --repeat 5`. On the local
 model it passes about 70% of them: it resists the obvious attacks but can follow a formatting order or an
-injected claim, and prompt wording did not fix that (see `IMPROVE-NOTES.md`). For your own documents, write
-your own questions in the same format. Answers vary a little from run to run, so repeat a question several
+injected claim, and prompt wording did not fix that (see `IMPROVE-NOTES.md`). `eval_questions_pdf.json` has 9
+questions about the demo PDF, with the page each fact is on (run it with `RAG_DOCS_DIR=demo_docs`). For your
+own documents, write your own questions in the same format. Answers vary a little from run to run, so repeat a question several
 times before trusting a single result.
 
 ## Project layout
@@ -284,6 +287,8 @@ times before trusting a single result.
 | `test_indexing.py`, `test_api.py`, `test_answers.py`, `test_guard.py` | Fast tests for the indexing, the API, answer handling and the limits (no AI model needed; run each with `python <file>`) |
 | `eval_questions*.json` | Test questions and expected answers: the daycare set, the "fresh" set (kept apart on purpose, see Testing), the injection set and the old samples set |
 | `n8n/` | An n8n workflow that asks questions through the API, a start script and a setup guide |
+| `demo_docs/` | The made-up documents the project was developed and tested with: six markdown documents for a fictional dog daycare, "Barks n Woofs", and a 3-page PDF visitor guide (page numbers show in the answers' sources). Everything in them is invented, including the name, phone number and address. |
+| `tools/make_demo_pdf.py` | Makes that PDF again (needs `pip install fpdf2`, which is only for this script) |
 | `samples/` | Two small made-up documents for trying the system out |
 | `docs/` | Your documents (not in Git) |
 | `chroma_db/` | The search index, created by ingest (not in Git) |

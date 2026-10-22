@@ -1,0 +1,144 @@
+[
+  {
+    "id": "pdf-parking-spaces",
+    "type": "fact",
+    "question": "How many parking spaces are there?",
+    "note": "Page 1 of the visitor guide PDF.",
+    "expected_page": 1,
+    "expected_sources": [
+      "07-visitor-guide.pdf"
+    ],
+    "answer_contains": [
+      [
+        "12"
+      ]
+    ],
+    "retrieval_contains": "There are 12 spaces"
+  },
+  {
+    "id": "pdf-drop-off-door",
+    "type": "fact",
+    "question": "Which door do I use to drop off my dog?",
+    "note": "Page 1.",
+    "expected_page": 1,
+    "expected_sources": [
+      "07-visitor-guide.pdf"
+    ],
+    "answer_contains": [
+      [
+        "side door"
+      ]
+    ],
+    "retrieval_contains": "use the side door"
+  },
+  {
+    "id": "pdf-lobby-wait",
+    "type": "fact",
+    "question": "Where do I wait when I come to pick up my dog?",
+    "note": "Page 2.",
+    "expected_page": 2,
+    "expected_sources": [
+      "07-visitor-guide.pdf"
+    ],
+    "answer_contains": [
+      [
+        "lobby counter",
+        "lobby"
+      ]
+    ],
+    "retrieval_contains": "wait at the lobby counter"
+  },
+  {
+    "id": "pdf-ramp",
+    "type": "yes-no",
+    "question": "Is there a ramp up from the parking lot?",
+    "note": "Page 2, accessibility.",
+    "expected_page": 2,
+    "expected_sources": [
+      "07-visitor-guide.pdf"
+    ],
+    "answer_contains": [
+      [
+        "ramp"
+      ]
+    ],
+    "retrieval_contains": "A ramp leads up from the parking lot"
+  },
+  {
+    "id": "pdf-lost-items",
+    "type": "fact",
+    "question": "How long do you keep things my dog leaves behind?",
+    "note": "Page 3: lost and found, 30 days.",
+    "expected_page": 3,
+    "expected_sources": [
+      "07-visitor-guide.pdf"
+    ],
+    "answer_contains": [
+      [
+        "30 days"
+      ]
+    ],
+    "retrieval_contains": "kept at the front desk for 30 days"
+  },
+  {
+    "id": "pdf-social-media",
+    "type": "yes-no",
+    "question": "Can you post my dog's photo on social media?",
+    "note": "Page 3: only with written permission from the owner.",
+    "expected_page": 3,
+    "expected_sources": [
+      "07-visitor-guide.pdf"
+    ],
+    "answer_contains": [
+      [
+        "permission"
+      ]
+    ],
+    "retrieval_contains": "without written permission"
+  },
+  {
+    "id": "pdf-two-topics",
+    "type": "multi",
+    "question": "Where do I wait at pick-up, and how many parking spaces are there?",
+    "note": "Two facts on two pages: waiting at the lobby counter (page 2) and 12 parking spaces (page 1).",
+    "expected_sources": [
+      "07-visitor-guide.pdf"
+    ],
+    "answer_contains": [
+      [
+        "lobby"
+      ],
+      [
+        "12"
+      ]
+    ],
+    "retrieval_contains": [
+      "wait at the lobby counter",
+      "There are 12 spaces"
+    ]
+  },
+  {
+    "id": "pdf-nap-time-across-documents",
+    "type": "edge",
+    "question": "Is it a good idea to drop by at 1pm?",
+    "note": "The PDF says to avoid dropping by during nap time (12:00 to 2:30pm); the daily routine gives the same hours. Either file may be cited.",
+    "acceptable_sources": [
+      "05-daily-routine.md",
+      "07-visitor-guide.pdf"
+    ],
+    "answer_contains": [
+      [
+        "nap",
+        "quiet hours",
+        "12:00"
+      ]
+    ],
+    "retrieval_contains": "avoid dropping by"
+  },
+  {
+    "id": "pdf-unanswerable",
+    "type": "unanswerable",
+    "question": "Is there a dog park next door?",
+    "note": "Not in the documents."
+  }
+]
