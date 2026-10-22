@@ -1,0 +1,55 @@
+# Runs on every push to main and every pull request. None of it needs Ollama or any account, key or paid service.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Unit and API tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install the requirements
+        run: pip install -r requirements.txt
+      # These use a fake embedding function, a stand-in for the model and temporary folders.
+      - name: Run the tests
+        run: |
+          python test_guard.py
+          python test_answers.py
+          python test_indexing.py
+          python test_api.py
+
+  docker:
+    name: The Docker image builds and starts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t local-rag .
+      # There is no Ollama here, so nothing gets indexed: the server must still start and answer honestly.
+      - name: Start it and check it answers
+        run: |
+          docker run -d --name app -p 8000:8000 -e OLLAMA_HOST=http://127.0.0.1:9 local-rag
+          for _ in $(seq 1 30); do
+            curl -fs http://127.0.0.1:8000/health && break
+            sleep 2
+          done
+          echo
+          curl -fs http://127.0.0.1:8000/health | grep -q '"status":"ok"'
+          code=$(curl -s -o body.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+                 -d '{"question": "hello"}' http://127.0.0.1:8000/api/ask)
+          cat body.json; echo
+          test "$code" = "503" && grep -q index_empty body.json
+      - name: Show the container log if something failed
+        if: failure()
+        run: docker logs app
