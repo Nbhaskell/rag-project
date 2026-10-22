@@ -199,18 +199,19 @@ Why first: every later change needs a before/after number, and the baseline can'
       load, `CLAUDE.local.md` and `docs/` do not exist). GitHub Pages turned on with source "GitHub Actions"
       (`https://nbhaskell.github.io/rag-project/`, HTTPS enforced); description and 12 topics set; this PR adds
       `.github/workflows/pages.yml`, the tests badge and the README link to the recording.
-- [ ] After this PR is merged: confirm the Pages deployment ran and the live URL serves the page; then set the
-      repository's website field to that URL.
+- [x] After PR 27 merged (2026-10-22): the `pages` run succeeded, the live URL serves the committed page (byte for
+      byte, apart from line endings) and the repository's website field is set to it.
 
 ### Step 10: README, diagram and GIF (M)
-- [ ] Reviewer-first layout: pitch, link to the recorded demo and GIF at the top
-- [ ] Mermaid architecture diagram (ingest flow and query flow)
-- [ ] Design decisions with numbers: split search, chunking, the Sources finding, the hand-written retrieval
+- [x] Reviewer-first layout: pitch and link to the recorded demo at the top (the GIF is added when recorded, see below)
+- [x] Mermaid architecture diagrams (indexing and answering), rendered and checked in a browser
+- [x] Design decisions with numbers: split search, chunking, the Sources finding, the hand-written retrieval
       loop (be accurate about which libraries are used) with a short code excerpt
-- [ ] Eval table linked to the saved runs, with the sample-size note
-- [ ] Move the user guide, API and n8n sections into `docs/`
-- [ ] "What I'd improve" from `IMPROVE-NOTES.md`
-- [ ] Say plainly why there is no live server (a local model is hard to host cheaply) and how to run it locally
+- [x] Eval table linked to the saved runs, with the sample-size note
+- [x] Moved the user guide, Docker, API, public-server and evaluation sections into `guides/` (not `docs/`, which is the
+      private documents folder); n8n keeps its own `n8n/README.md`
+- [x] "What I'd improve" from `IMPROVE-NOTES.md`
+- [x] Say plainly why there is no live server (a local model is hard to host cheaply) and how to run it locally
 - [ ] Record the GIF last, on a local server: streamed answer with sources, a two-topic question, an "I don't know"
 
 ## Later (optional): a live demo with the Claude API

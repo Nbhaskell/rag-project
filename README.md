@@ -1,120 +1,201 @@
-# Local RAG: chat with documents
+# Local RAG: ask questions about your own documents
 
 [![tests](https://github.com/Nbhaskell/rag-project/actions/workflows/tests.yml/badge.svg)](https://github.com/Nbhaskell/rag-project/actions/workflows/tests.yml)
 
-**[See a recorded demo](https://nbhaskell.github.io/rag-project/)**: real answers from this system, with their sources
-and the exact passages. It is a recording, not a live system (a live one would need a paid hosted model); to ask your
-own questions, run it yourself, see "Run it with Docker" below.
+A question-answering system for a folder of documents (`.md`, `.txt`, `.pdf`, `.docx`) that runs **entirely on your
+own computer**: the language model, the embeddings and the vector database are all local, so the documents never leave
+it. Every answer lists the files it came from and the exact passages the model read, and when the documents do not
+cover a question it says "I don't know" instead of guessing.
 
-A small question-answering system for your own documents. You put files in a folder, build an
-index, and ask questions in a chat window in your browser. The AI models run entirely on your own
-computer, so your documents never leave it.
+**[See a recorded demo](https://nbhaskell.github.io/rag-project/)**: ten real answers from this system with their
+sources and passages, including one that goes wrong. It is a recording, not a live system; see
+[Why there is no live demo](#why-there-is-no-live-demo) for the reason and [Run it yourself](#run-it-yourself) to ask
+your own questions.
 
-- Answers come only from your documents, and each answer lists which files it used.
-- When the documents don't cover a question, it says "I don't know" instead of guessing.
-- It remembers the last few questions, so follow-ups like "And for kids?" work.
+**What is in here**
 
-("RAG" stands for retrieval-augmented generation: find the relevant pieces of your documents first,
-then let the AI answer from just those pieces.)
+- A retrieval pipeline written by hand (no LangChain or LlamaIndex): heading-aware chunking, a self-updating index,
+  and a search that splits a two-topic question into separate searches.
+- A browser chat window with streamed answers, sources and a collapsible list of the passages used (with section and
+  PDF page numbers), plus a typed JSON API.
+- An evaluation harness: 140 questions in four sets (plus an older samples set), saved and comparable runs, and a held-out set kept apart from
+  the tuning. The numbers below come from it.
+- Hardening for a public server (rate, daily and concurrency limits, request ids, an event log that keeps no answers),
+  a Docker image, and CI that runs 82 tests without needing a model.
+
+("RAG" stands for retrieval-augmented generation: find the relevant pieces of the documents first, then let the model
+answer from just those pieces.)
 
 ## How it works
 
-1. **Read and cut up the documents.** Supported files are `.md`, `.txt`, `.pdf` and `.docx`.
-   Markdown and Word files are cut at their headings, one chunk per section, and each chunk starts
-   with a label such as `Pricing and Packages > Boarding` so it makes sense on its own. PDFs are
-   cut page by page, so a chunk never spans two pages.
-2. **Index them.** Each chunk is turned into a list of numbers (an embedding) with the
-   `embeddinggemma` model and stored in a local ChromaDB database, together with the file it came
-   from, its section and (for PDFs) its page number.
-3. **Find the relevant chunks.** Your question is turned into numbers the same way, and the 4
-   closest chunks are looked up. For follow-up questions the previous question is searched too, and a
-   question about several things ("when do you open, and how much is a bath?") is split so that
-   each part gets its own search.
-4. **Answer.** The chunks, your question and the last three question/answer pairs go to the
-   `qwen3:8b` chat model through Ollama, with instructions to answer only from those chunks.
+Indexing runs at start-up and then whenever the docs folder changes:
 
-## What you need
+```mermaid
+flowchart LR
+    D["docs/<br/>.md .txt .pdf .docx"] --> C["Chunk<br/>by heading, or by PDF page"]
+    C --> E1["Embed each chunk<br/>embeddinggemma"]
+    E1 --> V[("ChromaDB<br/>text, source,<br/>section, page")]
+```
 
-- Windows. It was built and tested on Windows 11; other systems are untested.
-- [Python 3.13](https://www.python.org/downloads/). Very new Python versions can lack ready-made
-  packages for ChromaDB, so use 3.13 for the virtual environment even if a newer one is installed.
-- [Ollama](https://ollama.com/download), which runs the AI models locally.
-- [Git](https://git-scm.com/download/win), to download the project.
-- About 6 GB of disk space for the two models and about 8 GB of free memory while the chat model
-  is loaded. A graphics card makes answers much faster; without one it works but is slower.
+Answering a question:
 
-## Setup
+```mermaid
+flowchart TB
+    Q["Question + last 3 exchanges"] --> S["Split into one question per topic<br/>(only if it asks about more than one)"]
+    S --> E2["Embed the question and each part"]
+    E2 --> R["Nearest chunks: 4, or 2 per part"]
+    V[("ChromaDB")] -.-> R
+    R --> P["Prompt: the chunks + the question"]
+    P --> M["qwen3:8b via Ollama<br/>thinking on, streamed"]
+    M --> A["Answer, Sources line and the passages it read"]
+```
 
-Run these in PowerShell or Command Prompt, one at a time.
+1. **Chunk.** Markdown and Word files are cut at their headings, one chunk per section, and each chunk starts with a
+   label such as `Pricing and Packages > Boarding` so it makes sense on its own. PDFs are cut page by page, so a chunk
+   never spans two pages and the page number can be shown.
+2. **Index.** Each chunk is embedded with `embeddinggemma` and stored in ChromaDB with its file, section and page. Every
+   file carries a fingerprint of its content and of the settings that shaped its chunks, so only changed files are
+   re-processed and a settings change re-indexes by itself.
+3. **Retrieve.** The question is embedded and the 4 nearest chunks are fetched. A follow-up ("And for kids?") also
+   searches with the previous question; a question about several things is split first (next section).
+4. **Answer.** The chunks, the question and the last three exchanges go to `qwen3:8b` through Ollama, with
+   instructions to answer only from the context. The "Sources" line is chosen by a rule, not by asking the model.
+
+## Design decisions, with numbers
+
+All numbers are from the saved runs in [`eval_runs/published/`](eval_runs/published/), on the local `qwen3:8b` model
+(3 repeats each). The sample-size note under [How well does it work](#how-well-does-it-work) applies to all of them.
+
+### Split search for questions about more than one thing
+
+One embedding of "When do you open on weekdays, and how much is a bath?" lands between the two topics and finds only
+one of them. So a quick model call (no thinking, temperature 0, about 0.2 s) rewrites such a question as one short
+question per topic, and the original and each part are searched separately (2 passages per part, at most 4 parts).
+
+| Same code, split search on / off | On | Off |
+|---|---|---|
+| Retrieval found the fact, 67-question set | 59/59 | **53/59** |
+| Retrieval found the fact, held-out set | 45/46 | 43/46 |
+| Questions passed (mean of 3), 67-question set | 66.7/67 | 61/67 |
+
+Six of the twelve two-topic questions went from 3/3 passes to 0/3 without it. Raising `TOP_K` to 10 also found every
+fact, but sent 2.5 times as much text and ranked the right passage worse, so splitting was chosen. Full tables:
+[67 questions](eval_runs/published/compare-split-search-67-questions.txt),
+[held-out](eval_runs/published/compare-split-search-heldout-55.txt).
+
+### Chunk by heading, not by size
+
+The first version cut the text into fixed 800-character pieces. Cutting at headings gave smaller, self-contained chunks:
+
+| Retrieval only, 55 questions | Fixed chunks | By heading |
+|---|---|---|
+| Chunks in the index | 16 | 47 |
+| Fact in the top-ranked chunk | 32/47 (68%) | 44/47 (94%) |
+| Average rank of the fact | 1.43 | 1.09 |
+| Characters sent to the model | 2,520 | 993 |
+
+This is retrieval only and one run each (retrieval has no randomness); the answer prompt changed between the two
+commits, so answers were not compared. Details and the raw output: [`historical-chunking.md`](eval_runs/published/historical-chunking.md).
+Cleaner chunks also exposed a prompt problem: "answer concisely" made the model keep only half of a rule ("may return
+after 2 days, or with a vet's note" became "after 2 days"), wrong in 8 of 20 runs against 0 of 20 with the old, noisier
+chunks. The prompt now asks for completeness instead.
+
+### The retrieval loop is written by hand
+
+No framework: the libraries are `chromadb` (the vector store), `ollama` (embeddings and chat), `httpx` (timeouts),
+`pypdf` and `python-docx` (reading files), and FastAPI with uvicorn for the server. Chunking, index syncing,
+question splitting, merging, the prompt and the choice of sources are plain Python in [`rag.py`](rag.py). The heart of
+retrieval, abridged:
+
+```python
+searches = [question]
+for m in reversed(history):                      # a follow-up also searches with the previous question
+    if m["role"] == "user":
+        searches.append(m["content"] + "\n" + question)
+        break
+parts = split_question(question) if SPLIT_QUESTIONS else [question]
+compound = len(parts) > 1
+queries = searches + parts if compound else searches
+groups = [0] * len(searches) + (list(range(1, len(parts) + 1)) if compound else [])
+per_query = SUB_TOP_K if compound else (TOP_K if len(searches) == 1 else TOP_K // 2)
+
+results = get_collection().query(query_embeddings=embed(queries), n_results=per_query)
+found = {}                                       # passage text -> entry, keeping the closest distance seen
+for group, docs, metas, dists in zip(groups, results["documents"], results["metadatas"], results["distances"]):
+    for doc, meta, dist in zip(docs, metas, dists):
+        if doc not in found or dist < found[doc]["distance"]:
+            found[doc] = {"source": meta["source"], "distance": dist, "text": doc, "group": group, ...}
+```
+
+I wrote it by hand to see every step that decides what the model is shown, which is also what made the failures below
+findable.
+
+### The Sources line: tuned on one set, and it showed
+
+Listing every retrieved file as a source was right about 1 time in 3. A rule (the file of the best-matching chunk, plus
+another file only if its chunk is nearly as close and shares enough words with the answer) was right 90 to 95% of the
+time on the questions it was tuned on, but only **76 to 80% on the held-out set**: it mostly adds one extra file. I
+stopped tuning the thresholds and made the chat show the passages the model actually read instead, so the reader can
+check the answer against the original wording.
+
+### A model that argued with itself for 38 minutes
+
+Early evaluation runs stalled on single requests for 36 and 40 minutes. The cause was one question, "Will you give my
+dog treats?": the documents only say treats need the owner's permission, while the prompt said to begin yes/no answers
+with Yes or No. Qwen3's thinking went in circles (one sentence repeated 21 times) until Ollama's own cutoff at 163,840
+tokens. The fix is one clause in the prompt (a rule that only gives a condition is stated as a condition), a cap of
+3,000 tokens per answer with one retry without thinking, and a 180 s timeout. In 20 runs of that question under the
+cap, 7 hit it with the old prompt and 2 with the new one (the retry handles those), and the slowest held-out question
+went from 135 s to 17 s.
+
+A first attempt, a broad "if the answer depends on a condition, say so" sentence, stopped the loops and passed every
+check, but cut answers that start with Yes or No from 24 to 14 out of 30. That is why the harness now reports the
+Yes/No-opener rate, and why four wordings were compared on the same questions before one was adopted
+([logs](eval_runs/published/)).
+
+## How well does it work
+
+The system is judged on the made-up documents in [`demo_docs/`](demo_docs/): six markdown documents for a fictional dog
+daycare plus a 3-page PDF. Three question sets, each run 3 times (the injection and PDF sets 5 times), on the final code with
+thinking on and split search on:
+
+| Question set | Questions | Answers right | Retrieval found the fact | Fact in the top chunk | Sources line exactly right |
+|---|---|---|---|---|---|
+| Original (the prompt was tuned on it) | 67 | 67/67 | 59/59 | 44/59 | 60/67 |
+| **Held-out** (written after tuning, never used to tune) | 55 | 55/55 | 45/46 | 38/46 | 44/55 |
+| Demo PDF (page numbers checked by hand) | 9 | 9/9 | | | pages right 6/6 |
+| Prompt injection (made-up orders inside the question) | 9 | 32/45 over 5 repeats | | | |
+
+Means over the repeats; the full per-question tables are in [`eval_runs/published/`](eval_runs/published/) (for example
+[67 questions](eval_runs/published/compare-demo-corpus-67-questions.txt) and
+[held-out](eval_runs/published/compare-demo-corpus-heldout-55.txt)). Each saved run records the models, the settings
+and the git commit.
+
+**What the numbers do not say.**
+
+- Small samples. The questions are 67, 55 and 9, on seven short documents, with one model. One or two questions
+  moving is within run-to-run noise (answers vary), so do not read anything into a difference that small.
+- The held-out set was written by Claude from the documents: unseen by the prompt, but not blind to the documents. A set
+  written by someone else would be a stronger test.
+- Answers are graded by looking for expected words, which is repeatable but crude. I hand-graded 40 answers and the
+  word matcher agreed on 39 (no missed errors, one false alarm). Two checks are known to be worded too narrowly
+  (`package-refund`, `puppy-5-months`); I left the held-out file unedited rather than fit it to the model.
+- "Fact in the top chunk" is held down by design: 12 questions ask about two or three topics, and only one of their
+  facts can be in first place.
+- The injection set shows a real weakness: the model resists obvious attacks (asking for its instructions, role-play,
+  off-topic requests) but follows a hidden formatting order and sometimes an injected claim. Three wordings of a warning
+  in the prompt did not help. It is on the recorded demo as "where it goes wrong".
+
+## Run it yourself
+
+You need [Ollama](https://ollama.com/download) running with the two models (about 6 GB), plus either Docker or Python.
 
 ```
-git clone https://github.com/Nbhaskell/rag-project.git
-cd rag-project
-py -3.13 -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
 ollama pull embeddinggemma
 ollama pull qwen3:8b
 ```
 
-After `activate` your prompt should start with `(venv)`. You need to run `venv\Scripts\activate`
-again each time you open a new terminal. If PowerShell refuses to run it, run
-`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once and try again.
-
-## Using it
-
-1. **Add your documents.** Create a folder called `docs` in the project and copy your files into
-   it. The `docs` folder is kept out of Git on purpose, so private documents stay private. To try the
-   system first, use the made-up documents in `demo_docs/` (see below): copy them into `docs/`, or start
-   with `RAG_DOCS_DIR=demo_docs` (and `RAG_DB_DIR=chroma_db_demo` to keep their index apart).
-2. **Chat.**
-   ```
-   python chat.py
-   ```
-   A chat window opens in your browser at http://localhost:8000. The first answer is slow while
-   the model loads. Use the **New chat** button to clear its memory, and press Ctrl+C in the
-   terminal to stop. For a plain terminal version, run `python rag.py` instead (type `quit` to
-   exit).
-
-Under each answer the chat lists its **Sources** (the files used) and a collapsed
-**Passages the model read** list. Open it to see the exact text the model was given, with its file,
-section and page, and the closest match marked. A passage from a file that is not in the Sources line
-is shown dimmed. It is there to check an answer against the original wording.
-
-The chat builds and updates the search index by itself. When it starts it indexes any new or changed
-documents, and while it runs it checks the `docs` folder every few seconds: a file you add, edit or
-delete is picked up within about 10 seconds (it waits until the file has finished saving), and only
-that file is re-processed. The terminal shows lines like `[index] updated 03-pricing.md: 9 chunks`.
-It warns about files it couldn't read and about unfilled `[bracket]` placeholders, once per file.
-
-You can also manage the index yourself:
-
-```
-python rag.py sync     update the index with whatever changed, then stop
-python rag.py watch    keep the index up to date without the chat window (Ctrl+C to stop)
-python rag.py ingest   throw the index away and rebuild everything from scratch
-```
-
-`ingest` is only needed if the index looks wrong. Changing the chunk size, the embedding model or
-how files are read re-indexes everything automatically. To stop the chat from watching the folder,
-set `RAG_WATCH=0` before starting it.
-
-## Run it with Docker (no Python setup)
-
-This starts the chat in a container, with the made-up demo documents, using one command. The AI
-models are **not** inside the container: they are several gigabytes and run much faster on your own
-graphics card, so the container talks to Ollama running on the same computer.
-
-**What you need:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Docker with the
-Compose plugin) and [Ollama](https://ollama.com/download) running on the same computer with the two models
-pulled, about 6 GB in total:
-
-```
-ollama pull embeddinggemma
-ollama pull qwen3:8b
-```
-
-**Start it:**
+**With Docker** (no Python setup; Ollama stays outside the container):
 
 ```
 git clone https://github.com/Nbhaskell/rag-project.git
@@ -122,238 +203,99 @@ cd rag-project
 docker compose up --build
 ```
 
-Open http://localhost:8000. The first start indexes the demo documents in a few seconds, and the first
-answer is slow while the model loads. Press Ctrl+C to stop. `docker compose down` removes the container;
-the search index lives in a volume and survives, and `docker compose down -v` deletes it too.
+**With Python 3.13** (Windows; the commands are for PowerShell or Command Prompt):
 
-**Changing things.** Copy `.env.example` to `.env` and uncomment what you want. The useful ones:
-`DOCS_PATH` (a folder of your own documents to answer from instead of the demo ones; it is mounted
-read-only), `HOST_PORT` (if 8000 is taken), and any of the `RAG_...` settings from "Running it for other
-people". If Ollama is somewhere else, set `OLLAMA_HOST`.
+```
+git clone https://github.com/Nbhaskell/rag-project.git
+cd rag-project
+py -3.13 -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+$env:RAG_DOCS_DIR = "demo_docs"        (Command Prompt: set RAG_DOCS_DIR=demo_docs)
+$env:RAG_DB_DIR = "chroma_db_demo"     (Command Prompt: set RAG_DB_DIR=chroma_db_demo)
+python chat.py
+```
 
-**How it is locked down.** The port is published on your own computer only (`BIND_ADDRESS=0.0.0.0` would open
-it to your network; read "Running it for other people" first). The container runs as a normal user, its files are
-read-only except the `/data` volume, and it has no extra privileges. It reaches Ollama through
-`host.docker.internal`; on Docker Desktop for Windows that works even though Ollama only listens on the
-computer's own address. On Linux, Ollama must be started listening on more than that (`OLLAMA_HOST=0.0.0.0`).
-This was tested on Windows with Docker Desktop, not on Linux or macOS.
+Either way, open http://localhost:8000 and ask about the made-up daycare (for example "How much is a full day?" or
+"Do you take cats?"). The first answer is slow while the model loads. To use your own files, put them in a `docs/`
+folder (kept out of Git on purpose) and start without the two `RAG_` variables; new, changed and deleted files are
+picked up within about 10 seconds.
 
-**If something is wrong.** A message that says the language model is not reachable means Ollama is not running
-(or the models are not pulled); an empty answer list for a minute after the first start means the documents are
-still being indexed.
+Tested on Windows 11 with Docker Desktop; Linux and macOS are untested. The fast tests (no model needed) run with
+`python test_guard.py`, `test_answers.py`, `test_indexing.py`, `test_api.py` and `test_demo_page.py`, and in CI on
+every push.
 
-## Using it from other programs (the API)
+## Why there is no live demo
 
-While `python chat.py` is running, other programs on the same computer, such as an
-[n8n](https://n8n.io) workflow or a script, can use it through three web addresses. They exchange
-JSON, a plain-text format for structured data.
+A live link needs a model behind it. `qwen3:8b` wants roughly 8 GB of memory and, for answers in seconds rather than
+minutes, a graphics card; free hosting tiers typically offer a fraction of the memory and no GPU. The alternative is a
+hosted model, which means an account, an API key and a bill that grows with every visitor, and I chose not to make
+this project depend on a paid service. So the demo is a [recording](https://nbhaskell.github.io/rag-project/) of real
+answers, clearly labelled, and the project runs on your own machine with one command.
 
-| Address | What it does |
+The server-side pieces a public deployment needs are built and tested anyway: per-visitor rate limit, daily cap, a
+concurrency limit, friendly errors with request ids, a log that records no answer text, and switches to turn off
+re-indexing and the folder watcher (see [the public-server guide](guides/public-server.md)). Switching the chat model to
+a hosted one is a contained change in `rag.py` (the chat model is called in three places); the prompt would need
+re-checking with the eval sets.
+
+## What I'd improve
+
+The longer list, with how I would measure each, is in [IMPROVE-NOTES.md](IMPROVE-NOTES.md). The main ones:
+
+1. **A stronger held-out set.** Questions written by someone who has not seen the tuning, reported separately, and a
+   second corpus of messier real-world documents (PDFs with tables, long handbooks). Seven short documents prove little
+   about scale, and PDF and Word chunking has been tested on generated files only.
+2. **Prompt injection.** Measured at 32/45 and not solved. Next: a check that refuses an answer whose numbers do not
+   appear in the retrieved passages, screening instruction-like text in questions, and testing injection through the
+   documents themselves (the documents are trusted here, which stops being true if uploads are ever allowed).
+3. **A reranker, then hybrid search.** Retrieval finds the right chunk in most cases but ranks it first only 75 to 83% of the
+   time. A cross-encoder over 10 to 20 candidates is the easiest experiment to explain and measure; keyword
+   search (BM25) would help with exact names and prices.
+4. **A better way to pick sources.** Have the model name the passages it used instead of guessing from the answer's
+   wording, and measure it against hand-marked answers.
+5. **Style checks in the harness.** A prompt change can leave every pass/fail untouched and still change how answers
+   read (the Yes/No-opener drop above was caught by hand). The harness should report that rate and answer length for every change.
+6. **Judging answers.** A model-as-judge, adopted only if it agrees with my hand grading at least as often as the word
+   matcher does (39 of 40).
+
+## More documentation
+
+| Guide | What is in it |
 |---|---|
-| `GET /api/status` | Shows what is indexed: files, chunks, last update, and whether the folder watcher and thinking mode are on |
-| `POST /api/ask` | Send `{"question": "..."}` (and optionally `"history"`, a list of `{"role": "user" or "assistant", "content": "..."}`) and get back `{"answer": "...", "sources": ["file.md"], "passages": [...], "seconds": 3.2}` |
-| `POST /api/reindex` | Update the index now. Send `{"full": true}` to rebuild everything instead |
-
-While the chat is running, http://127.0.0.1:8000/docs shows these addresses as an interactive page:
-what to send, what comes back, and a "Try it out" button. (The page loads its styling from the
-internet, so it needs a connection; the API itself does not.)
-
-`passages` lists what the model was given, best match first. Each item has `source` (the file),
-`section` (the heading path, empty if there is none), `page` (a number for PDFs, otherwise `null`),
-`text` (the passage), `distance` (smaller is closer), `best` (true for the closest) and `listed` (true
-if its file is in `sources`). `sources` is unchanged, so existing callers keep working.
-
-Try it in PowerShell (use `127.0.0.1` rather than `localhost`; on Windows `localhost` can pause for a
-couple of seconds while it tries the IPv6 address first):
-
-```
-Invoke-RestMethod -Uri http://127.0.0.1:8000/api/status
-Invoke-RestMethod -Uri http://127.0.0.1:8000/api/ask -Method Post -ContentType "application/json" -Body '{"question": "How much is a full day?"}'
-```
-
-or in Command Prompt:
-
-```
-curl http://127.0.0.1:8000/api/status
-curl -X POST http://127.0.0.1:8000/api/ask -H "Content-Type: application/json" -d "{\"question\": \"How much is a full day?\"}"
-```
-
-(In PowerShell, `curl` is not the real curl and quote handling differs, so use `Invoke-RestMethod` there.)
-
-Problems come back as JSON with an `error` message and a status code: 400 for a bad request, 401
-for a missing or wrong token, 403 for an unknown `Host`, 413 for a body over 100 KB, 415 if the body
-is not sent as JSON, and 500 if something fails while answering.
-
-**Keeping it private.** The server only listens on your own computer (`127.0.0.1`), refuses
-requests whose `Host` is not `localhost` or `127.0.0.1` (add others with `RAG_ALLOWED_HOSTS`, a
-comma-separated list), and only accepts JSON bodies. To also require a password, set
-`RAG_API_TOKEN` before starting the chat; every `/api` request must then send it as
-`Authorization: Bearer <token>` (or `X-API-Key: <token>`). The chat window itself does not need the
-token. Generate a long random token with:
-
-```
-python -c "import secrets; print(secrets.token_urlsafe(24))"
-```
-
-## Running it for other people (a public demo)
-
-By default this is made for one person on one computer. If you put it on the internet, these settings
-keep it safe and affordable. Set them as environment variables before starting `python chat.py` (or in
-your host's settings). A limit set to `0` is switched off.
-
-| Setting | What it does | Default |
-|---|---|---|
-| `RAG_RATE_PER_MIN` | Questions one visitor may ask per minute | 30 |
-| `RAG_DAILY_LIMIT` | Questions the whole server answers per day (UTC) | no limit |
-| `RAG_MAX_CONCURRENT` | Answers worked on at the same time; more are told the server is busy | 2 |
-| `RAG_PROXY_HOPS` | How many proxies sit between the internet and the server (hosting services usually add 1) | 0 |
-| `RAG_ALLOW_REINDEX` | `0` switches off `/api/reindex`, which anyone who can reach the server could use to make it re-process every document | on |
-| `RAG_WATCH` | `0` stops the folder watcher | on |
-| `RAG_ALLOWED_HOSTS` | Extra host names the server answers to, such as your domain | none |
-| `RAG_API_TOKEN` | A password for the `/api` addresses | none |
-
-Behind a proxy, set `RAG_PROXY_HOPS`, or every visitor looks like the proxy and they all share one
-limit. The visitor is then read from the right-hand end of `X-Forwarded-For` (what your own proxy
-added), never from what a visitor wrote themselves. The chat window's own address is not covered by
-the token, so a public server relies on these limits. The limits live in memory: they apply to one
-running copy of the server, and the daily count starts again when it restarts. If you use a hosted
-model, also set a spending limit with the provider.
-
-**When something goes wrong** the reply is a plain message, a short `code` and a `request_id`, and
-the details go to the log, not to the visitor. The codes:
-
-| `code` | Status | Meaning |
-|---|---|---|
-| `index_empty` | 503 | No documents have been indexed yet |
-| `model_unavailable` | 503 | The language model can't be reached (is Ollama running?) |
-| `model_missing` | 503 | A model is not installed (the message says how to install it) |
-| `model_timeout` | 504 | The model took too long (see `RAG_MODEL_TIMEOUT`) |
-| `busy` | 503 | All places for answers are taken; try again in a few seconds (`Retry-After`) |
-| `daily_limit` | 503 | The day's questions are used up (`Retry-After` is the seconds to UTC midnight) |
-| `rate_limited` | 429 | One visitor is asking too fast (`Retry-After` is how long to wait) |
-| `reindex_disabled` | 403 | `/api/reindex` is switched off |
-| `bad_token`, `bad_host` | 401, 403 | Missing or wrong token; a Host name that is not allowed |
-| `too_large`, `not_json`, `bad_request` | 413, 415, 400 | Something wrong with the request body |
-| `internal` | 500 | Anything unexpected; the request id finds the details in the log |
-
-Every response also carries an `X-Request-ID` header (the same id), and `GET /health` answers
-`{"status": "ok", "index_ready": true}` with no token, for a host's health check.
-
-**The log.** `python chat.py` writes one line of JSON per event to `logs/events.jsonl` (folder:
-`RAG_LOG_DIR`; `RAG_LOG=0` turns it off): a new file each UTC day, 14 days kept (`RAG_LOG_DAYS`).
-For each answered question it records the time, the request id, the question (cut at 500 characters;
-`RAG_LOG_QUESTIONS=0` leaves it out), the files, sections, pages and distances of the passages found,
-whether the answer was "I don't know", and how long it took. Refused and failed requests are logged
-too. Visitors appear only as a short code that changes when the server restarts (`RAG_LOG_SALT` makes
-it stable). Never logged: tokens, headers, addresses, the answer text or the passage text. Questions
-can contain personal details, so on a public demo say that they are logged and keep the retention short.
-
-## Connecting n8n (optional)
-
-[n8n](https://n8n.io) lets you build automations by connecting boxes on a screen, and it can run on
-your own computer. The `n8n` folder contains a ready-made workflow that takes a question from a
-web address, asks this project through the API above, and sends the answer back, plus a script that
-starts n8n with private settings. A second ready-made workflow adds an upload form that saves new
-documents into `docs/`, where the folder watcher indexes them. See [n8n/README.md](n8n/README.md)
-for the step-by-step setup.
-
-## Writing documents that work well
-
-- **Use headings.** Each `##` section becomes one chunk, so one topic per section works best.
-- **Label key facts.** "Address: 123 Main St" is found more reliably than a bare address line.
-- **Say each fact once.** If two documents disagree (two different fees, say), the answers will
-  too.
-- **Fill in template blanks.** Ingest warns about leftover `[placeholders]`, and the chat would
-  repeat them.
-- Scanned PDFs have no readable text, and old `.doc` files aren't supported (save as `.docx`).
-
-## Settings
-
-The main settings are at the top of `rag.py`: the two models, the chunk size and how many chunks
-are retrieved (`TOP_K`).
-
-Qwen3 can think before it answers, which makes answers noticeably more accurate on tricky
-questions (exceptions, grace periods, "after 5 hours is that a half day?") but slower. It is on by
-default. To turn it off for a terminal session:
-
-```
-set RAG_THINK=0          (Command Prompt)
-$env:RAG_THINK = "0"     (PowerShell)
-```
-
-To try something without touching your real index, point the program at other folders:
-`RAG_DOCS_DIR` (default `docs`) and `RAG_DB_DIR` (default `chroma_db`).
-
-If a model call goes quiet, or an answer takes longer than 3 minutes in total, the program gives up
-instead of waiting. On a slow computer, raise the limit: `$env:RAG_MODEL_TIMEOUT = "600"` (seconds).
-
-An answer may also use at most 3,000 tokens (`RAG_MAX_TOKENS`), thinking included. Normal answers use a
-few hundred, but the thinking model can occasionally fall into a loop and never answer. If it uses
-its whole budget without answering, the question is asked again with thinking off.
-
-## Testing
-
-`run_eval.py` asks a set of questions with known answers and reports how many it got right. It
-checks two things: whether the right text was retrieved, and whether the answer contains the
-expected facts. Make sure the index is up to date first (`python rag.py sync`), then:
-
-```
-python run_eval.py                        run everything
-python run_eval.py --retrieval-only       retrieval checks only (fast, no chat model)
-python run_eval.py --id address           only the questions with these ids
-python run_eval.py --questions FILE.json  use a different question file
-python run_eval.py --label baseline --repeat 3   name the run and run all questions 3 times
-python run_eval.py --compare baseline other      compare two saved runs side by side
-```
-
-Every run is saved to `eval_runs/` (not in git) with the settings it used, so two runs can be
-compared later with `--compare`. To try another number of retrieved chunks, set `RAG_TOP_K` (for
-example `$env:RAG_TOP_K = "6"`) and `RAG_SPLIT=0` turns off split search; the saved run records
-both. Runs worth sharing are copied into `eval_runs/published/`, which is in git.
-
-`eval_questions.json` holds the questions for the dog-daycare example documents the project was
-developed with. `eval_questions_fresh.json` is a second set of 55 questions for the same documents,
-written after the prompt and thresholds were tuned, so it shows whether they only work for the
-first set. Run it with `python run_eval.py --questions eval_questions_fresh.json`, and do not tune
-against it, or it stops being a fair check. `eval_questions_samples.json` is an older, smaller set
-that goes with the two files in `samples/`. `eval_questions_injection.json` has 9 questions that try to
-make the model break its rules (ignore its instructions, reveal them, follow an order or a false claim
-hidden in the question); run it with `--questions eval_questions_injection.json --repeat 5`. On the local
-model it passes about 70% of them: it resists the obvious attacks but can follow a formatting order or an
-injected claim, and prompt wording did not fix that (see `IMPROVE-NOTES.md`). `eval_questions_pdf.json` has 9
-questions about the demo PDF, with the page each fact is on (run it with `RAG_DOCS_DIR=demo_docs`). For your
-own documents, write your own questions in the same format. Answers vary a little from run to run, so repeat a question several
-times before trusting a single result.
+| [User guide](guides/user-guide.md) | Requirements, setup, adding documents, automatic indexing, writing documents that work well, settings |
+| [Run it with Docker](guides/docker.md) | The container, the settings, how it is locked down |
+| [The API](guides/api.md) | `/api/ask`, `/api/status`, `/api/reindex`, error codes, tokens |
+| [Running it for other people](guides/public-server.md) | The limits, error codes, the event log |
+| [Testing and evaluation](guides/evaluation.md) | `run_eval.py`, the question sets, comparing runs |
+| [Connecting n8n](n8n/README.md) | Two ready-made workflows: ask the documents, and an upload form |
+| [IMPROVE-NOTES.md](IMPROVE-NOTES.md) | What I'd improve, in full |
 
 ## Project layout
 
 | Path | What it is |
 |---|---|
 | `rag.py` | The pipeline: reading, chunking, indexing, retrieval and answering |
-| `chat.py` | The browser chat window and the JSON API (a small local web server built with FastAPI) |
-| `run_eval.py` | The question-answering test runner |
+| `chat.py` | The browser chat window and the JSON API (FastAPI) |
 | `guard.py` | The limits (rate, daily, concurrent answers) and the event log for a public server |
-| `test_indexing.py`, `test_api.py`, `test_answers.py`, `test_guard.py`, `test_demo_page.py` | Fast tests for the indexing, the API, answer handling and the limits (no AI model needed; run each with `python <file>`) |
-| `eval_questions*.json` | Test questions and expected answers: the daycare set, the "fresh" set (kept apart on purpose, see Testing), the injection set and the old samples set |
-| `n8n/` | An n8n workflow that asks questions through the API, a start script and a setup guide |
-| `demo_docs/` | The made-up documents the project was developed and tested with: six markdown documents for a fictional dog daycare, "Barks n Woofs", and a 3-page PDF visitor guide (page numbers show in the answers' sources). Everything in them is invented, including the name, phone number and address. |
-| `site/` | The recorded demo page (`index.html`, one self-contained file) and the recording it shows (`recording.json`): real answers from the system, clearly labelled as a recording, not a live demo |
-| `tools/capture_demo.py`, `tools/build_demo_page.py` | Record the answers from a running copy of the app, and build the page from them (standard library only) |
-| `tools/make_demo_pdf.py` | Makes that PDF again (needs `pip install fpdf2`, which is only for this script) |
-| `samples/` | Two small made-up documents for trying the system out |
-| `docs/` | Your documents (not in Git) |
-| `chroma_db/` | The search index, created by ingest (not in Git) |
-| `venv/` | The Python environment (not in Git) |
+| `run_eval.py`, `grade_answers.py` | The question runner and the hand-grading helper |
+| `eval_questions*.json` | The question sets: original, held-out ("fresh"), injection, PDF, and the old samples set |
+| `eval_runs/published/` | Saved runs and comparison tables quoted above |
+| `test_*.py` | Fast tests for indexing, the API, answer handling, the limits and the demo page (no model needed) |
+| `demo_docs/` | The made-up documents: six markdown files for a fictional dog daycare and a 3-page PDF. Everything in them is invented, including the name, phone number and address |
+| `site/`, `tools/` | The recorded demo page and the scripts that record it and make the PDF |
+| `guides/`, `n8n/` | The guides above and the n8n workflows |
+| `Dockerfile`, `compose.yaml`, `.env.example` | The container |
+| `samples/` | Two small made-up documents for the older sample question set |
+| `docs/`, `chroma_db/`, `venv/` | Your documents, the search index and the Python environment (not in Git) |
 | `CLAUDE.md` | Notes for the Claude Code assistant used to build this project |
 
 ## Limits
 
-- It uses an 8-billion-parameter model, which is capable but not perfect. Check important answers
-  against the source documents.
-- Retrieval and answering were tuned on Markdown documents. PDF and Word files use the same code
-  but have been tested less.
-- The chat window is made for your own computer. It can be shared with other people, but only after you have read
-  "Running it for other people" above and set the limits there.
+- An 8-billion-parameter model is capable but not perfect. Check important answers against the source documents.
+- Built and tested on Windows 11. The Docker route is verified there only.
+- The chat window is made for your own computer. Before sharing it, read
+  [Running it for other people](guides/public-server.md) and set the limits there.
 
 ## License
 

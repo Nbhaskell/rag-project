@@ -2,7 +2,7 @@
 
 [n8n](https://n8n.io) is a tool for building automations by connecting boxes (called nodes) on a
 screen. Here it runs on your own computer and uses this project through the JSON API described in
-the main README, so something that happens elsewhere (a message, a form, a timer) can ask your
+the [API guide](../guides/api.md), so something that happens elsewhere (a message, a form, a timer) can ask your
 documents a question and send the answer on.
 
 ```
