@@ -4,18 +4,20 @@ import os
 import sys
 import threading
 import time
+import uuid
 import webbrowser
 from typing import Annotated, Literal
 
 import uvicorn
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field, StringConstraints, ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from rag import (SPLIT_QUESTIONS, THINK, answer, answer_stream, index_status, ingest,
-                 passages, sources_to_show, sync_docs, watch)
+import guard
+from rag import (MODEL_TIMEOUT, SPLIT_QUESTIONS, THINK, answer, answer_stream, classify_error, get_collection,
+                 gives_no_answer, index_status, ingest, passages, sources_to_show, sync_docs, watch)
 
 PORT = 8000
 
@@ -140,10 +142,9 @@ form.addEventListener("submit", async (e) => {
     let buffer = "";
     while (true) {
       const {done, value} = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, {stream: true});
+      if (!done) buffer += decoder.decode(value, {stream: true});
       const lines = buffer.split("\\n");
-      buffer = lines.pop();
+      buffer = done ? "" : lines.pop();  // at the end, also read a last line that has no newline (an error)
       for (const line of lines) {
         if (!line) continue;
         const data = JSON.parse(line);
@@ -158,6 +159,7 @@ form.addEventListener("submit", async (e) => {
         if (data.error) bot.textContent = "Error: " + data.error;
         log.scrollTop = log.scrollHeight;
       }
+      if (done) break;
     }
     if (text) {
       history.push({role: "user", content: question});
@@ -182,6 +184,10 @@ MAX_QUESTION = 2000   # characters
 ALLOWED_HOSTS = {"localhost", "127.0.0.1", "[::1]"} | {
     h.strip().lower() for h in os.environ.get("RAG_ALLOWED_HOSTS", "").split(",") if h.strip()}
 watching = False     # set to True by the main program when the folder watcher is running
+# The limits on how much can be asked and how many answers run at once (see guard.py for the settings).
+# A place for an answer is given back after at most two model timeouts plus a minute, even if it was never released.
+guards = guard.Guards.from_env(lease_seconds=2 * MODEL_TIMEOUT + 60)
+CHAT_PATHS = {"/", "/ask"}  # the chat window's own addresses; they reply in lines of JSON
 
 
 def hostname(host):
@@ -261,21 +267,69 @@ class HostCheck:
         if scope["type"] == "http":
             host = dict(scope["headers"]).get(b"host", b"").decode("latin-1")
             if hostname(host) not in ALLOWED_HOSTS:
-                await JSONResponse({"error": "Unknown Host header."}, status_code=403)(scope, receive, send)
+                body = {"error": "Unknown Host header.", "code": "bad_host"}
+                await JSONResponse(body, status_code=403)(scope, receive, send)
                 return
         await self.asgi_app(scope, receive, send)
 
 
+class RequestInfo:
+    """Gives every request an id, sent back in the X-Request-ID header and used in the log and in error
+    messages, and adds a few headers that tell browsers not to guess types or put the page in a frame."""
+
+    def __init__(self, asgi_app):
+        self.asgi_app = asgi_app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.asgi_app(scope, receive, send)
+            return
+        rid = uuid.uuid4().hex[:12]
+        scope.setdefault("state", {})["request_id"] = rid
+        extra = [(b"x-request-id", rid.encode()), (b"x-content-type-options", b"nosniff"),
+                 (b"x-frame-options", b"DENY"), (b"referrer-policy", b"no-referrer")]
+
+        async def send_with_headers(message):
+            if message["type"] == "http.response.start":
+                message = {**message, "headers": list(message.get("headers", [])) + extra}
+            await send(message)
+
+        await self.asgi_app(scope, receive, send_with_headers)
+
+
 app.add_middleware(HostCheck)
+app.add_middleware(RequestInfo)  # added last, so it is the outermost: even a refused Host gets the headers
+
+
+def request_id(request):
+    return getattr(request.state, "request_id", None)
+
+
+def visitor_of(request):
+    """The visitor's address, as far as the proxies in front of this server can vouch for it."""
+    return guards.visitor(request.client.host if request.client else None, request.headers.get("x-forwarded-for", ""))
+
+
+def refuse(status, code, message, headers=None):
+    """An HTTP error with a plain message and a short code for programs."""
+    return HTTPException(status, detail={"error": message, "code": code}, headers=headers)
 
 
 @app.exception_handler(StarletteHTTPException)
 async def error_as_json(request, exc):
-    """Every error is JSON with an "error" message, as before."""
-    message = exc.detail
-    if exc.status_code == 404 and message == "Not Found":
-        message = f"No such address: {request.url.path}"
-    return JSONResponse({"error": str(message)}, status_code=exc.status_code, headers=exc.headers)
+    """Every error is JSON with an "error" message (and usually a "code" and the request id), and a line in
+    the log. The chat window's addresses reply in lines of JSON, so their errors do too."""
+    detail = exc.detail if isinstance(exc.detail, dict) else {"error": str(exc.detail)}
+    if exc.status_code == 404 and detail["error"] == "Not Found":
+        detail = {"error": f"No such address: {request.url.path}"}
+    else:
+        guard.log_event("http_error", request_id=request_id(request), status=exc.status_code, code=detail.get("code"),
+                        method=request.method, path=request.url.path, visitor=guard.visitor_hash(visitor_of(request)))
+    body = {**detail, "request_id": request_id(request)}
+    if request.method == "POST" and request.url.path in CHAT_PATHS:
+        return Response(json.dumps(body) + "\n", status_code=exc.status_code, headers=exc.headers,
+                        media_type="application/x-ndjson")
+    return JSONResponse(body, status_code=exc.status_code, headers=exc.headers)
 
 
 def require_token(request: Request):
@@ -289,7 +343,30 @@ def require_token(request: Request):
     if auth.lower().startswith("bearer "):
         given = auth[7:].strip()
     if not hmac.compare_digest(given.encode(), token.encode()):
-        raise HTTPException(401, "Missing or wrong API token.")
+        raise refuse(401, "bad_token", "Missing or wrong API token.")
+
+
+def limit_rate(request: Request):
+    """Each visitor may ask a limited number of questions a minute."""
+    wait = guards.rate.check(visitor_of(request))
+    if wait:
+        raise refuse(429, "rate_limited", f"You are asking questions too quickly. Please wait {wait} "
+                                          f"second{'s' if wait != 1 else ''} and try again.",
+                     {"Retry-After": str(wait)})
+
+
+def admit():
+    """A place for one answer, or an error: every place may be taken, or the day's questions used up."""
+    lease = guards.gate.acquire()
+    if lease is None:
+        raise refuse(503, "busy", "The server is busy answering other questions. Please try again in a few seconds.",
+                     {"Retry-After": "5"})
+    wait = guards.daily.take()
+    if wait:
+        guards.gate.release(lease)
+        raise refuse(503, "daily_limit", "This server has reached its limit of questions for today. "
+                                         "Please come back tomorrow.", {"Retry-After": str(wait)})
+    return lease
 
 
 async def read_json(request, required):
@@ -298,8 +375,8 @@ async def read_json(request, required):
     try:
         length = int(request.headers.get("content-length", 0))
     except ValueError:
-        raise HTTPException(400, "Bad Content-Length header.")
-    too_large = HTTPException(413, f"Request body too large (limit {MAX_BODY} bytes).")
+        raise refuse(400, "bad_request", "Bad Content-Length header.")
+    too_large = refuse(413, "too_large", f"Request body too large (limit {MAX_BODY} bytes).")
     if length > MAX_BODY:
         raise too_large
     chunks, size = [], 0
@@ -313,13 +390,13 @@ async def read_json(request, required):
         return {}
     # Insisting on JSON also stops a web page from sending a "simple" cross-site form post.
     if not request.headers.get("content-type", "").lower().startswith("application/json"):
-        raise HTTPException(415, 'Send the body as JSON with the header "Content-Type: application/json".')
+        raise refuse(415, "not_json", 'Send the body as JSON with the header "Content-Type: application/json".')
     try:
         data = json.loads(body or b"{}")
     except ValueError:
-        raise HTTPException(400, "The body is not valid JSON.")
+        raise refuse(400, "bad_request", "The body is not valid JSON.")
     if not isinstance(data, dict):
-        raise HTTPException(400, 'The JSON body must be an object, like {"question": "..."}.')
+        raise refuse(400, "bad_request", 'The JSON body must be an object, like {"question": "..."}.')
     return data
 
 
@@ -340,8 +417,29 @@ def read_question(data):
     try:
         request = AskRequest.model_validate(data)
     except ValidationError as error:
-        raise HTTPException(400, explain(error))
+        raise refuse(400, "bad_request", explain(error))
     return request.question, [message.model_dump() for message in request.history][-20:]
+
+
+def log_answer(request, route, question, history, shown, found, text, seconds):
+    """One line in the log for an answered question: what was asked, what was retrieved, how it went."""
+    guard.log_event(
+        "answer", request_id=request_id(request), route=route, visitor=guard.visitor_hash(visitor_of(request)),
+        question=guard.question_text(question), history=len(history), sources=shown,
+        passages=[{"source": p["source"], "section": p["section"], "page": p["page"], "distance": p["distance"]}
+                  for p in found],
+        answer_chars=len(text), dont_know=gives_no_answer(text), seconds=round(seconds, 2))
+
+
+def failure(request, error, route, question):
+    """What went wrong while answering, as a ServiceError (a message that is safe to show, a status and a
+    code); the details of the real error only go to the log."""
+    problem = classify_error(error)
+    guard.log_event("answer_failed", request_id=request_id(request), route=route,
+                    visitor=guard.visitor_hash(visitor_of(request)), question=guard.question_text(question),
+                    status=problem.status, code=problem.code, error_type=type(error).__name__,
+                    detail=str(error)[:300])
+    return problem
 
 
 # ---- the JSON API (used by n8n and other programs) -------------------------------------------
@@ -360,21 +458,32 @@ def api_status():
     }
 
 
-@api.post("/ask", summary="Ask a question", response_model=AskResponse, openapi_extra=json_body(AskRequest))
+@api.post("/ask", summary="Ask a question", response_model=AskResponse, openapi_extra=json_body(AskRequest),
+          dependencies=[Depends(limit_rate)])
 async def api_ask(request: Request):
     """Answer a question from the documents."""
     question, history = read_question(await read_json(request, required=True))
+    lease = admit()
     started = time.time()
     try:
         result = await run_in_threadpool(answer, question, history)
-    except Exception as e:  # report it to the caller instead of dropping the connection
-        return JSONResponse({"error": str(e)}, status_code=500)
-    return {**result, "seconds": round(time.time() - started, 1)}
+    except Exception as e:  # tell the caller in plain words, and keep the details for the log
+        problem = failure(request, e, "api", question)
+        return JSONResponse({"error": problem.message, "code": problem.code, "request_id": request_id(request)},
+                            status_code=problem.status)
+    finally:
+        guards.gate.release(lease)
+    seconds = time.time() - started
+    log_answer(request, "api", question, history, result["sources"], result["passages"], result["answer"], seconds)
+    return {**result, "seconds": round(seconds, 1)}
 
 
 @api.post("/reindex", summary="Update the index", openapi_extra=json_body(ReindexRequest))
 async def api_reindex(request: Request):
-    """Update the index with what changed, or rebuild it all with {"full": true}."""
+    """Update the index with what changed, or rebuild it all with {"full": true}. Can be switched off with
+    RAG_ALLOW_REINDEX=0, which a public server should do."""
+    if not guards.allow_reindex:
+        raise refuse(403, "reindex_disabled", "Re-indexing is switched off on this server.")
     full = bool((await read_json(request, required=False)).get("full"))
 
     def reindex():
@@ -384,48 +493,65 @@ async def api_reindex(request: Request):
         return {"mode": "sync", **sync_docs()}
 
     try:
-        return await run_in_threadpool(reindex)
+        result = await run_in_threadpool(reindex)
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        problem = failure(request, e, "reindex", None)
+        return JSONResponse({"error": problem.message, "code": problem.code, "request_id": request_id(request)},
+                            status_code=problem.status)
+    guard.log_event("reindex", request_id=request_id(request), mode=result["mode"],
+                    visitor=guard.visitor_hash(visitor_of(request)))
+    return result
 
 
 app.include_router(api)
 
 
-# ---- the chat page and its own streaming address ----------------------------------------------
+# ---- the chat page, its own streaming address, and a health check -----------------------------
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def chat_page():
     return PAGE
+
+
+@app.get("/health", include_in_schema=False)
+def health():
+    """For a host's health check: is the server up, and is there an index to answer from?"""
+    try:
+        return {"status": "ok", "index_ready": get_collection().count() > 0}
+    except Exception:
+        return JSONResponse({"status": "error"}, status_code=503)
 
 
 def ndjson(obj):
     return json.dumps(obj) + "\n"
 
 
-@app.post("/ask", include_in_schema=False)
-@app.post("/", include_in_schema=False)
+@app.post("/ask", include_in_schema=False, dependencies=[Depends(limit_rate)])
+@app.post("/", include_in_schema=False, dependencies=[Depends(limit_rate)])
 async def chat_stream(request: Request):
     """The chat window's address: the answer arrives as lines of JSON, a piece at a time. It is not
     protected by the API token, but takes only JSON of a sensible size, like the API."""
-    try:
-        question, history = read_question(await read_json(request, required=True))
-    except HTTPException as e:
-        return StreamingResponse(iter([ndjson({"error": e.detail})]), status_code=e.status_code,
-                                 media_type="application/x-ndjson")
+    question, history = read_question(await read_json(request, required=True))
+    lease = admit()
+    started, rid = time.time(), request_id(request)
 
     def stream():
+        text = ""
         try:
             chunks, pieces = answer_stream(question, history)
-            text = ""
             for piece in pieces:
                 text += piece
                 yield ndjson({"text": piece})
             shown = sources_to_show(text, chunks)
+            found = passages(chunks, shown)
             if shown:
                 yield ndjson({"sources": shown})
-            yield ndjson({"passages": passages(chunks, shown)})
+            yield ndjson({"passages": found})
+            log_answer(request, "chat", question, history, shown, found, text, time.time() - started)
         except Exception as e:
-            yield ndjson({"error": str(e)})
+            problem = failure(request, e, "chat", question)
+            yield ndjson({"error": problem.message, "code": problem.code, "request_id": rid})
+        finally:
+            guards.gate.release(lease)  # also when the visitor leaves in the middle (GeneratorExit)
 
     return StreamingResponse(stream(), media_type="application/x-ndjson")
 
@@ -434,6 +560,9 @@ def main():
     global watching
     url = f"http://localhost:{PORT}"
     print(f"Chat is running at {url}  (press Ctrl+C to stop)")
+    log = guard.setup_logging()
+    if log is not None:
+        print(f"Logging questions and events to {log.baseFilename} (RAG_LOG=0 turns it off)")
     if os.environ.get("RAG_WATCH", "1") != "0":
         # Index new, changed and deleted documents in the background while the chat runs.
         # A daemon thread stops by itself when the program exits.
@@ -441,7 +570,9 @@ def main():
         watching = True
     if "--no-browser" not in sys.argv:
         webbrowser.open(url)
-    uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
+    # proxy_headers=False: who the visitor is behind a proxy is decided only by RAG_PROXY_HOPS (guard.client_ip);
+    # by default uvicorn would silently trust X-Forwarded-For from 127.0.0.1.
+    uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning", proxy_headers=False)
     print("\nStopped.")
 
 
