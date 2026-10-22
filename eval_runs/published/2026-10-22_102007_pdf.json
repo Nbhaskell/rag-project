@@ -1,0 +1,1179 @@
+{
+  "label": "pdf",
+  "created": "2026-10-22T10:20:07",
+  "git": "7dcba92+uncommitted",
+  "questions_file": "eval_questions_pdf.json",
+  "retrieval_only": false,
+  "question_ids": null,
+  "settings": {
+    "CHAT_MODEL": "qwen3:8b",
+    "EMBED_MODEL": "embeddinggemma",
+    "CHUNK_SIZE": 800,
+    "OVERLAP": 100,
+    "TOP_K": 4,
+    "SUB_TOP_K": 2,
+    "MAX_PARTS": 4,
+    "THINK": true,
+    "SPLIT_QUESTIONS": true,
+    "INDEX_VERSION": 2,
+    "SOURCE_WINDOW": 0.1,
+    "SOURCE_MIN_SHARED": 4,
+    "SOURCE_MIN_SHARED_BEST": 2
+  },
+  "repeats": [
+    {
+      "summary": {
+        "questions": 9,
+        "questions_passed": 9,
+        "by_type": {
+          "fact": [
+            4,
+            4
+          ],
+          "yes-no": [
+            2,
+            2
+          ],
+          "multi": [
+            1,
+            1
+          ],
+          "edge": [
+            1,
+            1
+          ],
+          "unanswerable": [
+            1,
+            1
+          ]
+        },
+        "retrieval_total": 8,
+        "retrieval_ok": 8,
+        "top_ranked": 5,
+        "avg_rank": 1.62,
+        "avg_context_chars": 1492,
+        "answers_total": 9,
+        "answers_ok": 9,
+        "sources_total": 9,
+        "sources_exact": 7,
+        "sources_extra": 2,
+        "sources_missing": 0,
+        "avg_seconds": 3.9,
+        "slowest_seconds": 7.5,
+        "model_errors": 0
+      },
+      "results": [
+        {
+          "id": "pdf-parking-spaces",
+          "type": "fact",
+          "question": "How many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "There are 12 parking spaces in total.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1517,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.4,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-drop-off-door",
+          "type": "fact",
+          "question": "Which door do I use to drop off my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The side door is used for dropping off your dog. The context states, \"Dogs being dropped off or picked up use the side door.\" The front door is designated for visitors, and the side door is specifically for drop-off and pick-up.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1627,
+          "sources_shown": [
+            "07-visitor-guide.pdf",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 4.6,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lobby-wait",
+          "type": "fact",
+          "question": "Where do I wait when I come to pick up my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "At pick-up, wait at the lobby counter. Staff bring your dog out to you with the daily report. Please do not go into the play areas yourself, even if you can see your dog through the gate.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 2067,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.2,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-ramp",
+          "type": "yes-no",
+          "question": "Is there a ramp up from the parking lot?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, there is a ramp leading up from the parking lot.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1461,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.4,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lost-items",
+          "type": "fact",
+          "question": "How long do you keep things my dog leaves behind?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The facility keeps items your dog leaves behind at the front desk for 30 days. After this period, unclaimed items are given to a local rescue. Collars, leashes, and toys are washed before being returned if claimed.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1164,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-social-media",
+          "type": "yes-no",
+          "question": "Can you post my dog's photo on social media?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No. We never post a dog's photo on social media without written permission from the owner.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1259,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-two-topics",
+          "type": "multi",
+          "question": "Where do I wait at pick-up, and how many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "At pick-up, wait at the lobby counter. There are 12 parking spaces in the lot.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 1343,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.5,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-nap-time-across-documents",
+          "type": "edge",
+          "question": "Is it a good idea to drop by at 1pm?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, it's not a good idea to drop by at 1pm. During quiet hours (12:00pm to 2:30pm), the play yards are closed to visitors so dogs can rest. The context explicitly advises avoiding visits during this time. Additionally, while 1pm is within regular hours (8:00am\u20136:00pm), the play areas are inaccessible during quiet hours.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1628,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 7.5,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-unanswerable",
+          "type": "unanswerable",
+          "question": "Is there a dog park next door?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention the presence or location of a dog park next door.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 1367,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.3,
+          "known_issue": null
+        }
+      ]
+    },
+    {
+      "summary": {
+        "questions": 9,
+        "questions_passed": 9,
+        "by_type": {
+          "fact": [
+            4,
+            4
+          ],
+          "yes-no": [
+            2,
+            2
+          ],
+          "multi": [
+            1,
+            1
+          ],
+          "edge": [
+            1,
+            1
+          ],
+          "unanswerable": [
+            1,
+            1
+          ]
+        },
+        "retrieval_total": 8,
+        "retrieval_ok": 8,
+        "top_ranked": 5,
+        "avg_rank": 1.62,
+        "avg_context_chars": 1492,
+        "answers_total": 9,
+        "answers_ok": 9,
+        "sources_total": 9,
+        "sources_exact": 7,
+        "sources_extra": 2,
+        "sources_missing": 0,
+        "avg_seconds": 4.2,
+        "slowest_seconds": 7.7,
+        "model_errors": 0
+      },
+      "results": [
+        {
+          "id": "pdf-parking-spaces",
+          "type": "fact",
+          "question": "How many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "There are 12 parking spaces in total.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1517,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.8,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-drop-off-door",
+          "type": "fact",
+          "question": "Which door do I use to drop off my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The side door is used for dropping off your dog. Dogs being dropped off or picked up use the side door, as stated in the Visitor Guide.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1627,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.9,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lobby-wait",
+          "type": "fact",
+          "question": "Where do I wait when I come to pick up my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "At pick-up, wait at the lobby counter. Staff bring your dog out to you with the daily report. Please do not go into the play areas yourself, even if you can see your dog through the gate.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 2067,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.8,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-ramp",
+          "type": "yes-no",
+          "question": "Is there a ramp up from the parking lot?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, there is a ramp leading up from the parking lot.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1461,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.4,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lost-items",
+          "type": "fact",
+          "question": "How long do you keep things my dog leaves behind?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The facility keeps items your dog leaves behind at the front desk for 30 days. After this period, unclaimed items are given to a local rescue. Collars, leashes, and toys are washed before being returned if claimed.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1164,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-social-media",
+          "type": "yes-no",
+          "question": "Can you post my dog's photo on social media?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, we cannot post a dog's photo on social media without written permission from the owner. Photos are only shared daily via email reports, and social media posting requires explicit owner consent.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1259,
+          "sources_shown": [
+            "07-visitor-guide.pdf",
+            "05-daily-routine.md"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [
+            "05-daily-routine.md"
+          ],
+          "sources_missing": [],
+          "seconds": 3.1,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-two-topics",
+          "type": "multi",
+          "question": "Where do I wait at pick-up, and how many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "At pick-up, wait at the lobby counter. There are 12 parking spaces in the lot behind the building.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 1343,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.4,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-nap-time-across-documents",
+          "type": "edge",
+          "question": "Is it a good idea to drop by at 1pm?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, it is not a good idea to drop by at 1pm. During quiet hours (12:00pm to 2:30pm), the play yards are closed to visitors so dogs can rest. The context explicitly advises avoiding visits during this time. Additionally, 1pm is outside the midday pick-up window (11:00am\u20131:00pm), but the primary restriction applies due to quiet hours.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1628,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 7.7,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-unanswerable",
+          "type": "unanswerable",
+          "question": "Is there a dog park next door?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 1367,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.7,
+          "known_issue": null
+        }
+      ]
+    },
+    {
+      "summary": {
+        "questions": 9,
+        "questions_passed": 9,
+        "by_type": {
+          "fact": [
+            4,
+            4
+          ],
+          "yes-no": [
+            2,
+            2
+          ],
+          "multi": [
+            1,
+            1
+          ],
+          "edge": [
+            1,
+            1
+          ],
+          "unanswerable": [
+            1,
+            1
+          ]
+        },
+        "retrieval_total": 8,
+        "retrieval_ok": 8,
+        "top_ranked": 5,
+        "avg_rank": 1.62,
+        "avg_context_chars": 1492,
+        "answers_total": 9,
+        "answers_ok": 9,
+        "sources_total": 9,
+        "sources_exact": 8,
+        "sources_extra": 1,
+        "sources_missing": 0,
+        "avg_seconds": 5.0,
+        "slowest_seconds": 16.4,
+        "model_errors": 0
+      },
+      "results": [
+        {
+          "id": "pdf-parking-spaces",
+          "type": "fact",
+          "question": "How many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "There are 12 parking spaces in total.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1517,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.6,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-drop-off-door",
+          "type": "fact",
+          "question": "Which door do I use to drop off my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The side door is used for dropping off your dog. The context states, \"Dogs being dropped off or picked up use the side door.\" The front door is reserved for visitors.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1627,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.2,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lobby-wait",
+          "type": "fact",
+          "question": "Where do I wait when I come to pick up my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "You wait at the lobby counter when picking up your dog. Staff bring your dog out to you with the daily report. Do not go into the play areas yourself, even if you can see your dog through the gate.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 2067,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.1,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-ramp",
+          "type": "yes-no",
+          "question": "Is there a ramp up from the parking lot?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, there is a ramp leading up from the parking lot.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1461,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.3,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lost-items",
+          "type": "fact",
+          "question": "How long do you keep things my dog leaves behind?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The facility keeps items your dog leaves behind for 30 days. After this period, unclaimed items are given to a local rescue.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1164,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.9,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-social-media",
+          "type": "yes-no",
+          "question": "Can you post my dog's photo on social media?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No. We never post a dog's photo on social media without written permission from the owner.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1259,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.3,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-two-topics",
+          "type": "multi",
+          "question": "Where do I wait at pick-up, and how many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "At pick-up, wait at the lobby counter. There are 12 parking spaces in total, including 2 close to the side door for drop-off.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 1343,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.0,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-nap-time-across-documents",
+          "type": "edge",
+          "question": "Is it a good idea to drop by at 1pm?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "During quiet hours (12:00pm to 2:30pm), the play yards are closed to visitors so that dogs can rest. Since 1pm falls within this window, it is not a good idea to visit the play areas. However, the context does not explicitly prohibit visiting other areas (e.g., the lobby) during this time. If your visit involves the play yards, avoid 1pm. If you are only in the lobby or other non-play areas, it may still be acceptable.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1628,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 16.4,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-unanswerable",
+          "type": "unanswerable",
+          "question": "Is there a dog park next door?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention a dog park next door or any nearby facilities.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 1367,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.1,
+          "known_issue": null
+        }
+      ]
+    },
+    {
+      "summary": {
+        "questions": 9,
+        "questions_passed": 9,
+        "by_type": {
+          "fact": [
+            4,
+            4
+          ],
+          "yes-no": [
+            2,
+            2
+          ],
+          "multi": [
+            1,
+            1
+          ],
+          "edge": [
+            1,
+            1
+          ],
+          "unanswerable": [
+            1,
+            1
+          ]
+        },
+        "retrieval_total": 8,
+        "retrieval_ok": 8,
+        "top_ranked": 5,
+        "avg_rank": 1.62,
+        "avg_context_chars": 1492,
+        "answers_total": 9,
+        "answers_ok": 9,
+        "sources_total": 9,
+        "sources_exact": 8,
+        "sources_extra": 1,
+        "sources_missing": 0,
+        "avg_seconds": 4.1,
+        "slowest_seconds": 9.6,
+        "model_errors": 0
+      },
+      "results": [
+        {
+          "id": "pdf-parking-spaces",
+          "type": "fact",
+          "question": "How many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "There are 12 parking spaces in total.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1517,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.3,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-drop-off-door",
+          "type": "fact",
+          "question": "Which door do I use to drop off my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The side door is used for dropping off your dog. Dogs being dropped off or picked up use the side door, as stated in the context.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1627,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.1,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lobby-wait",
+          "type": "fact",
+          "question": "Where do I wait when I come to pick up my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "At pick-up, wait at the lobby counter. Staff bring your dog out to you with the daily report. Do not go into the play areas yourself, even if you can see your dog through the gate.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 2067,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.0,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-ramp",
+          "type": "yes-no",
+          "question": "Is there a ramp up from the parking lot?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, there is a ramp leading up from the parking lot.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1461,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.0,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lost-items",
+          "type": "fact",
+          "question": "How long do you keep things my dog leaves behind?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The facility keeps items your dog leaves behind at the front desk for 30 days. After this period, unclaimed items are given to a local rescue.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1164,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.0,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-social-media",
+          "type": "yes-no",
+          "question": "Can you post my dog's photo on social media?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, we never post a dog's photo on social media without written permission from the owner.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1259,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.8,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-two-topics",
+          "type": "multi",
+          "question": "Where do I wait at pick-up, and how many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "At pick-up, wait at the lobby counter. There are 12 parking spaces in total.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 1343,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.0,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-nap-time-across-documents",
+          "type": "edge",
+          "question": "Is it a good idea to drop by at 1pm?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, it's not a good idea to drop by at 1pm because during Quiet Hours (12:00pm to 2:30pm), the play yards are closed to visitors. If you're planning to visit the play areas, this is not allowed. However, if you're dropping by the lobby or another accessible area, it is permitted. Always check with staff for specific guidelines.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1628,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 9.6,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-unanswerable",
+          "type": "unanswerable",
+          "question": "Is there a dog park next door?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention a dog park next door or any external facilities adjacent to Barks n Woofs.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 1367,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.1,
+          "known_issue": null
+        }
+      ]
+    },
+    {
+      "summary": {
+        "questions": 9,
+        "questions_passed": 9,
+        "by_type": {
+          "fact": [
+            4,
+            4
+          ],
+          "yes-no": [
+            2,
+            2
+          ],
+          "multi": [
+            1,
+            1
+          ],
+          "edge": [
+            1,
+            1
+          ],
+          "unanswerable": [
+            1,
+            1
+          ]
+        },
+        "retrieval_total": 8,
+        "retrieval_ok": 8,
+        "top_ranked": 5,
+        "avg_rank": 1.62,
+        "avg_context_chars": 1492,
+        "answers_total": 9,
+        "answers_ok": 9,
+        "sources_total": 9,
+        "sources_exact": 7,
+        "sources_extra": 2,
+        "sources_missing": 0,
+        "avg_seconds": 4.4,
+        "slowest_seconds": 8.7,
+        "model_errors": 0
+      },
+      "results": [
+        {
+          "id": "pdf-parking-spaces",
+          "type": "fact",
+          "question": "How many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "There are 12 parking spaces in total.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1517,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-drop-off-door",
+          "type": "fact",
+          "question": "Which door do I use to drop off my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The side door is used for dropping off dogs. Dogs being dropped off or picked up use the side door, as stated in the \"Visitor Guide\" section. The front door is for visitors, and the side door has nearby parking spaces designated for drop-off.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1627,
+          "sources_shown": [
+            "07-visitor-guide.pdf",
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 4.0,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lobby-wait",
+          "type": "fact",
+          "question": "Where do I wait when I come to pick up my dog?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "At pick-up, wait at the lobby counter. Staff bring your dog out to you with the daily report. Please do not go into the play areas yourself, even if you can see your dog through the gate.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 2067,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 5.6,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-ramp",
+          "type": "yes-no",
+          "question": "Is there a ramp up from the parking lot?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "Yes, there is a ramp leading up from the parking lot.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1461,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 2.1,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-lost-items",
+          "type": "fact",
+          "question": "How long do you keep things my dog leaves behind?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "The facility keeps items your dog leaves behind at the front desk for 30 days. After this period, unclaimed items are given to a local rescue.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1164,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.8,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-social-media",
+          "type": "yes-no",
+          "question": "Can you post my dog's photo on social media?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No. We never post a dog's photo on social media without written permission from the owner.",
+          "problems": [],
+          "retrieval_rank": 1,
+          "context_chars": 1259,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.6,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-two-topics",
+          "type": "multi",
+          "question": "Where do I wait at pick-up, and how many parking spaces are there?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "At pick-up, wait at the lobby counter. There are 12 parking spaces in the lot behind the building.",
+          "problems": [],
+          "retrieval_rank": 2,
+          "context_chars": 1343,
+          "sources_shown": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_expected": [
+            "07-visitor-guide.pdf"
+          ],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 4.4,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-nap-time-across-documents",
+          "type": "edge",
+          "question": "Is it a good idea to drop by at 1pm?",
+          "retrieval": true,
+          "answer_ok": true,
+          "answer": "No, it is not a good idea to drop by at 1pm. During Quiet Hours (12:00pm to 2:30pm), the play yards are closed to visitors so dogs can rest. Additionally, midday pick-up (for half-day dogs) ends at 1:00pm, so dogs may already be with their owners. If visiting during this time, you must wait at the lobby counter, as the play areas are inaccessible.",
+          "problems": [],
+          "retrieval_rank": 3,
+          "context_chars": 1628,
+          "sources_shown": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_expected": [],
+          "sources_extra": [
+            "04-hours-and-schedule.md"
+          ],
+          "sources_missing": [],
+          "seconds": 8.7,
+          "known_issue": null
+        },
+        {
+          "id": "pdf-unanswerable",
+          "type": "unanswerable",
+          "question": "Is there a dog park next door?",
+          "retrieval": null,
+          "answer_ok": true,
+          "answer": "I don't know. The context does not mention a dog park next door or any nearby facilities related to dog parks.",
+          "problems": [],
+          "retrieval_rank": null,
+          "context_chars": 1367,
+          "sources_shown": [],
+          "sources_expected": [],
+          "sources_extra": [],
+          "sources_missing": [],
+          "seconds": 3.9,
+          "known_issue": null
+        }
+      ]
+    }
+  ]
+}
