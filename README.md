@@ -344,4 +344,9 @@ times before trusting a single result.
   against the source documents.
 - Retrieval and answering were tuned on Markdown documents. PDF and Word files use the same code
   but have been tested less.
-- The chat window is for use on your own computer only. It is not built to be shared over a network.
+- The chat window is made for your own computer. It can be shared with other people, but only after you have read
+  "Running it for other people" above and set the limits there.
+
+## License
+
+MIT. See the `LICENSE` file. The documents in `demo_docs/` and `samples/` are made up and are included under the same license.

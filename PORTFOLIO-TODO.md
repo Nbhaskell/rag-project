@@ -168,11 +168,21 @@ Why first: every later change needs a before/after number, and the baseline can'
 - [ ] Tested from a clean clone (`git clone` into an empty folder, `docker compose up --build`)
 
 ### Step 8: Repo preparation (S)
-- [ ] Scan git history for secrets and private data
-- [ ] Decide what to do with `CLAUDE.md` before the repo goes public
-- [ ] License, repo description and topics
-- [ ] GitHub Actions workflow running the test files that need no Ollama (`test_indexing.py`, `test_api.py`,
-      `test_answers.py`, `test_guard.py`)
+- [x] History scan (gitleaks over 38 commits, plus my own scan of all 179 file versions and every commit message):
+      no secrets, keys or private keys. Only invented placeholders (`email@address.com`, `111-111-1111`,
+      `hr@bluefin-example.test`). Every commit uses a GitHub noreply address, so no personal email is exposed. The
+      only files ever deleted from history are the two made-up sample documents.
+- [x] CLAUDE.md (decided 2026-10-22): trimmed to a public file with generic paths; machine and personal notes
+      (hardware, local paths, n8n account and token rules, next steps) moved to the git-ignored `CLAUDE.local.md`,
+      which Claude Code still reads.
+- [x] n8n files: the Windows username path replaced by `C:\path\to\rag-project\docs` in the committed workflow
+      and its README (the running n8n copy is unaffected).
+- [x] MIT license, copyright Nathan Haskell (decided 2026-10-22), and a License section in the README.
+- [x] GitHub Actions `.github/workflows/tests.yml`: the 75 tests (no Ollama) and a Docker build-and-start check.
+      Actionlint clean; both jobs run locally on a clean clone with a brand-new venv. Not yet seen running on GitHub.
+- [x] Decided to leave as is: three early commit messages carry a Claude co-author line (history is not rewritten).
+- [ ] Repo description and topics: set them when the repo goes public (step 9).
+- [ ] Add the CI status badge to the README once the repo is public and the workflow has run.
 
 ## Phase E: Ship and document
 

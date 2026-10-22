@@ -87,9 +87,9 @@ document. n8n keeps no copy of the file.
    fails with "Access to the file is not allowed".
 2. **Import the workflow.** Create a new workflow, open **⋯** → **Import from File…** and pick
    `n8n\add-documents.json`.
-3. **Check the folder.** Double-click **Check the file**. Its first line sets `DOCS_FOLDER` to
-   `C:\Users\nbhas\rag-project\docs`. If your project lives somewhere else, change that path to your
-   project's `docs` folder.
+3. **Check the folder.** Double-click **Check the file**. Its first line sets `DOCS_FOLDER` to a
+   placeholder, `C:\path\to\rag-project\docs`. Change it to your project's `docs` folder (the same folder the
+   start script allows).
 4. **Test it.** Click **Execute workflow**; a form opens in a new browser tab. Choose a small file,
    send it, and watch the boxes light up.
 5. **Switch it on for good.** Click **Publish**. The form then lives permanently at
