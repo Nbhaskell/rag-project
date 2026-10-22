@@ -327,10 +327,12 @@ times before trusting a single result.
 | `chat.py` | The browser chat window and the JSON API (a small local web server built with FastAPI) |
 | `run_eval.py` | The question-answering test runner |
 | `guard.py` | The limits (rate, daily, concurrent answers) and the event log for a public server |
-| `test_indexing.py`, `test_api.py`, `test_answers.py`, `test_guard.py` | Fast tests for the indexing, the API, answer handling and the limits (no AI model needed; run each with `python <file>`) |
+| `test_indexing.py`, `test_api.py`, `test_answers.py`, `test_guard.py`, `test_demo_page.py` | Fast tests for the indexing, the API, answer handling and the limits (no AI model needed; run each with `python <file>`) |
 | `eval_questions*.json` | Test questions and expected answers: the daycare set, the "fresh" set (kept apart on purpose, see Testing), the injection set and the old samples set |
 | `n8n/` | An n8n workflow that asks questions through the API, a start script and a setup guide |
 | `demo_docs/` | The made-up documents the project was developed and tested with: six markdown documents for a fictional dog daycare, "Barks n Woofs", and a 3-page PDF visitor guide (page numbers show in the answers' sources). Everything in them is invented, including the name, phone number and address. |
+| `site/` | The recorded demo page (`index.html`, one self-contained file) and the recording it shows (`recording.json`): real answers from the system, clearly labelled as a recording, not a live demo |
+| `tools/capture_demo.py`, `tools/build_demo_page.py` | Record the answers from a running copy of the app, and build the page from them (standard library only) |
 | `tools/make_demo_pdf.py` | Makes that PDF again (needs `pip install fpdf2`, which is only for this script) |
 | `samples/` | Two small made-up documents for trying the system out |
 | `docs/` | Your documents (not in Git) |
