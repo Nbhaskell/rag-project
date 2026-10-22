@@ -559,6 +559,31 @@ def test_the_log_keeps_the_details_of_failures_and_can_leave_questions_out(env):
     check("question" not in second, f"RAG_LOG_QUESTIONS=0 should keep the question out: {second}")
 
 
+def test_listen_address_comes_from_the_environment():
+    saved = {name: os.environ.pop(name, None) for name in ("RAG_HOST", "PORT")}
+    try:
+        check(chat.listen_address() == ("127.0.0.1", 8000), "by default: this computer only, port 8000")
+        os.environ.update(RAG_HOST="0.0.0.0", PORT="9001")
+        check(chat.listen_address() == ("0.0.0.0", 9001), "a container sets both")
+        os.environ["PORT"] = "not a number"
+        os.environ["RAG_HOST"] = "   "
+        check(chat.listen_address() == ("127.0.0.1", 8000), "nonsense falls back to the safe defaults")
+    finally:
+        for name, value in saved.items():
+            os.environ.pop(name, None)
+            if value is not None:
+                os.environ[name] = value
+
+
+def test_a_server_others_can_reach_warns_while_reindexing_is_open():
+    local = {"localhost", "127.0.0.1", "[::1]"}
+    warning = chat.exposure_warning(local | {"demo.example.com"}, has_token=False, reindex_on=True)
+    check(warning and "demo.example.com" in warning and "RAG_ALLOW_REINDEX=0" in warning, f"unexpected: {warning}")
+    check(chat.exposure_warning(local, False, True) is None, "a local-only server needs no warning")
+    check(chat.exposure_warning(local | {"demo.example.com"}, True, True) is None, "a token is protection enough")
+    check(chat.exposure_warning(local | {"demo.example.com"}, False, False) is None, "so is switching reindex off")
+
+
 def test_the_page_reads_a_last_line_without_a_newline():
     # an error such as a refused Host ends without a newline; the page must still show it
     check('buffer = done ? "" : lines.pop()' in chat.PAGE and "if (done) break;" in chat.PAGE,

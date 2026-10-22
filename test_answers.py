@@ -161,6 +161,11 @@ def test_errors_become_plain_messages_without_internals():
     check(rag.classify_error(own) is own, "an error that is already plain passes through")
 
 
+def test_chromadb_telemetry_is_off():
+    # the program is meant to keep everything on the user's own computer
+    check(rag.client.get_settings().anonymized_telemetry is False, "ChromaDB's usage telemetry must be switched off")
+
+
 def test_empty_index_is_reported_before_the_model_is_asked():
     fake = FakeLlm([[piece("this should never be asked for", done_reason="stop")]])
     try:
