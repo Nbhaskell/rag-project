@@ -16,8 +16,8 @@ from pydantic import BaseModel, Field, StringConstraints, ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import guard
-from rag import (MODEL_TIMEOUT, SPLIT_QUESTIONS, THINK, answer, answer_stream, classify_error, get_collection,
-                 gives_no_answer, index_status, ingest, passages, sources_to_show, sync_docs, watch)
+from rag import (CHAT_MODEL, EMBED_MODEL, MODEL_TIMEOUT, SPLIT_QUESTIONS, THINK, answer, answer_stream, classify_error,
+                 get_collection, gives_no_answer, index_status, ingest, passages, sources_to_show, sync_docs, watch)
 
 PAGE = """<!doctype html>
 <html>
@@ -450,6 +450,8 @@ def api_status():
     return {
         **index_status(),
         "watching": watching,
+        "chat_model": CHAT_MODEL,
+        "embed_model": EMBED_MODEL,
         "thinking": THINK,
         "split_search": SPLIT_QUESTIONS,
         "auth_required": bool(os.environ.get("RAG_API_TOKEN")),

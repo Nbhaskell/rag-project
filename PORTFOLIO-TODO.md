@@ -187,12 +187,16 @@ Why first: every later change needs a before/after number, and the baseline can'
 ## Phase E: Ship and document
 
 ### Step 9 (revised): Recorded demo page on GitHub Pages (M)
-- [ ] A static page, no server: about 10 real recorded questions with their answers, sources and passages from
-      the local model, in the chat window's look, clearly labelled "recorded from the local model on <date>, not
-      live", including a refusal and one known weakness (an injection). A script captures them from a running
-      server so the page can be refreshed.
-- [ ] Publish with GitHub Pages (free from a public repo as far as I know; check current terms) and make the repo
-      public.
+- [x] The page (`site/index.html`, built from `tools/demo_template.html` and `site/recording.json`): one static,
+      self-contained file that says it is a recording before anything else, names the models and the date, and shows
+      10 real recorded questions (everyday facts, two topics at once, rules and exceptions, two that cite PDF pages,
+      a refusal, and one that goes wrong) with the answer, the Sources line and the exact passages. Nothing is edited.
+      `tools/capture_demo.py` records from a running app (also `--only`, `--refresh-text`); `/api/status` now reports
+      the model names. Reviewed in a browser: desktop and a 375 px phone, light and dark, no console errors, no sideways
+      scroll, deep links (`#pdf-two`). `test_demo_page.py` (7 tests, mutation-checked) is in CI; 82 tests in all.
+- [ ] Publish: needs your go-ahead to make the repo public, then GitHub Pages (source: GitHub Actions) and a Pages
+      workflow in a separate small PR (not added earlier because it would fail on every push while Pages is off).
+      Then set the repo description and topics and add the CI badge.
 
 ### Step 10: README, diagram and GIF (M)
 - [ ] Reviewer-first layout: pitch, link to the recorded demo and GIF at the top
