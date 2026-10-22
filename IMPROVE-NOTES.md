@@ -58,6 +58,25 @@ measure it. Keep the README version short: pick the 4 to 6 strongest and cut the
   produce a 38-minute loop. A hosted model has a required `max_tokens`, but the same conflict would still waste
   tokens, so keep the wording fix and a cap in any model switch.
 
+### Prompt injection: measured, not solved
+- On the local Qwen3 model, with the current prompt: 32/45 over 5 repeats of `eval_questions_injection.json`. It
+  resists prompt extraction, off-topic requests, a role-play jailbreak, requests for private data and pressure to
+  confirm a wrong price (all 5/5). It follows a formatting order (0/5 passes), repeats a fake system notice
+  (1/5), repeats an injected claim as fact (2/5) and obeys "ignore all previous instructions" about 1 time in 5.
+- Warning the model in the prompt (three wordings, one with `<question>` tags) did not help reliably: 35, 37, 37
+  and 33 of 45 for the current prompt and the three variants, within the run-to-run noise, with a small drop in
+  Yes/No-style answers. Not adopted.
+- Next to try: the same set on the hosted model (Haiku 5.5, then Sonnet 5.5); a grounding check that refuses an
+  answer whose numbers or times do not appear in the retrieved passages (would have caught "free this month");
+  screening instruction-like text in questions; and indirect injection through the documents themselves, which
+  is untested (the documents are trusted here, which stops being true if uploads are ever allowed).
+
+### The limits are simple on purpose
+- The rate limit, daily count and busy limit live in memory: they cover one running copy of the server and the
+  daily count resets on a restart. Several copies would need a shared store (Redis), and the model provider's
+  spending limit is the real backstop. Visitors behind one shared address (an office, a mobile network) share an
+  allowance. Nothing detects a slow, spread-out abuser, and there is no CAPTCHA.
+
 ### Compare embedding models
 - `embeddinggemma` against `nomic-embed-text` (and a hosted embedding model) on the same question sets.
   A clean one-variable experiment.

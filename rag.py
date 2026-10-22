@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 import chromadb
+import httpx
 import ollama
 from docx import Document
 from docx.table import Table
@@ -70,6 +71,33 @@ index_lock = threading.RLock()  # only one indexing job runs at a time
 index_state = {"last_sync": None, "last_change": None, "last_summary": None}
 skipped = {}            # file key -> fingerprint of a version that was unreadable or empty (reported once)
 fingerprint_cache = {}  # file key -> ((modified time, size), fingerprint)
+
+
+class ServiceError(Exception):
+    """Something to tell the person asking in plain words: an HTTP status, a short code for programs,
+    and a message that is safe to show (no file paths, no internals)."""
+
+    def __init__(self, status, code, message):
+        super().__init__(message)
+        self.status, self.code, self.message = status, code, message
+
+
+def classify_error(error):
+    """Turns whatever went wrong while answering into a ServiceError."""
+    if isinstance(error, ServiceError):
+        return error
+    if isinstance(error, ollama.ResponseError) and error.status_code == 404:
+        return ServiceError(503, "model_missing", f"A model this program needs is not installed ({error.error}). "
+                                                   "Install it with: ollama pull <model name>")
+    if isinstance(error, (TimeoutError, httpx.TimeoutException)):
+        return ServiceError(504, "model_timeout", "The model took too long to answer. Please try again, "
+                                                   "or ask a shorter or simpler question.")
+    if isinstance(error, (ConnectionError, httpx.TransportError)) or (
+            isinstance(error, ollama.ResponseError) and error.status_code >= 500):
+        return ServiceError(503, "model_unavailable", "The language model is not reachable right now. If you are "
+                                                       "running this yourself, check that Ollama is running. "
+                                                       "Otherwise please try again in a moment.")
+    return ServiceError(500, "internal", "Something went wrong while answering. Please try again.")
 
 
 def read_docx(path):
@@ -473,6 +501,9 @@ def answer_stream(question, history=()):
     pass them with the finished answer to sources_to_show() to get the files to list.
     history is a list of {"role": "user"|"assistant", "content": ...} from earlier turns.
     """
+    if get_collection().count() == 0:
+        raise ServiceError(503, "index_empty", "No documents have been indexed yet. Add files to the docs folder "
+                                               "and try again in a few seconds.")
     history = list(history)[-HISTORY_MESSAGES:]
     found = retrieve(question, history)  # in the order the passages were found
     chunks = sorted(found, key=lambda c: c["distance"])  # best match first
