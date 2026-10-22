@@ -9,3 +9,4 @@ eval_runs/*
 !eval_runs/published/
 logs/
 .env
+CLAUDE.local.md
