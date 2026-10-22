@@ -1,5 +1,11 @@
 # Local RAG: chat with documents
 
+[![tests](https://github.com/Nbhaskell/rag-project/actions/workflows/tests.yml/badge.svg)](https://github.com/Nbhaskell/rag-project/actions/workflows/tests.yml)
+
+**[See a recorded demo](https://nbhaskell.github.io/rag-project/)**: real answers from this system, with their sources
+and the exact passages. It is a recording, not a live system (a live one would need a paid hosted model); to ask your
+own questions, run it yourself, see "Run it with Docker" below.
+
 A small question-answering system for your own documents. You put files in a folder, build an
 index, and ask questions in a chat window in your browser. The AI models run entirely on your own
 computer, so your documents never leave it.
