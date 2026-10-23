@@ -301,7 +301,6 @@ data refresh.
 | `Dockerfile`, `compose.yaml`, `.env.example` | The container |
 | `samples/` | Two small made-up documents for the older sample question set |
 | `docs/`, `chroma_db/`, `venv/` | Your documents, the search index and the Python environment (not in Git) |
-| `CLAUDE.md` | Notes for the Claude Code assistant used to build this project |
 
 ## Limits
 
