@@ -264,6 +264,14 @@ The longer list, with how I would measure each, is in [IMPROVE-NOTES.md](IMPROVE
 6. **Judging answers.** A model-as-judge, adopted only if it agrees with my hand grading at least as often as the word
    matcher does (39 of 40).
 
+## A related project
+
+Citewise for Markets applies the same ideas to a narrower domain: a local-first research copilot for public companies.
+Like this project, it runs on one computer with a local model, builds its retrieval by hand, cites its sources and
+declines to guess. It adds things this project doesn't have: code-computed figures (prices, P/E, margins) that the model
+may only quote, a check of every number against the source it cites, buy/sell refusals enforced in code, and a nightly
+data refresh.
+
 ## More documentation
 
 | Guide | What is in it |
