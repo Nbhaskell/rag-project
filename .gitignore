@@ -10,3 +10,4 @@ eval_runs/*
 logs/
 .env
 CLAUDE.local.md
+CLAUDE.md
