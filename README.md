@@ -278,7 +278,7 @@ data refresh.
 |---|---|
 | [User guide](guides/user-guide.md) | Requirements, setup, adding documents, automatic indexing, writing documents that work well, settings |
 | [Run it with Docker](guides/docker.md) | The container, the settings, how it is locked down |
-| [The API](guides/api.md) | `/api/ask`, `/api/status`, `/api/reindex`, error codes, tokens |
+| [The API](guides/api.md) | `/api/ask`, `/api/search`, `/api/status`, `/api/reindex`, error codes, tokens |
 | [Running it for other people](guides/public-server.md) | The limits, error codes, the event log |
 | [Testing and evaluation](guides/evaluation.md) | `run_eval.py`, the question sets, comparing runs |
 | [Connecting n8n](n8n/README.md) | Two ready-made workflows: ask the documents, and an upload form |

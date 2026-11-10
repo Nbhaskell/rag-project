@@ -496,6 +496,29 @@ def retrieve(question, history=()):
     return list(found.values())
 
 
+def require_index():
+    if get_collection().count() == 0:
+        raise ServiceError(503, "index_empty", "No documents have been indexed yet. Add files to the docs folder "
+                                               "and try again in a few seconds.")
+
+
+def search(question, k):
+    """The k passages closest to the question, best match first, as {"source", "section", "page", "text",
+    "distance"} (text without its "Title > Section" label line, as passages() gives it).
+
+    For programs that write their own answer: only the question is embedded, with no chat-model call,
+    so a question is not split into parts and there is no history to search with.
+    """
+    require_index()
+    results = get_collection().query(query_embeddings=embed([question]), n_results=k)
+    chunks = sorted(({"source": meta["source"], "section": meta.get("section", ""), "page": meta.get("page"),
+                      "text": doc, "distance": dist}
+                     for doc, meta, dist in zip(results["documents"][0], results["metadatas"][0],
+                                                results["distances"][0])),
+                    key=lambda c: c["distance"])
+    return [{key: value for key, value in p.items() if key not in ("best", "listed")} for p in passages(chunks, [])]
+
+
 def answer_stream(question, history=()):
     """Returns (chunks, generator of answer text pieces).
 
@@ -503,9 +526,7 @@ def answer_stream(question, history=()):
     pass them with the finished answer to sources_to_show() to get the files to list.
     history is a list of {"role": "user"|"assistant", "content": ...} from earlier turns.
     """
-    if get_collection().count() == 0:
-        raise ServiceError(503, "index_empty", "No documents have been indexed yet. Add files to the docs folder "
-                                               "and try again in a few seconds.")
+    require_index()
     history = list(history)[-HISTORY_MESSAGES:]
     found = retrieve(question, history)  # in the order the passages were found
     chunks = sorted(found, key=lambda c: c["distance"])  # best match first
