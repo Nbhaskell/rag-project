@@ -3,13 +3,14 @@
 Back to the [README](../README.md). The server also publishes this as an interactive page at `/docs` while it runs.
 
 While `python chat.py` is running, other programs on the same computer, such as an
-[n8n](https://n8n.io) workflow or a script, can use it through three web addresses. They exchange
+[n8n](https://n8n.io) workflow or a script, can use it through four web addresses. They exchange
 JSON, a plain-text format for structured data.
 
 | Address | What it does |
 |---|---|
 | `GET /api/status` | Shows what is indexed: files, chunks, last update, and whether the folder watcher and thinking mode are on |
 | `POST /api/ask` | Send `{"question": "..."}` (and optionally `"history"`, a list of `{"role": "user" or "assistant", "content": "..."}`) and get back `{"answer": "...", "sources": ["file.md"], "passages": [...], "seconds": 3.2}` |
+| `POST /api/search` | Send `{"question": "...", "k": 4}` and get back only the `k` closest passages, `{"passages": [...]}`, with no answer |
 | `POST /api/reindex` | Update the index now. Send `{"full": true}` to rebuild everything instead |
 
 While the chat is running, http://127.0.0.1:8000/docs shows these addresses as an interactive page:
@@ -20,6 +21,14 @@ internet, so it needs a connection; the API itself does not.)
 `section` (the heading path, empty if there is none), `page` (a number for PDFs, otherwise `null`),
 `text` (the passage), `distance` (smaller is closer), `best` (true for the closest) and `listed` (true
 if its file is in `sources`). `sources` is unchanged, so existing callers keep working.
+
+`/api/search` is for programs that write their own answer (or need none). It only embeds the question
+and looks it up in the index: there is no chat-model call, so it takes well under a second, does not
+wait for a free answer place and does not count toward `RAG_DAILY_LIMIT` (the per-visitor
+`RAG_RATE_PER_MIN` limit still applies). `k` is optional (default 4); a value above 10 is cut down to
+10, and a value below 1 is refused. Each passage has `source`, `section`, `page`, `text` (without its
+heading line) and `distance`, closest first. The question is not split into parts and there is no
+`history`, so the results can differ from the passages `/api/ask` shows for the same question.
 
 Try it in PowerShell (use `127.0.0.1` rather than `localhost`; on Windows `localhost` can pause for a
 couple of seconds while it tries the IPv6 address first):

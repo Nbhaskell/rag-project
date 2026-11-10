@@ -1,4 +1,4 @@
-"""Tests for the JSON API in chat.py (/api/status, /api/ask, /api/reindex).
+"""Tests for the JSON API in chat.py (/api/status, /api/ask, /api/search, /api/reindex).
 
 Run from the project folder with the venv active:   python test_api.py
 
@@ -167,6 +167,126 @@ def test_too_large_body_is_refused(env):
     check(status == 413, f"expected 413, got {status}")
 
 
+class NoChat:
+    """Makes any chat-model call fail the test (searching may only embed the question)."""
+
+    def __enter__(self):
+        self.saved = rag.llm
+        rag.llm = Failing(AssertionError("/api/search must not call the chat model"))
+
+    def __exit__(self, *exc):
+        rag.llm = self.saved
+
+
+@make
+def test_search_returns_the_closest_passages_without_the_chat_model(env):
+    env.write("a.md", DOC)
+    env.sync()
+    with NoChat():
+        # with the fake embedding, a question that is exactly a chunk's text is at distance 0 from it
+        status, body = env.call("POST", "/api/search", {"question": "Pet Rules > Hours\nOpen 8am to 6pm.", "k": 2})
+    check(status == 200, f"expected 200, got {status}: {body}")
+    found = body["passages"]
+    check(list(body) == ["passages"] and len(found) == 2, f"unexpected: {body}")
+    check(found[0] == {"source": "a.md", "section": "Hours", "page": None, "text": "Open 8am to 6pm.", "distance": 0.0},
+          f"the exact chunk should come first, without its heading line: {found[0]}")
+    check(found[1]["section"] == "Fees" and found[1]["text"] == "A bath costs $50.", f"unexpected: {found[1]}")
+    check(found[0]["distance"] <= found[1]["distance"], f"closest first: {found}")
+
+
+@make
+def test_search_k_has_a_default_and_a_cap(env):
+    env.write("many.md", "# Many\n\n" + "".join(f"## Part {i}\nLine number {i}.\n\n" for i in range(15)))
+    env.sync()
+    with NoChat():
+        check(len(env.call("POST", "/api/search", {"question": "hi"})[1]["passages"]) == chat.SEARCH_K,
+              "no k should give the default number of passages")
+        check(len(env.call("POST", "/api/search", {"question": "hi", "k": 1})[1]["passages"]) == 1, "k=1 gives one")
+        status, body = env.call("POST", "/api/search", {"question": "hi", "k": 500})
+    check(status == 200 and len(body["passages"]) == chat.MAX_SEARCH_K,
+          f"a large k should be capped at {chat.MAX_SEARCH_K}: {status} {len(body.get('passages', []))}")
+
+
+@make
+def test_search_with_fewer_chunks_than_k(env):
+    env.write("a.md", DOC)
+    env.sync()
+    with NoChat():
+        status, body = env.call("POST", "/api/search", {"question": "hi", "k": 10})
+    check(status == 200 and len(body["passages"]) == 2, f"only the two chunks there are: {status} {body}")
+
+
+@make
+def test_search_rejects_bad_input(env):
+    env.write("a.md", DOC)
+    env.sync()
+    for bad, label in [({}, "no question"), ({"question": "   "}, "blank question"),
+                       ({"question": 5}, "question is a number"), ({"question": "x" * 2001}, "too long"),
+                       ({"question": "hi", "k": 0}, "k is 0"), ({"question": "hi", "k": -3}, "k is negative"),
+                       ({"question": "hi", "k": "many"}, "k is not a number"),
+                       ({"question": "hi", "k": 2.5}, "k is not a whole number")]:
+        status, body = env.call("POST", "/api/search", bad)
+        check(status == 400 and body.get("code") == "bad_request" and "error" in body,
+              f"{label}: expected 400 with an error, got {status} {body}")
+    status, _ = env.call("POST", "/api/search", "question=hi", content_type="application/x-www-form-urlencoded")
+    check(status == 415, f"a form post should be refused with 415, got {status}")
+
+
+@make
+def test_search_on_an_empty_index_is_a_plain_error(env):
+    status, body = env.call("POST", "/api/search", {"question": "hi"})
+    check(status == 503 and body["code"] == "index_empty", f"expected a plain 503, got {status} {body}")
+
+
+@make
+def test_search_says_so_when_the_embedding_model_is_down(env):
+    env.write("a.md", DOC)
+    env.sync()
+    saved = rag.embed
+
+    def broken(texts):
+        raise ConnectionError("Failed to connect to Ollama")
+    rag.embed = broken
+    try:
+        status, body = env.call("POST", "/api/search", {"question": "hi"})
+    finally:
+        rag.embed = saved
+    check(status == 503 and body["code"] == "model_unavailable" and "Failed to connect" not in body["error"],
+          f"expected a plain 503, got {status} {body}")
+
+
+@make
+def test_search_does_not_take_an_answer_place_or_count_toward_the_daily_limit(env):
+    env.write("a.md", DOC)
+    env.sync()
+    chat.guards = guard.Guards(rate_per_min=0, daily_limit=1, max_concurrent=1)
+    lease = chat.guards.gate.acquire()  # every answer place is taken
+    try:
+        for _ in range(3):
+            status, body = env.call("POST", "/api/search", {"question": "hi"})
+            check(status == 200, f"searching needs no answer place and no daily question: {status} {body}")
+    finally:
+        chat.guards.gate.release(lease)
+    check(env.call("POST", "/api/ask", {"question": "hi"})[0] == 200, "the day's one question should still be there")
+
+
+@make
+def test_search_is_rate_limited_and_logged_without_passage_text(env):
+    env.write("a.md", DOC)
+    env.sync()
+    handler = guard.setup_logging(Path(env.tmp.name) / "logs")
+    try:
+        chat.guards = guard.Guards(rate_per_min=1, daily_limit=0, max_concurrent=0)
+        check(env.call("POST", "/api/search", {"question": "hi"})[0] == 200, "the first search is allowed")
+        check(env.call("POST", "/api/search", {"question": "hi"})[0] == 429, "the second in a minute is too fast")
+    finally:
+        guard.close_logging(handler)
+    events = [e for e in read_events(Path(env.tmp.name) / "logs") if e["event"] == "search"]
+    check(len(events) == 1 and events[0]["k"] == chat.SEARCH_K and events[0]["passages"][0]["source"] == "a.md",
+          f"one search event expected: {events}")
+    check("8am" not in json.dumps(events), "the log should not repeat passage text")
+
+
 @make
 def test_reindex_updates_what_changed(env):
     env.write("a.md", DOC)
@@ -193,6 +313,7 @@ def test_token_protects_the_api(env):
     check(env.call("GET", "/api/status", headers={"Authorization": "Bearer nope"})[0] == 401, "wrong token should be 401")
     check(env.call("POST", "/api/ask", {"question": "hi"})[0] == 401, "ask without a token should be 401")
     check(env.call("POST", "/api/reindex", {})[0] == 401, "reindex without a token should be 401")
+    check(env.call("POST", "/api/search", {"question": "hi"})[0] == 401, "search without a token should be 401")
     status, body = env.call("GET", "/api/status", headers={"Authorization": f"Bearer {TOKEN}"})
     check(status == 200 and body["auth_required"] is True, f"Bearer token should work: {status} {body}")
     check(env.call("GET", "/api/status", headers={"X-API-Key": TOKEN})[0] == 200, "X-API-Key should work too")

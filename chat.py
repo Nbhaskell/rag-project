@@ -17,7 +17,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import guard
 from rag import (CHAT_MODEL, EMBED_MODEL, MODEL_TIMEOUT, SPLIT_QUESTIONS, THINK, answer, answer_stream, classify_error,
-                 get_collection, gives_no_answer, index_status, ingest, passages, sources_to_show, sync_docs, watch)
+                 get_collection, gives_no_answer, index_status, ingest, passages, search, sources_to_show, sync_docs,
+                 watch)
 
 PAGE = """<!doctype html>
 <html>
@@ -177,6 +178,8 @@ form.addEventListener("submit", async (e) => {
 
 MAX_BODY = 100_000    # bytes; a bigger request is refused
 MAX_QUESTION = 2000   # characters
+SEARCH_K = 4          # passages /api/search returns when the request gives no "k"
+MAX_SEARCH_K = 10     # the most it returns; a larger "k" is cut down to this
 # Names this server answers to. Anything else (for example a web page trying a "DNS rebinding"
 # trick to reach this server through another name) is refused. Add more with RAG_ALLOWED_HOSTS.
 ALLOWED_HOSTS = {"localhost", "127.0.0.1", "[::1]"} | {
@@ -225,6 +228,25 @@ class AskResponse(BaseModel):
     sources: list[str] = Field(description="The files listed under the answer.")
     passages: list[Passage] = Field(description="Every passage the model was given, best match first.")
     seconds: float
+
+
+class SearchRequest(BaseModel):
+    question: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=MAX_QUESTION)] = Field(
+        description=f"The question, at most {MAX_QUESTION} characters.")
+    k: int = Field(default=SEARCH_K, ge=1, strict=True,
+                   description=f"How many passages to return (at most {MAX_SEARCH_K}; a larger number is cut down).")
+
+
+class SearchPassage(BaseModel):
+    source: str = Field(description="The file the passage came from.")
+    section: str = Field(description="The heading path inside the file, empty if it has none.")
+    page: int | None = Field(description="The page number for a PDF, otherwise null.")
+    text: str = Field(description="The passage, without its heading line.")
+    distance: float = Field(description="How far the passage is from the question: smaller is closer.")
+
+
+class SearchResponse(BaseModel):
+    passages: list[SearchPassage] = Field(description="The closest passages, best match first.")
 
 
 def inline_schema(model):
@@ -408,6 +430,8 @@ def explain(error: ValidationError):
         return 'Send {"question": "your question"}.'
     if field == "history":
         return '"history" must be a list of {"role", "content"} items.'
+    if field == "k":
+        return f'"k" must be a whole number from 1 up (at most {MAX_SEARCH_K} passages are returned).'
     return "The request body is not valid."
 
 
@@ -476,6 +500,33 @@ async def api_ask(request: Request):
     seconds = time.time() - started
     log_answer(request, "api", question, history, result["sources"], result["passages"], result["answer"], seconds)
     return {**result, "seconds": round(seconds, 1)}
+
+
+@api.post("/search", summary="Find passages (no answer)", response_model=SearchResponse,
+          openapi_extra=json_body(SearchRequest), dependencies=[Depends(limit_rate)])
+async def api_search(request: Request):
+    """The passages closest to a question, best match first, with no answer. Only the question is embedded:
+    no chat-model call, so it is quick and does not wait for a place to answer or count toward the
+    daily limit. For programs that write their own answer."""
+    try:
+        wanted = SearchRequest.model_validate(await read_json(request, required=True))
+    except ValidationError as error:
+        raise refuse(400, "bad_request", explain(error))
+    k = min(wanted.k, MAX_SEARCH_K)
+    started = time.time()
+    try:
+        found = await run_in_threadpool(search, wanted.question, k)
+    except Exception as e:  # tell the caller in plain words, and keep the details for the log
+        problem = failure(request, e, "search", wanted.question)
+        return JSONResponse({"error": problem.message, "code": problem.code, "request_id": request_id(request)},
+                            status_code=problem.status)
+    guard.log_event(
+        "search", request_id=request_id(request), visitor=guard.visitor_hash(visitor_of(request)),
+        question=guard.question_text(wanted.question), k=k,
+        passages=[{"source": p["source"], "section": p["section"], "page": p["page"], "distance": p["distance"]}
+                  for p in found],
+        seconds=round(time.time() - started, 2))
+    return {"passages": found}
 
 
 @api.post("/reindex", summary="Update the index", openapi_extra=json_body(ReindexRequest))
