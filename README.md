@@ -283,6 +283,8 @@ data refresh.
 | [Testing and evaluation](guides/evaluation.md) | `run_eval.py`, the question sets, comparing runs |
 | [Connecting n8n](n8n/README.md) | Two ready-made workflows: ask the documents, and an upload form |
 | [IMPROVE-NOTES.md](IMPROVE-NOTES.md) | What I'd improve, in full |
+| [SECURITY.md](SECURITY.md) | How to report a vulnerability, and what is in scope |
+| [DECISIONS.md](DECISIONS.md) | Settings chosen for the public repository |
 
 ## Project layout
 
