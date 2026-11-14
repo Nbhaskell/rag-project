@@ -1,0 +1,11 @@
+#!/bin/sh
+# Blocks personal information in the staged files, and prints doc wording warnings.
+# Enable once per clone: git config core.hooksPath .githooks
+# The checker uses only the standard library, so any Python works.
+for py in venv/Scripts/python.exe venv/bin/python python3 python; do
+  if command -v "$py" >/dev/null 2>&1; then
+    exec "$py" tools/check_personal_info.py --staged
+  fi
+done
+echo "pre-commit: no Python found, so the personal-information check did not run." >&2
+exit 1

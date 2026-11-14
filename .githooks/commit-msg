@@ -1,0 +1,10 @@
+#!/bin/sh
+# Blocks assistant attribution lines and notes about the author in a commit message, and prints
+# doc wording warnings. Enabled with the pre-commit hook: git config core.hooksPath .githooks
+for py in venv/Scripts/python.exe venv/bin/python python3 python; do
+  if command -v "$py" >/dev/null 2>&1; then
+    exec "$py" tools/check_personal_info.py --message "$1"
+  fi
+done
+echo "commit-msg: no Python found, so the message check did not run." >&2
+exit 1

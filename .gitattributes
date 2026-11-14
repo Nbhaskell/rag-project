@@ -1,0 +1,2 @@
+# Git hooks are shell scripts: they need LF line endings on every system.
+.githooks/* text eol=lf

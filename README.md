@@ -227,8 +227,9 @@ folder (kept out of Git on purpose) and start without the two `RAG_` variables; 
 picked up within about 10 seconds.
 
 Tested on Windows 11 with Docker Desktop; Linux and macOS are untested. The fast tests (no model needed) run with
-`python test_guard.py`, `test_answers.py`, `test_indexing.py`, `test_api.py` and `test_demo_page.py`, and in CI on
-every push.
+`python test_guard.py`, `test_answers.py`, `test_indexing.py`, `test_api.py`, `test_demo_page.py` and
+`test_check_personal_info.py`, and in CI on every push. `python tools/check_personal_info.py --all` checks every tracked
+file for personal information; `git config core.hooksPath .githooks` runs the same check before each commit.
 
 ## Why there is no live demo
 

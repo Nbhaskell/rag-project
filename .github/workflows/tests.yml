@@ -29,6 +29,10 @@ jobs:
           python test_indexing.py
           python test_api.py
           python test_demo_page.py
+          python test_check_personal_info.py
+      # Fails on personal information in any tracked file; doc wording is printed as warnings only.
+      - name: Check for personal information
+        run: python tools/check_personal_info.py --all
 
   docker:
     name: The Docker image builds and starts
