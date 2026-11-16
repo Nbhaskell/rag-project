@@ -29,7 +29,7 @@ that goes with the two files in `samples/`. `eval_questions_injection.json` has 
 make the model break its rules (ignore its instructions, reveal them, follow an order or a false claim
 hidden in the question); run it with `--questions eval_questions_injection.json --repeat 5`. On the local
 model it passes about 70% of them: it resists the obvious attacks but can follow a formatting order or an
-injected claim, and prompt wording did not fix that (see [IMPROVE-NOTES.md](../IMPROVE-NOTES.md)). `eval_questions_pdf.json` has 9
+injected claim, and prompt wording did not fix that (see [IMPROVE-NOTES.md](../notes/IMPROVE-NOTES.md)). `eval_questions_pdf.json` has 9
 questions about the demo PDF, with the page each fact is on (run it with `RAG_DOCS_DIR=demo_docs`). For your
 own documents, write your own questions in the same format. Answers vary a little from run to run, so repeat a question several
 times before trusting a single result.

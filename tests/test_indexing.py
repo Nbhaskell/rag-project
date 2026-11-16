@@ -1,6 +1,6 @@
 """Tests for the automatic indexing (sync_docs, watch, ingest) in rag.py.
 
-Run from the project folder with the venv active:   python test_indexing.py
+Run from the project folder with the venv active:   python tests/test_indexing.py
 
 Each test uses a throwaway folder and database in your temp directory, and a fake, instant
 stand-in for the embedding model, so it takes seconds, does not need Ollama, and never touches
@@ -15,6 +15,8 @@ import traceback
 from pathlib import Path
 
 import chromadb
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the project folder, for rag, chat and guard
 
 import rag
 

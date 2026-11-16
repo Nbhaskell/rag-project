@@ -1,6 +1,6 @@
 """Tests for the JSON API in chat.py (/api/status, /api/ask, /api/search, /api/reindex).
 
-Run from the project folder with the venv active:   python test_api.py
+Run from the project folder with the venv active:   python tests/test_api.py
 
 Like test_indexing.py, this needs no Ollama: it starts the real server code on a spare port, with a
 fake embedding function, a stand-in for the AI's answer and temporary folders.
@@ -18,6 +18,8 @@ from pathlib import Path
 
 import ollama
 import uvicorn
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the project folder, for rag, chat and guard
 
 import chat
 import guard

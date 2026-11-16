@@ -1,6 +1,6 @@
 """Tests for guard.py: the rate limit, the concurrency limit, the daily cap, the visitor address and the log.
 
-Run from the project folder with the venv active:   python test_guard.py
+Run from the project folder with the venv active:   python tests/test_guard.py
 
 No Ollama, no index, no server: the limits take a fake clock, and the log writes to a temporary folder.
 """
@@ -10,6 +10,8 @@ import sys
 import tempfile
 import traceback
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the project folder, for rag, chat and guard
 
 import guard
 

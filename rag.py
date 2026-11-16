@@ -593,7 +593,7 @@ def gives_no_answer(answer):
     documents do cover. It is a partial answer, not a refusal, when a sentence that is not itself a
     "don't know" states a figure (a number, time or price): "I don't know the weight limit. The rabies
     vaccination is valid for 3 years." or "I don't know. The context says we are open on Sundays 8am to 6pm."
-    (The figure test is a rough rule, checked against saved answers; see PORTFOLIO-TODO.md.)
+    (The figure test is a rough rule, checked against saved answers; see notes/PORTFOLIO-TODO.md.)
     """
     sentences = [s for s in re.split(r"(?<=[.!?])\s+|\n+", answer.strip()) if s.strip()]
     if not sentences:

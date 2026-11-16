@@ -8,6 +8,8 @@ templates/
 chroma_db*/
 logs/
 eval_runs/
+tests/
+notes/
 eval_results.json
 .env
 .env.*

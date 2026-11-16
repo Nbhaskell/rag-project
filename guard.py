@@ -2,7 +2,7 @@
 
 Limits on how much one visitor (or everyone) can ask, how many answers run at once, and a log in JSON
 lines of what happened. Nothing here needs Ollama or the document index, so it is tested on its own
-(test_guard.py) with a fake clock.
+(tests/test_guard.py) with a fake clock.
 
 Everything is set with environment variables (see Guards.from_env and setup_logging). The defaults are
 generous enough that using the chat on your own computer never notices them.
