@@ -227,8 +227,8 @@ folder (kept out of Git on purpose) and start without the two `RAG_` variables; 
 picked up within about 10 seconds.
 
 Tested on Windows 11 with Docker Desktop; Linux and macOS are untested. The fast tests (no model needed) run with
-`python test_guard.py`, `test_answers.py`, `test_indexing.py`, `test_api.py`, `test_demo_page.py` and
-`test_check_personal_info.py`, and in CI on every push. `python tools/check_personal_info.py --all` checks every tracked
+`python tests/test_guard.py`, `test_answers.py`, `test_indexing.py`, `test_api.py`, `test_demo_page.py` and
+`test_check_personal_info.py` (all in `tests/`), and in CI on every push. `python tools/check_personal_info.py --all` checks every tracked
 file for personal information; `git config core.hooksPath .githooks` runs the same check before each commit.
 
 ## Why there is no live demo
@@ -247,7 +247,7 @@ re-checking with the eval sets.
 
 ## What I'd improve
 
-The longer list, with how I would measure each, is in [IMPROVE-NOTES.md](IMPROVE-NOTES.md). The main ones:
+The longer list, with how I would measure each, is in [IMPROVE-NOTES.md](notes/IMPROVE-NOTES.md). The main ones:
 
 1. **A stronger held-out set.** Questions written by someone who has not seen the tuning, reported separately, and a
    second corpus of messier real-world documents (PDFs with tables, long handbooks). Seven short documents prove little
@@ -283,7 +283,7 @@ data refresh.
 | [Running it for other people](guides/public-server.md) | The limits, error codes, the event log |
 | [Testing and evaluation](guides/evaluation.md) | `run_eval.py`, the question sets, comparing runs |
 | [Connecting n8n](n8n/README.md) | Two ready-made workflows: ask the documents, and an upload form |
-| [IMPROVE-NOTES.md](IMPROVE-NOTES.md) | What I'd improve, in full |
+| [IMPROVE-NOTES.md](notes/IMPROVE-NOTES.md) | What I'd improve, in full |
 | [SECURITY.md](SECURITY.md) | How to report a vulnerability, and what is in scope |
 | [DECISIONS.md](DECISIONS.md) | Settings chosen for the public repository |
 
@@ -297,10 +297,11 @@ data refresh.
 | `run_eval.py`, `grade_answers.py` | The question runner and the hand-grading helper |
 | `eval_questions*.json` | The question sets: original, held-out ("fresh"), injection, PDF, and the old samples set |
 | `eval_runs/published/` | Saved runs and comparison tables quoted above |
-| `test_*.py` | Fast tests for indexing, the API, answer handling, the limits and the demo page (no model needed) |
+| `tests/` | Fast tests for indexing, the API, answer handling, the limits and the demo page (no model needed) |
 | `demo_docs/` | The made-up documents: six markdown files for a fictional dog daycare and a 3-page PDF. Everything in them is invented, including the name, phone number and address |
 | `site/`, `tools/` | The recorded demo page and the scripts that record it and make the PDF |
 | `guides/`, `n8n/` | The guides above and the n8n workflows |
+| `notes/` | Working notes: the portfolio checklist and the full list of improvements |
 | `Dockerfile`, `compose.yaml`, `.env.example` | The container |
 | `samples/` | Two small made-up documents for the older sample question set |
 | `docs/`, `chroma_db/`, `venv/` | Your documents, the search index and the Python environment (not in Git) |

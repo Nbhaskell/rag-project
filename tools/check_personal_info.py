@@ -74,7 +74,7 @@ _RESERVED_TLDS = (".test", ".example", ".invalid", ".localhost")
 _PLACEHOLDER_EMAILS = {"email@address.com"}
 _NOREPLY_DOMAIN = "users.noreply.github.com"
 _ASSISTANT_FILES = {"claude.md", "claude.local.md"}
-_EXCLUDED_SUFFIXES = ("tools/check_personal_info.py", "test_check_personal_info.py")
+_EXCLUDED_SUFFIXES = ("tools/check_personal_info.py", "tests/test_check_personal_info.py")
 
 # The documents of the made-up businesses, written in their own voice ("We do allow a grace
 # period", "the owner will be notified"). The wording rules do not apply there; every other

@@ -24,12 +24,12 @@ jobs:
       # These use a fake embedding function, a stand-in for the model and temporary folders.
       - name: Run the tests
         run: |
-          python test_guard.py
-          python test_answers.py
-          python test_indexing.py
-          python test_api.py
-          python test_demo_page.py
-          python test_check_personal_info.py
+          python tests/test_guard.py
+          python tests/test_answers.py
+          python tests/test_indexing.py
+          python tests/test_api.py
+          python tests/test_demo_page.py
+          python tests/test_check_personal_info.py
       # Fails on personal information in any tracked file; doc wording is printed as warnings only.
       - name: Check for personal information
         run: python tools/check_personal_info.py --all

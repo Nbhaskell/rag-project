@@ -1,6 +1,6 @@
 """Tests for the recorded demo page (tools/capture_demo.py, tools/build_demo_page.py, site/).
 
-Run from the project folder with the venv active:   python test_demo_page.py
+Run from the project folder with the venv active:   python tests/test_demo_page.py
 
 No Ollama and no server: the page is built from the recording that is committed in site/recording.json.
 These tests pin down what the page promises: it says it is a recording, it loads nothing from other sites,
@@ -13,7 +13,7 @@ import sys
 import traceback
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 import build_demo_page  # noqa: E402

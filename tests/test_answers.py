@@ -1,11 +1,14 @@
 """Tests for how an answer is judged and shown: gives_no_answer (is it a refusal?) and passages.
 
-Run from the project folder with the venv active:   python test_answers.py
+Run from the project folder with the venv active:   python tests/test_answers.py
 
 The example answers are real ones the model gave during the evals. No Ollama, no files.
 """
 import sys
 import traceback
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the project folder, for rag, chat and guard
 
 import rag
 

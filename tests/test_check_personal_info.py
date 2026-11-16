@@ -1,6 +1,6 @@
 """Tests for tools/check_personal_info.py: what it blocks, what it only warns about, and what it never prints.
 
-Run from the project folder with the venv active:   python test_check_personal_info.py
+Run from the project folder with the venv active:   python tests/test_check_personal_info.py
 
 No Ollama, no index, no git: the file contents and the commit email are passed in.
 """
@@ -11,7 +11,7 @@ import tempfile
 import traceback
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 import check_personal_info as checker  # noqa: E402
@@ -113,7 +113,7 @@ def test_findings_carry_line_numbers_and_never_the_matched_text():
 
 
 def test_the_checker_and_its_tests_are_skipped():
-    for path in ("tools/check_personal_info.py", "test_check_personal_info.py"):
+    for path in ("tools/check_personal_info.py", "tests/test_check_personal_info.py"):
         check(checker.is_excluded(path), path)
     check(not checker.is_excluded("README.md"), "README.md is scanned")
 
